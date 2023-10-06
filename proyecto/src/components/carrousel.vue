@@ -35,7 +35,7 @@
   <style scoped>
   .slider {
     aspect-ratio: 10/16;
-    width: 95%; /* Cambiado a 100% para que sea responsive */
+    width: 95%;
     display: flex;
     overflow: hidden;
     border-radius: 20px; 
@@ -44,8 +44,8 @@
   }
   
   .slider img {
-    width: 100%; /* Cambiado a 100% para que sea responsive */
-    height: auto; /* Ajusta la altura automáticamente para mantener la proporción */
+    width: 100%; 
+    height: auto;
     object-fit: cover;
     scroll-snap-align: center;
     position: sticky;

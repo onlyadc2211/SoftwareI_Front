@@ -2,7 +2,6 @@
   <div id="container">
     <div id="d1">
       <carousel></carousel>
-    
     </div>
     <div id="d2">
       <form @submit.prevent="submitForm">
@@ -29,6 +28,9 @@
           <label for="apellido">Apellido:</label>
           <input type="text" v-model="apellido" required>
 
+          <label for="usuarioRegistro">Usuario:</label>
+          <input type="text" v-model="usuarioRegistro" required>
+
           <label for="telefono">Teléfono:</label>
           <input type="tel" v-model="telefono" required>
 
@@ -39,7 +41,7 @@
           <input type="password" v-model="contrasena" required>
 
           <label for="confirmarContrasena">Confirmar Contraseña:</label>
-  <input type="password" v-model="confirmarContrasena" required>
+          <input type="password" v-model="confirmarContrasena" required>
         </template>
 
         <div class="button-container">
@@ -50,16 +52,14 @@
     </div>
   </div>
 </template>
-  
+
 <script setup>
 import { ref } from 'vue';
 import Carousel from '@/components/carrousel.vue';
-import image1 from '../images/image1.jpg';
-import image2 from '../images/image2.jpg';
-const images = [image1, image2];
 const registrationFormVisible = ref(false);
 const nombre = ref('');
 const apellido = ref('');
+const usuarioRegistro = ref('');
 const telefono = ref('');
 const correo = ref('');
 const contrasena = ref('');
@@ -73,9 +73,8 @@ const toggleForm = () => {
 
 const submitForm = () => {
   if (registrationFormVisible.value) {
-   
     if (contrasena.value === confirmarContrasena.value) {
-      console.log('Enviando datos de registro:', nombre.value, apellido.value, telefono.value, correo.value, contrasena.value);
+      console.log('Enviando datos de registro:', nombre.value, apellido.value, usuarioRegistro.value, telefono.value, correo.value, contrasena.value);
     } else {
       console.error('La contraseña y la confirmación no coinciden.');
     }
@@ -83,15 +82,12 @@ const submitForm = () => {
     console.log('Enviando datos de inicio de sesión:', usuario.value, password.value);
   }
 };
-
-
 </script>
-  
+
 <style scoped>
 #container {
   display: flex;
   height: 100vh;
-  
 }
 
 #d1 {
@@ -102,10 +98,7 @@ const submitForm = () => {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  
 }
-
-
 
 #d2 {
   flex: 1;
@@ -116,7 +109,6 @@ const submitForm = () => {
   align-items: center;
   justify-content: center;
   height: 100%;
- 
 }
 
 form {
@@ -173,4 +165,3 @@ button {
   font-size: 15px;
 }
 </style>
-  
