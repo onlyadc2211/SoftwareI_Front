@@ -1,10 +1,12 @@
 <template>
-    <div>Gestion de Cultivos</div>
-    <div></div>
+    
+    <h1>gestion de cultivos</h1>
 </template>
 
 <style scoped>
-
+    h1{
+        background-color: aquamarine;
+    }
 </style>
 
 

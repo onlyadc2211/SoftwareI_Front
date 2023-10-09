@@ -55,7 +55,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 import Carousel from '@/components/carrousel.vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const registrationFormVisible = ref(false);
 const nombre = ref('');
 const apellido = ref('');
@@ -71,15 +74,43 @@ const toggleForm = () => {
   registrationFormVisible.value = !registrationFormVisible.value;
 };
 
-const submitForm = () => {
-  if (registrationFormVisible.value) {
-    if (contrasena.value === confirmarContrasena.value) {
-      console.log('Enviando datos de registro:', nombre.value, apellido.value, usuarioRegistro.value, telefono.value, correo.value, contrasena.value);
+const submitForm = async () => {
+  try {
+    if (registrationFormVisible.value) {
+      if (contrasena.value === confirmarContrasena.value) {
+        const response = await axios.post('http://localhost:3000/api/registro', {
+          nombre: nombre.value,
+          apellido: apellido.value,
+          usuario: usuarioRegistro.value,
+          telefono: telefono.value,
+          correo: correo.value,
+          contrasena: contrasena.value,
+        });
+
+        console.log('Respuesta del servidor:', response.data);
+        if (response.data.message === 'usuario registrado') {
+          console.log("usuario registrado")
+        } else {
+    o
+        }
+      } else {
+        console.error('La contraseña y la confirmación no coinciden.');
+      }
     } else {
-      console.error('La contraseña y la confirmación no coinciden.');
+      const response = await axios.post('http://localhost:3000/api/login', {
+        usuario: usuario.value,
+        contrasena: password.value,
+      });
+
+      console.log('Respuesta del servidor:', response.data);
+      if (response.data.message === 'Usuario encontrado') {
+        router.push('/cropManagement');
+      } else {
+      
+      }
     }
-  } else {
-    console.log('Enviando datos de inicio de sesión:', usuario.value, password.value);
+  } catch (error) {
+    console.error('Error en la solicitud al servidor:', error.message);
   }
 };
 </script>
