@@ -93,7 +93,7 @@ const submitForm = () => {
 #d1 {
   flex: 1;
   background-color: rgb(6, 69, 69);
-  background-image: url('../images/pasto.jpg');
+  background-image: url('../images/fondo2.jpg');
   display: flex;
   align-items: center;
   justify-content: center;

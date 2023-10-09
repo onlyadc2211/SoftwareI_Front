@@ -1,9 +1,7 @@
 <template>
     <div class="slider" ref="slider">
-      <img src="../images/image2.jpg" alt="">
-      <img src="../images/image4.png" alt="">
-      <img src="../images/image1.jpg" alt="">
-      <img src="../images/image3.jpg" alt="">
+      <img src="../images/logo_final.jpg" alt="">
+      <img src="../images/cafe_publi.jpg" alt="">
       <div class="end-placeholder"></div>
     </div>
   </template>
@@ -34,24 +32,24 @@
   
   <style scoped>
   .slider {
-    aspect-ratio: 10/16;
-    width: 95%;
+    
+    width: 100%;
     display: flex;
     overflow: hidden;
-    border-radius: 20px; 
+   
     position: relative;
-    height: 95%;
+    height: 100%;
   }
   
   .slider img {
-    width: 100%; 
-    height: auto;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     scroll-snap-align: center;
     position: sticky;
-    border-radius: 20px;
     left: 0;
   }
+  
   
   .slider::after, .end-placeholder {
     content: '';

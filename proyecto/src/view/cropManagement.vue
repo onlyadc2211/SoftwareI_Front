@@ -1,5 +1,5 @@
 <template>
-    <div></div>
+    <div>Gestion de Cultivos</div>
     <div></div>
 </template>
 
