@@ -43,7 +43,7 @@
           <label for="confirmarContrasena">Confirmar Contraseña:</label>
           <input type="password" v-model="confirmarContrasena" required>
         </template>
-
+        <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
         <div class="button-container">
           <button type="submit">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
           <button @click="toggleForm">{{ registrationFormVisible ? 'Cancelar' : 'Registrar Administrador' }}</button>
@@ -58,6 +58,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import Carousel from '@/components/carrousel.vue';
 import { useRouter } from 'vue-router';
+const registroExitoso = ref(false);
 const router = useRouter();
 const registrationFormVisible = ref(false);
 const nombre = ref('');
@@ -72,6 +73,7 @@ const confirmarContrasena = ref('');
 
 const toggleForm = () => {
   registrationFormVisible.value = !registrationFormVisible.value;
+  registroExitoso.value = false;
 };
 
 const submitForm = async () => {
@@ -88,10 +90,18 @@ const submitForm = async () => {
         });
 
         console.log('Respuesta del servidor:', response.data);
-        if (response.data.message === 'usuario registrado') {
+        if (response.data.message === 'Usuario registrado') {
           console.log("usuario registrado")
+          registroExitoso.value = true;
+          nombre.value = '';
+          apellido.value = '';
+          usuarioRegistro.value = '';
+          telefono.value = '';
+          correo.value = '';
+          contrasena.value = '';
+          confirmarContrasena.value = '';
         } else {
-    o
+          registroExitoso.value = false;
         }
       } else {
         console.error('La contraseña y la confirmación no coinciden.');
@@ -106,7 +116,7 @@ const submitForm = async () => {
       if (response.data.message === 'Usuario encontrado') {
         router.push('/cropManagement');
       } else {
-      
+
       }
     }
   } catch (error) {
@@ -194,5 +204,14 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-size: 15px;
+}
+
+.success-message {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 10px;
 }
 </style>

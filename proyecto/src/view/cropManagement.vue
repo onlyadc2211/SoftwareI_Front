@@ -1,6 +1,6 @@
 <template>
     
-    <h1>gestion de cultivos</h1>
+    <h1>Proximamente: GESTION DE CULTIVOS</h1>
 </template>
 
 <style scoped>
