@@ -93,7 +93,7 @@ const submitForm = async () => {
         });
 
         console.log('Respuesta del servidor:', response.data);
-        if (response.data.message === 'Usuario registrado') {
+        if (response.status === 200) {
           console.log("usuario registrado")
           registroExitoso.value = true;
           cedula.value = '';
@@ -103,6 +103,7 @@ const submitForm = async () => {
           contrasena.value = '';
           confirmarContrasena.value = '';
         } else {
+          console.log("No se pudo crear usuario")
           registroExitoso.value = false;
         }
       } else {
@@ -113,12 +114,11 @@ const submitForm = async () => {
         nombre_usuario: usuario.value,
         password_usuario: password.value,
       });
-
       console.log('Respuesta del servidor:', response.data);
-      if (response.data.message === 'Usuario encontrado') {
+      if (response.status === 200) {
         router.push('/cropManagement');
       } else {
-
+        console.log("Error en el login")
       }
     }
   } catch (error) {
