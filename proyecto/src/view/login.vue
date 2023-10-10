@@ -88,7 +88,7 @@ const submitForm = async () => {
           ID_PERSONA: parseInt(cedula.value),
           ID_ROL: parseInt(rol.value),
           NOMBRE_USUARIO: usuarioRegistro.value,
-          CORREO_PERSONA: correo.value,
+          CORREO_USUARIO: correo.value,
           PASSWORD_USUARIO: contrasena.value,
         });
 
