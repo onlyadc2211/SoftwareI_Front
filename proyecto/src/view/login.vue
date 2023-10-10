@@ -22,17 +22,20 @@
         <template v-else>
           <!-- Formulario de registro -->
           <h2 class="form-title">Registro</h2>
-          <label for="nombre">Nombre:</label>
-          <input type="text" v-model="nombre" required>
 
-          <label for="apellido">Apellido:</label>
-          <input type="text" v-model="apellido" required>
+          <label for="cedula">Cédula:</label>
+          <input type="text" v-model="cedula" required>
+
+          <label for="rol">Rol:</label>
+          <select v-model="rol" required>
+            <option value="1">Administrador</option>
+            <option value="2">Super usuario</option>
+            <option value="3">Usuario</option>
+            <option value="4">Trabajador</option>
+          </select>
 
           <label for="usuarioRegistro">Usuario:</label>
           <input type="text" v-model="usuarioRegistro" required>
-
-          <label for="telefono">Teléfono:</label>
-          <input type="tel" v-model="telefono" required>
 
           <label for="correo">Correo:</label>
           <input type="email" v-model="correo" required>
@@ -46,7 +49,7 @@
         <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
         <div class="button-container">
           <button type="submit">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
-          <button @click="toggleForm">{{ registrationFormVisible ? 'Cancelar' : 'Registrar Administrador' }}</button>
+          <button @click="toggleForm">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
         </div>
       </form>
     </div>
@@ -58,13 +61,14 @@ import { ref } from 'vue';
 import axios from 'axios';
 import Carousel from '@/components/carrousel.vue';
 import { useRouter } from 'vue-router';
+
 const registroExitoso = ref(false);
 const router = useRouter();
 const registrationFormVisible = ref(false);
-const nombre = ref('');
-const apellido = ref('');
+
+const cedula = ref('');
+const rol = ref('');
 const usuarioRegistro = ref('');
-const telefono = ref('');
 const correo = ref('');
 const contrasena = ref('');
 const usuario = ref('');
@@ -80,23 +84,21 @@ const submitForm = async () => {
   try {
     if (registrationFormVisible.value) {
       if (contrasena.value === confirmarContrasena.value) {
-        const response = await axios.post('http://localhost:3000/api/registro', {
-          nombre: nombre.value,
-          apellido: apellido.value,
-          usuario: usuarioRegistro.value,
-          telefono: telefono.value,
-          correo: correo.value,
-          contrasena: contrasena.value,
+        const response = await axios.post('http://localhost:3000/api/connection', {
+          ID_PERSONA: parseInt(cedula.value),
+          ID_ROL: parseInt(rol.value),
+          NOMBRE_USUARIO: usuarioRegistro.value,
+          CORREO_PERSONA: correo.value,
+          PASSWORD_USUARIO: contrasena.value,
         });
 
         console.log('Respuesta del servidor:', response.data);
         if (response.data.message === 'Usuario registrado') {
           console.log("usuario registrado")
           registroExitoso.value = true;
-          nombre.value = '';
-          apellido.value = '';
+          cedula.value = '';
+          rol.value = '';
           usuarioRegistro.value = '';
-          telefono.value = '';
           correo.value = '';
           contrasena.value = '';
           confirmarContrasena.value = '';
@@ -108,8 +110,8 @@ const submitForm = async () => {
       }
     } else {
       const response = await axios.post('http://localhost:3000/api/login', {
-        usuario: usuario.value,
-        contrasena: password.value,
+        nombre_usuario: usuario.value,
+        password_usuario: password.value,
       });
 
       console.log('Respuesta del servidor:', response.data);
