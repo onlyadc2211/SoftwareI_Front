@@ -18,7 +18,7 @@ export default {
     nextSlide() {
   const slider = this.$refs.slider;
 
-  // Verifica si el elemento slider existe antes de acceder a clientWidth
+
   if (slider && slider.clientWidth) {
     const scrollAmount = slider.clientWidth;
 

@@ -10,12 +10,12 @@
           <h2 class="form-title">Inicio de Sesión</h2>
           <div class="form-group">
             <label for="usuario">Usuario:</label>
-            <input type="text" v-model="usuario" required>
+            <input type="text" v-model="usuario" id="usuario" required>
           </div>
 
           <div class="form-group">
             <label for="password">Contraseña:</label>
-            <input type="password" v-model="password" required>
+            <input type="password" v-model="password" id="password" required>
           </div>
         </template>
 
@@ -24,10 +24,10 @@
           <h2 class="form-title">Registro</h2>
 
           <label for="cedula">Cédula:</label>
-          <input type="text" v-model="cedula" required>
+          <input type="text" v-model="cedula" id="cedula" required>
 
           <label for="rol">Rol:</label>
-          <select v-model="rol" required>
+          <select v-model="rol" id="rol" required>
             <option value="1">Administrador</option>
             <option value="2">Super usuario</option>
             <option value="3">Usuario</option>
@@ -35,21 +35,21 @@
           </select>
 
           <label for="usuarioRegistro">Usuario:</label>
-          <input type="text" v-model="usuarioRegistro" required>
+          <input type="text" v-model="usuarioRegistro" id="usuarioRegistro" required>
 
           <label for="correo">Correo:</label>
-          <input type="email" v-model="correo" required>
+          <input type="email" v-model="correo" id="correo" required>
 
           <label for="contrasena">Contraseña:</label>
-          <input type="password" v-model="contrasena" required>
+          <input type="password" v-model="contrasena" id="contrasena" required>
 
           <label for="confirmarContrasena">Confirmar Contraseña:</label>
-          <input type="password" v-model="confirmarContrasena" required>
+          <input type="password" v-model="confirmarContrasena" id="confirmarContrasena" required>
         </template>
         <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
         <div class="button-container">
-          <button type="submit">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
-          <button @click="toggleForm">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
+          <button type="submit" id="submitBtn">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
+          <button @click="toggleForm" id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
         </div>
       </form>
     </div>
