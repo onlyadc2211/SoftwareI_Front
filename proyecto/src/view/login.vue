@@ -15,7 +15,17 @@
 
           <div class="form-group">
             <label for="password">Contraseña:</label>
-            <input type="password" v-model="password" id="password" required>
+            <div class="password-input">
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                id="password"
+                required
+              />
+              <button @click="togglePasswordVisibility" id="btnMostrar">
+                {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
           </div>
         </template>
 
@@ -49,7 +59,7 @@
         <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
         <div class="button-container">
           <button type="submit" id="submitBtn">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
-          <button @click="toggleForm" id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
+          <button @click="toggleForm"  id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
         </div>
       </form>
     </div>
@@ -125,33 +135,75 @@ const submitForm = async () => {
     console.error('Error en la solicitud al servidor:', error.message);
   }
 };
+
+const showPassword = ref(false);
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
+
 </script>
 
 <style scoped>
+#btnMostrar{
+  color: #000000;
+}
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  width: calc(100% - 32px);
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  margin: 0;
+}
+
+.password-input button {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(0, -50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 #container {
   display: flex;
-  height: 100vh;
+  font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+  width: 80%;
+  max-width: 1400px;
+  height: 90vh;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  margin-top: 2%;
+  background-color: beige;
+  border-radius: 2%;
 }
 
 #d1 {
   flex: 1;
-  background-color: rgb(6, 69, 69);
-  background-image: url('../images/fondo2.jpg');
+  background-color: beige;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  height: 90%;
 }
 
 #d2 {
   flex: 1;
-  background-image: url('../images/cafe.jpeg');
+  background-color:beige;
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 90%;
+  border-radius: 20px;
+
 }
 
 form {
@@ -159,9 +211,7 @@ form {
   max-width: 400px;
   height: 85%;
   padding: 30px;
-  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -173,8 +223,16 @@ form {
   margin-bottom: 2px;
 }
 
-.form-group {
+.form-group input{
   margin-bottom: 16px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  font-size: 20px;
+  border: none;
+  border-bottom: 1px solid #000000;
+  background-color: transparent;
+  margin: 0;
 }
 
 label {
@@ -189,6 +247,10 @@ select {
   padding: 10px;
   box-sizing: border-box;
   font-size: 20px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  margin: 0;
 }
 
 .button-container {
@@ -200,7 +262,7 @@ select {
 button {
   width: 40%;
   padding: 12px;
-  background-color: #4caf50;
+  background-color: rgba(24,22,88,255);
   color: white;
   border: none;
   border-radius: 4px;

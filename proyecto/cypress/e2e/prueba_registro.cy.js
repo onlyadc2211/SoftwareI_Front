@@ -4,9 +4,9 @@ describe('Registro', () => {
 
     cy.contains('Registro').click();
     cy.get('form', { timeout: 10000 }).should('be.visible');
-    cy.get('#cedula').type('4');
+    cy.get('#cedula').type('2');
     cy.get('#rol').select('Administrador');
-    cy.get('#usuarioRegistro').type('usuario');
+    cy.get('#usuarioRegistro').type('usuario2');
     cy.get('#correo').type('nuevo@correo.com');
     cy.get('#contrasena').type('123');
     cy.get('#confirmarContrasena').type('123');
