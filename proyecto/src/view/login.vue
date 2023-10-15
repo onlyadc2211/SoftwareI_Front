@@ -138,7 +138,7 @@ const submitForm = async () => {
       });
       console.log('Respuesta del servidor:', response.data);
       if (response.status === 200) {
-        router.push('/cropManagement');
+        router.push('/main');
         console.log("Logueado correctamente")
       } 
     }
@@ -205,7 +205,7 @@ const togglePasswordVisibility = () => {
   align-items: center;
   justify-content: center;
   margin: auto;
-  margin-top: 2%;
+  margin-top: 3%;
   background-color: beige;
   border-radius: 2%;
 }
