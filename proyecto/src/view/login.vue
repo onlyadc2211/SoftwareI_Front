@@ -178,7 +178,7 @@ const togglePasswordVisibility = () => {
   align-items: center;
   justify-content: center;
   margin: auto;
-  margin-top: 2%;
+  margin-top: 3%;
   background-color: beige;
   border-radius: 2%;
 }

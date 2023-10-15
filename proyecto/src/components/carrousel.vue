@@ -75,7 +75,7 @@ export default {
 }
 
 .right {
-  right: 10px;
+  right:-2px;
 }
 
 .slider-container .nav-button + .nav-button {
@@ -103,6 +103,7 @@ export default {
 }
 
 .slider::after,
+
 .end-placeholder {
   content: '';
   flex: 0 0 8px;
