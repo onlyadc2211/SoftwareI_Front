@@ -22,9 +22,9 @@
                 id="password"
                 required
               />
-              <button @click="togglePasswordVisibility" id="btnMostrar">
+              <button @click.prevent="togglePasswordVisibility" id="btnMostrar">
                 {{ showPassword ? 'Ocultar' : 'Mostrar' }}
-              </button>
+              </button><div v-if="loginError" id="loginError">{{ loginError }}</div>
             </div>
           </div>
         </template>
@@ -57,6 +57,8 @@
           <input type="password" v-model="confirmarContrasena" id="confirmarContrasena" required>
         </template>
         <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
+        <div v-if="registroError" class="bad-message">Error en el registro</div>
+        <div v-if="diferentPassword" class="differentPass">Las contraseñas no coinciden</div>
         <div class="button-container">
           <button type="submit" id="submitBtn">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
           <button @click="toggleForm"  id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
@@ -73,8 +75,11 @@ import Carousel from '@/components/carrousel.vue';
 import { useRouter } from 'vue-router';
 
 const registroExitoso = ref(false);
+const registroError = ref(false)
+const diferentPassword = ref(false)
 const router = useRouter();
 const registrationFormVisible = ref(false);
+const loginError = ref('');
 
 const cedula = ref('');
 const rol = ref('');
@@ -88,10 +93,16 @@ const confirmarContrasena = ref('');
 const toggleForm = () => {
   registrationFormVisible.value = !registrationFormVisible.value;
   registroExitoso.value = false;
+  registroError.value = false;
+  diferentPassword.value = false;
 };
 
 const submitForm = async () => {
   try {
+    loginError.value = '';
+    registroError.value = false;
+    registroExitoso.value = false;
+    diferentPassword.value = false;
     if (registrationFormVisible.value) {
       if (contrasena.value === confirmarContrasena.value) {
         const response = await axios.post('http://localhost:3000/api/connection', {
@@ -118,6 +129,7 @@ const submitForm = async () => {
         }
       } else {
         console.error('La contraseña y la confirmación no coinciden.');
+        diferentPassword.value = true;
       }
     } else {
       const response = await axios.post('http://localhost:3000/api/login', {
@@ -127,12 +139,22 @@ const submitForm = async () => {
       console.log('Respuesta del servidor:', response.data);
       if (response.status === 200) {
         router.push('/cropManagement');
-      } else {
-        console.log("Error en el login")
-      }
+        console.log("Logueado correctamente")
+      } 
     }
   } catch (error) {
     console.error('Error en la solicitud al servidor:', error.message);
+    if (error.response && error.response.status === 404) {
+      console.log("Usuario no encontrado")
+      loginError.value = 'Usuario no encontrado';
+    }
+    if (error.response && error.response.status === 400) {
+      console.log("Error en la solicitud")
+      registroError.value = true;
+    }else{
+      registroError.value = false;
+    }
+    
   }
 };
 
@@ -145,8 +167,13 @@ const togglePasswordVisibility = () => {
 </script>
 
 <style scoped>
+
 #btnMostrar{
   color: #000000;
+}
+#loginError{
+  color: red;
+  font-size: 20px;
 }
 .password-input {
   position: relative;
@@ -178,7 +205,7 @@ const togglePasswordVisibility = () => {
   align-items: center;
   justify-content: center;
   margin: auto;
-  margin-top: 3%;
+  margin-top: 2%;
   background-color: beige;
   border-radius: 2%;
 }
@@ -272,6 +299,22 @@ button {
 
 .success-message {
   background-color: #4caf50;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 10px;
+}
+.bad-message {
+  background-color: red;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 10px;
+}
+.differentPass{
+  background-color: red;
   color: white;
   padding: 10px;
   border-radius: 4px;

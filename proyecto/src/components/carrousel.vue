@@ -70,7 +70,7 @@ export default {
 }
 
 .left {
-  left: 10px;
+  left: 20px;
   z-index: 1; 
 }
 
