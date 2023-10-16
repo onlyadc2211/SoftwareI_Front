@@ -17,7 +17,7 @@
         <h1 id="t">Lotes</h1>
         <div id="contenido">
           <div class="lotes">
-            <div v-for="index in 10" :key="index" class="lote-item">
+            <div v-for="index in 5" :key="index" class="lote-item">
               <div class="lote-content">
                 <h1>Lote {{ index }}</h1>
                 <p>N° plantas </p>
@@ -48,14 +48,14 @@
     margin: 3%;
     height: 50%;
     width: 30%;
-    background-color: #401E01;
+    background-color:rgba(24, 22, 88, 255);
     font-size: 200%;
     color: white;
     cursor: pointer;
 
   }
   .buttons {
-    background-color: #bf0f1e;
+    background-color: beige;
     margin: 1%;
     margin-top: 0;
     width: 98%;
@@ -76,9 +76,9 @@
     width: 90%;
     height: 90vh;
     margin: auto;
-    margin-top: 3%;
+    margin-top: 2%;
     background-color: beige;
-    border-radius: 2%;
+    border-radius: 3%;
     position: relative;
     flex-direction: column;
   }
@@ -87,14 +87,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color:  #bf0f1e;
-    border-top-left-radius: 2%;
-    border-top-right-radius: 2%;
+    background-color: beige;
+    border-top-left-radius: 100%;
+    border-top-right-radius: 100%;
   }
   
   #t {
     margin: 0;
     font-size: 4vw; 
+    margin-left: 1%;
   }
   
   #title {
@@ -103,20 +104,20 @@
     align-items: flex-start;
     justify-content: flex-start;
     width: 100%;
-    background-color: #d9ac59;
+    background-color: beige;
     height: 100%;
     border-bottom-left-radius: 2%;
     border-bottom-right-radius: 2%;
+    
   }
   
   #contenido {
     margin: 1%;
     margin-bottom: 0;
-    background-color: #bf0f1e;
+    background-color: #a9000e;
     height: 50vh; 
     width: 98%;
-    border-top-left-radius: 3%;
-    border-top-right-radius: 3%;
+    border-radius: 3%;
     border-bottom: 0%;
     overflow-y: auto;
   }
@@ -139,6 +140,7 @@
     height: 10vh; 
     font-size: 100%;
     cursor: pointer;
+    
   }
   .lote-item:hover {
     transform: scale(1.1);
@@ -147,8 +149,10 @@
   .lote-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
+    align-items: center;
     height: 100%;
+    
   }
   
   #regresar {
@@ -174,6 +178,7 @@
     height: 4vh; 
     display: flex;
     margin-right: 2vw;
+    border-radius: 3%;
   }
   
   .notification-button {
@@ -207,6 +212,7 @@
   
     #notifications {
       margin-right: 5vw;
+      border-radius: 3%;
     }
   
     .buttons {

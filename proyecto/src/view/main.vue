@@ -66,6 +66,11 @@ const goBack = () => {
     color: white;
     height: 70px;
     width: 70%;
+    border-radius: 5%;
+}
+
+.main-button:hover {
+    transform: scale(1.1);
 }
 
 #logoImg {

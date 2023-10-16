@@ -5,7 +5,7 @@
     </div>
     <div id="d2">
       <form @submit.prevent="submitForm">
-        <template v-if="!registrationFormVisible">
+        <template v-if="!registrationFormVisible && !personRegistrationVisible">
           <!-- Formulario de inicio de sesión -->
           <h2 class="form-title">Inicio de Sesión</h2>
           <div class="form-group">
@@ -24,13 +24,14 @@
               />
               <button @click.prevent="togglePasswordVisibility" id="btnMostrar">
                 {{ showPassword ? 'Ocultar' : 'Mostrar' }}
-              </button><div v-if="loginError" id="loginError">{{ loginError }}</div>
+              </button>
+              <div v-if="loginError" id="loginError">{{ loginError }}</div>
             </div>
           </div>
         </template>
 
-        <template v-else>
-          <!-- Formulario de registro -->
+        <template v-else-if="registrationFormVisible">
+          <!-- Formulario de registro de usuarios -->
           <h2 class="form-title">Registro</h2>
 
           <label for="cedula">Cédula:</label>
@@ -56,17 +57,41 @@
           <label for="confirmarContrasena">Confirmar Contraseña:</label>
           <input type="password" v-model="confirmarContrasena" id="confirmarContrasena" required>
         </template>
+
+        <template v-else-if="personRegistrationVisible && !showLoginForm">
+          <!-- Formulario de registro de personas -->
+          <h2 class="form-title">Registro de Personas</h2>
+
+          <label for="cedulaPersona">Cédula:</label>
+          <input type="text" v-model="cedulaPersona" id="cedulaPersona" required>
+
+          <label for="nombre">Nombre:</label>
+          <input type="text" v-model="nombre" id="nombre" required>
+
+          <label for="apellido">Apellido:</label>
+          <input type="text" v-model="apellido" id="apellido" required>
+
+          <label for="telefono">Teléfono:</label>
+          <input type="text" v-model="telefono" id="telefono" required>
+          
+        </template>
+
         <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
         <div v-if="registroError" class="bad-message">Error en el registro</div>
         <div v-if="diferentPassword" class="differentPass">Las contraseñas no coinciden</div>
         <div class="button-container">
-          <button type="submit" id="submitBtn">{{ registrationFormVisible ? 'Registrarse' : 'Entrar' }}</button>
-          <button @click="toggleForm"  id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : 'Registro' }}</button>
+          <button type="submit" id="submitBtn">{{ registrationFormVisible ? 'Registrarse' : (personRegistrationVisible ? 'Registrar' : 'Entrar') }}</button>
+          <button v-if="!registrationFormVisible && !personRegistrationVisible" @click="togglePersonRegistration" id="personRegistrationBtn">Registrar Persona</button>
+          <button @click="toggleForm"  id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : (personRegistrationVisible ? 'Registrar Usuario' : 'Registrar Usuario') }}</button>
+          <button v-if="personRegistrationVisible" @click="goToLogin" id="goToLoginBtn">Ir al Inicio de Sesión</button>
+          
         </div>
       </form>
     </div>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref } from 'vue';
@@ -75,11 +100,13 @@ import Carousel from '@/components/carrousel.vue';
 import { useRouter } from 'vue-router';
 
 const registroExitoso = ref(false);
-const registroError = ref(false)
-const diferentPassword = ref(false)
+const registroError = ref(false);
+const diferentPassword = ref(false);
 const router = useRouter();
 const registrationFormVisible = ref(false);
+const personRegistrationVisible = ref(false);
 const loginError = ref('');
+const showLoginForm = ref(false); 
 
 const cedula = ref('');
 const rol = ref('');
@@ -89,13 +116,33 @@ const contrasena = ref('');
 const usuario = ref('');
 const password = ref('');
 const confirmarContrasena = ref('');
+const cedulaPersona = ref('');
+const nombre = ref('');
+const apellido = ref('');
+const telefono = ref('');
 
 const toggleForm = () => {
   registrationFormVisible.value = !registrationFormVisible.value;
+  personRegistrationVisible.value = false;
   registroExitoso.value = false;
   registroError.value = false;
   diferentPassword.value = false;
+  showLoginForm.value = false;
 };
+
+const togglePersonRegistration = () => {
+  personRegistrationVisible.value = !personRegistrationVisible.value;
+  registrationFormVisible.value = false;
+  registroExitoso.value = false;
+  registroError.value = false;
+  diferentPassword.value = false;
+  showLoginForm.value = false;
+};
+const goToLogin = () => {
+  showLoginForm.value = true;
+  personRegistrationVisible.value = false;
+}
+
 
 const submitForm = async () => {
   try {
@@ -103,7 +150,9 @@ const submitForm = async () => {
     registroError.value = false;
     registroExitoso.value = false;
     diferentPassword.value = false;
+
     if (registrationFormVisible.value) {
+      // Lógica para el formulario de registro de usuarios
       if (contrasena.value === confirmarContrasena.value) {
         const response = await axios.post('http://localhost:3000/api/connection', {
           ID_PERSONA: parseInt(cedula.value),
@@ -113,10 +162,12 @@ const submitForm = async () => {
           PASSWORD_USUARIO: contrasena.value,
         });
 
-        console.log('Respuesta del servidor:', response.data);
+        console.log('Respuesta del servidor (Registro de Usuarios):', response.data);
+
         if (response.status === 200) {
-          console.log("usuario registrado")
+          console.log("Usuario registrado correctamente");
           registroExitoso.value = true;
+          // Limpiar campos después del registro exitoso
           cedula.value = '';
           rol.value = '';
           usuarioRegistro.value = '';
@@ -124,37 +175,64 @@ const submitForm = async () => {
           contrasena.value = '';
           confirmarContrasena.value = '';
         } else {
-          console.log("No se pudo crear usuario")
+          console.log("No se pudo crear usuario");
           registroExitoso.value = false;
         }
       } else {
         console.error('La contraseña y la confirmación no coinciden.');
         diferentPassword.value = true;
       }
+    } else if (personRegistrationVisible.value) {
+      // Lógica para el formulario de registro de personas
+      const response = await axios.post('http://localhost:3000/api/person', {
+        ID_PERSONA: parseInt(cedulaPersona.value),
+        NOMBRE_PERSONA: nombre.value,
+        APELLIDO_PERSONA: apellido.value,
+        TELEFONO_PERSONA: telefono.value,
+      });
+
+      console.log('Respuesta del servidor (Registro de Personas):', response.data);
+
+      if (response.status === 200) {
+        console.log("Persona registrada correctamente");
+        registroExitoso.value = true;
+        // Limpiar campos después del registro exitoso
+        cedulaPersona.value = '';
+        nombre.value = '';
+        apellido.value = '';
+        telefono.value = '';
+      } else {
+        console.log("No se pudo registrar persona");
+        registroExitoso.value = false;
+      }
     } else {
+      // Lógica para el formulario de inicio de sesión (login)
       const response = await axios.post('http://localhost:3000/api/login', {
         nombre_usuario: usuario.value,
         password_usuario: password.value,
       });
-      console.log('Respuesta del servidor:', response.data);
+
+      console.log('Respuesta del servidor (Login):', response.data);
+
       if (response.status === 200) {
         router.push('/main');
-        console.log("Logueado correctamente")
+        console.log("Logueado correctamente");
       } 
     }
   } catch (error) {
     console.error('Error en la solicitud al servidor:', error.message);
+    
     if (error.response && error.response.status === 404) {
-      console.log("Usuario no encontrado")
+      console.log("Usuario no encontrado");
       loginError.value = 'Usuario no encontrado';
     }
+    
     if (error.response && error.response.status === 400) {
-      console.log("Error en la solicitud")
+      console.log("Error en la solicitud");
       registroError.value = true;
-    }else{
+    } else {
       registroError.value = false;
     }
-    
   }
 };
 
@@ -287,7 +365,7 @@ select {
 }
 
 button {
-  width: 40%;
+  width: 30%;
   padding: 12px;
   background-color: rgba(24,22,88,255);
   color: white;
@@ -295,6 +373,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-size: 15px;
+  margin: 3%;
 }
 
 .success-message {

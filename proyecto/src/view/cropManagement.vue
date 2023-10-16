@@ -1,17 +1,19 @@
 <template>
   <div id="container">
 
-    <div id="notifications">
-      <button class="notification-button">
-        <img src="../images/noti.png" alt="Icono 1">
+    <div id="header">
+      <button id="regresar" @click="goBack">
+        <img src="../images/regresar.png" alt="">
       </button>
-      <button class="notification-button">
-        <img src="../images/user.png" alt="Icono 2">
-      </button>
+      <div id="notifications">
+        <button class="notification-button">
+          <img src="../images/noti.png" alt="Icono 1">
+        </button>
+        <button class="notification-button">
+          <img src="../images/user.png" alt="Icono 2">
+        </button>
+      </div>
     </div>
-    <button id="regresar"  @click="goBack">
-      <img src="../images/regresar.png" alt="">
-    </button>
     <div id="title">
       <h1 id="t">Cultivos</h1>
     </div>
@@ -40,10 +42,10 @@ const router = useRouter();
 const goBack = () => {
   router.go(-1);
 }
-const goWorkers = ()=>{
+const goWorkers = () => {
   router.push('/main/cropManagement/workers')
 }
-const goLots= ()=>{
+const goLots = () => {
   router.push('/main/cropManagement/lots')
 }
 
@@ -75,7 +77,7 @@ const goLots= ()=>{
   align-self: center;
   font-size: 30px;
   width: 20%;
-  
+
 
 }
 
@@ -114,7 +116,7 @@ const goLots= ()=>{
 }
 
 .btns {
-  background-color: burlywood;
+  background-color: #f2d479;
   align-self: center;
   height: 80%;
   width: 20%;
