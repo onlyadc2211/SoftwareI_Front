@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../view/login.vue'
-
+import NotFound from '../view/NotFound.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/*',
-      component: 404
+      path: '/:catchAll(.*)',
+      component: NotFound
     },
     {
       path: '/',
@@ -21,6 +21,16 @@ const router = createRouter({
       name: 'Gestion de cultivos',
       path: '/main/cropManagement',
       component: () => import('../view/cropManagement.vue')
+    },
+    {
+      name: 'Gestion de trabajadores',
+      path: '/main/cropManagement/workers',
+      component: () => import('../view/workers.vue')
+    },
+    {
+      name: 'Lotes',
+      path: '/main/cropManagement/lots',
+      component: () => import('../view/lots.vue')
     },
     
   ]

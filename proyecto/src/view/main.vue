@@ -3,7 +3,7 @@
         <div id="buttons">
             <button class="main-button" @click="goCropManagement">Cultivos</button>
             <button class="main-button">Ventas</button>
-            <button class="main-button">Salir</button>
+            <button class="main-button" @click="goBack">Salir</button>
         </div>
         <div id="notifications">
             <button class="notification-button">
@@ -20,13 +20,17 @@
 </template>
   
 <script setup>
-    import { useRouter } from 'vue-router';
-    import { ref } from 'vue';
-    const router = useRouter();
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+const router = useRouter();
 
-    const goCropManagement = ()=>{
-        router.push('/main/cropManagement');
-    }
+const goCropManagement = () => {
+    router.push('/main/cropManagement');
+}
+
+const goBack = () => {
+    router.go(-1);
+}
 </script>
   
 <style scoped>
@@ -92,6 +96,11 @@
     border: none;
     cursor: pointer;
     margin-right: 10px;
+    transition: transform 0.3s;
+}
+
+.notification-button:hover {
+    transform: scale(1.1);
 }
 
 .notification-button img {

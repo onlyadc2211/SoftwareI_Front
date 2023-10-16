@@ -11,4 +11,4 @@ const Endpoint = {
   }
 }
 
-createApp(App).use(router).mixin(Endpoint).mount('#app')
+createApp(App).use(router).mount('#app')
