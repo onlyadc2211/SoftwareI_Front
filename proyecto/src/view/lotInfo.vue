@@ -27,6 +27,39 @@
     <div id="title">
       <h1 id="t">{{ nameLot }}</h1>
       <div id="contenido">
+        <div v-if="isPopupVisible" class="popup">
+          <div class="popup-content">
+            <h2>Añadir sector</h2>
+            <div id="formulario">
+              <form @submit.prevent="submitForm" class="form">
+                <div class="form-group">
+                  <label for="idSec">Id sector</label>
+                  <input type="number" id="totalPlantas" v-model="id_sec" required class="input-field" />
+                </div>
+                <div class="form-group">
+                  <label for="tipoPlanta">Tipo planta</label>
+                  <select id="tipoPlanta" v-model="id_plant" required class="input-field">
+                    <option value="1">cafe 1</option>
+                    <option value="2">cafe 2</option>
+                    <option value="3">cafe 3</option>
+                   
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="totalPlantas">Total de plantas:</label>
+                  <input type="number" id="totalPlantas" v-model="nPlants" required class="input-field" />
+                </div>
+                <div id="errorCorrection"></div>
+                <div class="formButtons">
+                  <button type="submit" class="submit-button">Agregar</button>
+                  <button @click="hidePopup" class="submit-button">Cerrar</button>
+                </div>
+              </form>
+
+            </div>
+
+          </div>
+        </div>
         <div id="cont1" class="contenedores">
           <div id="nPlantas">
             <h1>Total Plantas</h1>
@@ -43,7 +76,7 @@
                   </tr>
                 </thead>
                 <tbody>
-              
+
                   <tr>
                     <td>Plaga 1</td>
                     <td>2023-10-21</td>
@@ -74,32 +107,35 @@
             </div>
           </div>
         </div>
-       
+
         <div id="cont2" class="contenedores">
-       
-            <div id="sec">
-              <div class="lotes">
-                <div v-for="index in 5" :key="index" class="lote-item">
-                  <div class="lote-content">
-                    <h1 class="text">Sector {{ index }}</h1>
-                    <p class="text">N° plantas </p>
-                    <p class="text">Tipo planta</p>
-                  </div>
+
+          <div id="sec">
+            <div class="lotes">
+              <div v-for="sector in sectors" :key="sector.ID_SECTOR" class="lote-item">
+                <div class="lote-content">
+                  <h1 class="text">Sector {{ sector.ID_SECTOR }}</h1>
+                  <p class="text">N° plantas {{ sector.NUMERO_TOTAL_PLANTAS }}</p>
+                  <p class="text">Tipo planta {{ sector.ID_TIPO_PLANTA }}</p>
                 </div>
               </div>
             </div>
-            <div id="btns">
-              <button class="btnInfo">
-                Plagas
-              </button>
-              <button class="btnInfo">
-                Cosecha
-              </button>
-            </div>
-          
+          </div>
+          <div id="btns">
+            <button class="btnInfo">
+              Plagas
+            </button>
+            <button class="btnInfo">
+              Cosecha
+            </button>
+            <button class="btnInfo" @click="addSection">
+              Añadir seccion
+            </button>
+          </div>
+
         </div>
       </div>
-      
+
 
     </div>
 
@@ -109,13 +145,25 @@
   
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, onMounted  } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 const router = useRouter();
 const nameLot = ref('Lote N*')
-const plantsNumber = ref(0) 
+const plantsNumber = ref(0)
 const lotId = parseInt(router.currentRoute.value.params.id);
+const sectors = ref([])
+const isPopupVisible = ref(false);
+const id_sec = ref()
+const id_plant = ref('')
+const nPlants = ref('')
 
 
+const addSection = () => {
+  isPopupVisible.value = true;
+};
+const hidePopup = () => {
+  isPopupVisible.value = false;
+};
 const getLotInfo = async () => {
   try {
     console.log(lotId)
@@ -125,11 +173,19 @@ const getLotInfo = async () => {
       nameLot.value = data.NOMBRE_LOTES;
       plantsNumber.value = data.TOTAL_PLANTAS;
     } else {
-    
+
+      console.error('Error al obtener información del lote con ID:', lotId);
+    }
+    const response2 = await axios.get(`http://localhost:3000/api/sectores/${lotId}`);
+    if (response2.ok) {
+      const data = await response2.json();
+      sectors.value = data
+    } else {
+
       console.error('Error al obtener información del lote con ID:', lotId);
     }
   } catch (error) {
-    
+
     console.error('Error al obtener información del lote:', error);
   }
 };
@@ -146,12 +202,130 @@ const goLots = () => {
 const goCrops = () => {
   router.push('/main/cropManagement/crops');
 }
+const submitForm = async () => {
+    try {
+        const nuevoSector = {
+            ID_SECTOR: parseInt(id_sec.value),
+            ID_TIPO_PLANTA: parseInt(id_plant.value),
+            NUMERO_TOTAL_PLANTAS: parseInt(nPlants.value),
+            ID_LOTE: lotId,
+        };
+
+        const response = await axios.post('http://localhost:3000/api/sectores', nuevoSector);
+
+        if (response.status === 200) {
+
+            console.log('Lote agregado con éxito');
+            id_sec.value = 0;
+            id_plant.value = '';
+            nPlants.value = 0;
+
+            hidePopup()
+            onMounted()
+        }
+    } catch (error) {
+
+        console.error('Error al agregar Sector:', error);
+
+    }
+};
+
 onMounted(() => {
   getLotInfo();
 });
 </script>
   
 <style scoped>
+form {
+  width: 90%;
+  max-width: 700px;
+  height: 85%;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  width: 60%;
+}
+
+.form-group label {
+  text-align: left;
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.input-field {
+  padding: 8px;
+  font-size: 20px;
+  border: 2px solid#792f00;
+  border-radius: 20px;
+  display: block;
+  margin-bottom: 10%;
+}
+
+.input-field:focus {
+  border: 2px solid #792f00;
+  outline: none;
+}
+.formButtons{
+  margin-top: 5%;
+  width: 100%;
+  height: 20%;
+  
+}
+
+
+.submit-button:hover {
+  background-color: #542200;
+}
+
+.submit-button {
+  background-color: #792f00;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 30%;
+  margin-left: 5%;
+  margin-right: 5%;
+  height: 50%;
+  
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+
+}
+
+.popup-content {
+  background-color: #fff;
+  width: 50%;
+  height: 70%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+.popup-content h2{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
 #contenido {
   margin: 1%;
   margin-bottom: 0;
@@ -160,49 +334,56 @@ onMounted(() => {
   width: 98%;
   border-radius: 3%;
   border-bottom: 0%;
-  
+
 }
-#tituloPlagas{
+
+#tituloPlagas {
   margin: 0%;
   margin-bottom: 1%;
 }
+
 #plagasTable th {
-  padding-right: 50px; 
+  padding-right: 50px;
 }
-#cont1{
+
+#cont1 {
   height: 95%;
   margin: 1%;
   width: 48%;
   float: left;
-  
+
 }
-#cont2{
+
+#cont2 {
   height: 95%;
   width: 48%;
   float: right;
 }
-#plagas{
+
+#plagas {
   height: 46%;
   width: 98%;
   margin: 1%;
   float: inline-start;
-  border: 2px solid #792f00; 
+  border: 2px solid #792f00;
   border-radius: 3%;
 }
-#nPlantas{
+
+#nPlantas {
   height: 35%;
   width: 98%;
   margin: 1%;
   float: inline-start;
 }
 
-#plagas{
+#plagas {
   height: 46%;
   width: 98%;
   margin: 1%;
   float: inline-start;
 }
-#historialPlagas{
+
+#historialPlagas {
   height: 62%;
   width: 98%;
   margin: 1%;
@@ -210,16 +391,16 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-#sec{
+#sec {
   height: 75%;
   width: 96%;
   margin: 2%;
-  border: 2px solid #792f00; 
+  border: 2px solid #792f00;
   overflow-y: auto;
   border-radius: 3%;
 }
 
-#btns{
+#btns {
   background-color: #ffa364;
   width: 98%;
   height: 20%;
@@ -228,11 +409,12 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
 }
+
 .lotes {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  
+
 }
 
 .lote-item {
@@ -260,11 +442,12 @@ onMounted(() => {
   align-items: center;
   height: 100%;
 }
-.text{
+
+.text {
   margin: 0%;
 }
 
-.btnInfo{
+.btnInfo {
   height: 70%;
   width: 40%;
   margin: 2%;
@@ -273,6 +456,7 @@ onMounted(() => {
   font-size: 20px;
   cursor: pointer;
 }
+
 .btnInfo:hover {
   transform: scale(1.1);
 }
