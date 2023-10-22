@@ -5,6 +5,15 @@
       <button id="regresar" @click="goBack">
         <img src="../images/regresar.png" alt="">
       </button>
+      <button id="rapidAcces" @click="goBack">
+        <img src="../images/planta.png" alt="">
+      </button>
+      <button id="rapidAcces" @click="goWorkers">
+        <img src="../images/trabajador.png" alt="">
+      </button>
+      <button id="rapidAcces" @click="goBack">
+        <img src="../images/cosecha.png" alt="">
+      </button>
       <div id="notifications">
         <button class="notification-button">
           <img src="../images/noti.png" alt="Icono 1">
@@ -26,9 +35,13 @@
         <img src="../images/trabajador.png" alt="" class="btn-img">
         <h2 class="btn-text">Gestionar trabajadores</h2>
       </div>
-      <div class="btns">
+      <div class="btns" @click="goCrops">
         <img src="../images/cosecha.png" alt="" class="btn-img">
         <h2 class="btn-text">Cosechas</h2>
+      </div>
+      <div class="btns" @click="goCrops">
+        <img src="../images/plagas.png" alt="" class="btn-img">
+        <h2 class="btn-text">Plagas</h2>
       </div>
     </div>
   </div>
@@ -40,13 +53,17 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const goBack = () => {
-  router.go(-1);
+  router.push('/main');
 }
 const goWorkers = () => {
   router.push('/main/cropManagement/workers')
 }
 const goLots = () => {
   router.push('/main/cropManagement/lots')
+}
+
+const goCrops = () => {
+  router.push('/main/cropManagement/crops');
 }
 
 </script>
@@ -59,7 +76,7 @@ const goLots = () => {
   height: 90vh;
   margin: auto;
   margin-top: 3%;
-  background-color: beige;
+  background-color: #fee1cc;
   border-radius: 2%;
   position: relative;
   flex-direction: column;
@@ -81,28 +98,6 @@ const goLots = () => {
 
 }
 
-#regresar {
-  flex: 2;
-  display: flex;
-  width: 5%;
-  justify-content: center;
-  align-items: center;
-  align-self: flex-start;
-  margin: 1%;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-#regresar:hover {
-  transform: scale(1.1);
-}
-
-#regresar img {
-  width: 100%;
-  height: auto;
-}
 
 #buttons {
 
@@ -116,7 +111,7 @@ const goLots = () => {
 }
 
 .btns {
-  background-color: #f2d479;
+  background-color: #ffa364;
   align-self: center;
   height: 80%;
   width: 20%;
@@ -145,21 +140,61 @@ const goLots = () => {
   text-align: center;
 }
 
-#notifications {
-  width: auto;
-  height: 40px;
-  position: absolute;
-  top: 20px;
-  right: 10px;
+#header {
   display: flex;
-  margin-right: 30px;
+  align-items: center;
+  background-color: #fed1b2;
+}
+
+
+#regresar {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+  width: 5%;
+  margin: 1%;
+  margin-right: 0%;
+}
+
+#regresar:hover {
+  transform: scale(1.1);
+}
+
+#regresar img {
+  width: 100%;
+  height: auto;
+}
+
+#rapidAcces {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+  width: 5%;
+  margin-right: 1%;
+}
+
+#rapidAcces:hover {
+  transform: scale(1.1);
+}
+
+#rapidAcces img {
+  width: 150%;
+  height: 45px;
+}
+
+#notifications {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 .notification-button {
   background: transparent;
   border: none;
   cursor: pointer;
-  margin-right: 10px;
+  margin-right: 1vw;
   transition: transform 0.3s;
 }
 
@@ -168,8 +203,8 @@ const goLots = () => {
 }
 
 .notification-button img {
-  width: 40px;
-  height: 40px;
+  width: 6vh;
+  height: 6vh;
 }
 </style>
   

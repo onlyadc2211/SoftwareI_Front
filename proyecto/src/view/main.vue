@@ -1,18 +1,25 @@
 <template>
     <div id="container">
+        <div id="header">
+           
+            <div id="notifications">
+                <button id="regresar" @click="goBack">
+                    <img src="../images/regresar.png" alt="">
+                  </button>
+              <button class="notification-button">
+                <img src="../images/noti.png" alt="Icono 1">
+              </button>
+              <button class="notification-button">
+                <img src="../images/user.png" alt="Icono 2">
+              </button>
+            </div>
+          </div>
         <div id="buttons">
             <button class="main-button" @click="goCropManagement">Cultivos</button>
             <button class="main-button">Ventas</button>
             <button class="main-button" @click="goBack">Salir</button>
         </div>
-        <div id="notifications">
-            <button class="notification-button">
-                <img src="../images/noti.png" alt="Icono 1">
-            </button>
-            <button class="notification-button">
-                <img src="../images/user.png" alt="Icono 2">
-            </button>
-        </div>
+        
         <div id="logoImg">
             <img src="../images/logo.png" alt="logo">
         </div>
@@ -41,9 +48,18 @@ const goBack = () => {
     height: 90vh;
     margin: auto;
     margin-top: 3%;
-    background-color: beige;
-    border-radius: 2%;
+    background-color: #fee1cc;
+    border-radius: 4%;
     position: relative;
+    z-index: 10;
+}
+#notifications {
+  width: 100%;
+  height: 60px;
+  position: absolute;
+  display: flex;
+  background-color: #fed1b2;
+  mask: radial-gradient(circle, transparent 0%, transparent 100%);
 }
 
 #buttons {
@@ -58,7 +74,7 @@ const goBack = () => {
 }
 
 .main-button {
-    background-color: rgba(24, 22, 88, 255);
+    background-color:#792f00;
     border: none;
     cursor: pointer;
     margin-bottom: 40px;
@@ -86,31 +102,39 @@ const goBack = () => {
     margin-left: 4%;
 }
 
-#notifications {
-    width: auto;
-    height: 40px;
-    position: absolute;
-    top: 20px;
-    right: 10px;
-    display: flex;
-    margin-right: 30px;
-}
 
 .notification-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: transform 0.3s;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: transform 0.3s;
 }
 
 .notification-button:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 .notification-button img {
-    width: 40px;
-    height: 40px;
+  width: 40px;
+  height: 40px;
 }
+#regresar {
+    margin-right: auto; 
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+#regresar:hover {
+  transform: scale(1.1);
+}
+
+#regresar img {
+  width: 100%;
+  height: 50px;
+}
+
 </style>
   

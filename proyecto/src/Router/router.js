@@ -32,6 +32,23 @@ const router = createRouter({
       path: '/main/cropManagement/lots',
       component: () => import('../view/lots.vue')
     },
+    {
+      name: 'Cosechas',
+      path: '/main/cropManagement/crops',
+      component: () => import('../view/crops.vue')
+    },
+    {
+      name: 'Agregar lote',
+      path: '/main/cropManagement/lots/addLot',
+      component: () => import('../view/addLot.vue')
+    },
+    {
+      name: 'Ver lote',
+      path: '/main/cropManagement/lots/lotInfo/:id',
+      component: () => import('../view/lotInfo.vue')
+    },
+    
+    
     
   ]
 })

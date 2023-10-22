@@ -40,7 +40,7 @@
           <label for="rol">Rol:</label>
           <select v-model="rol" id="rol" required>
             <option value="1">Administrador</option>
-            <option value="2">Super usuario</option>
+
             <option value="3">Usuario</option>
             <option value="4">Trabajador</option>
           </select>
@@ -77,7 +77,7 @@
         </template>
 
         <div v-if="registroExitoso" class="success-message">Registrado con éxito</div>
-        <div v-if="registroError" class="bad-message">Error en el registro</div>
+        <div v-if="registroError" class="bad-message">El usuario ya existe</div>
         <div v-if="diferentPassword" class="differentPass">Las contraseñas no coinciden</div>
         <div class="button-container">
           <button type="submit" id="submitBtn">{{ registrationFormVisible ? 'Registrarse' : (personRegistrationVisible ? 'Registrar' : 'Entrar') }}</button>
@@ -153,7 +153,10 @@ const submitForm = async () => {
 
     if (registrationFormVisible.value) {
       // Lógica para el formulario de registro de usuarios
-      if (contrasena.value === confirmarContrasena.value) {
+
+
+
+      if (contrasena.value === confirmarContrasena.value) {//validar aca que sea mayor que 0
         const response = await axios.post('http://localhost:3000/api/connection', {
           ID_PERSONA: parseInt(cedula.value),
           ID_ROL: parseInt(rol.value),
@@ -226,6 +229,10 @@ const submitForm = async () => {
       console.log("Usuario no encontrado");
       loginError.value = 'Usuario no encontrado';
     }
+    if (error.response && error.response.status === 401) {
+      console.log("Contraseña incorrecta");
+      loginError.value = 'Contraseña incorrecta';
+    }
     
     if (error.response && error.response.status === 400) {
       console.log("Error en la solicitud");
@@ -284,13 +291,13 @@ const togglePasswordVisibility = () => {
   justify-content: center;
   margin: auto;
   margin-top: 3%;
-  background-color: beige;
+  background-color:#fee1cc;
   border-radius: 2%;
 }
 
 #d1 {
   flex: 1;
-  background-color: beige;
+  background-color:#fee1cc;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,7 +307,7 @@ const togglePasswordVisibility = () => {
 
 #d2 {
   flex: 1;
-  background-color:beige;
+  background-color:#fee1cc;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -367,7 +374,7 @@ select {
 button {
   width: 30%;
   padding: 12px;
-  background-color: rgba(24,22,88,255);
+  background-color: #792f00;
   color: white;
   border: none;
   border-radius: 4px;

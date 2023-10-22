@@ -1,31 +1,31 @@
 <template>
     <div id="container">
   
-      <div id="header">
-        <button id="regresar" @click="goBack">
-          <img src="../images/regresar.png" alt="">
-        </button>
-        <button id="rapidAcces" @click="goLots">
-          <img src="../images/planta.png" alt="">
-        </button>
-        <button id="rapidAcces" @click="goWorkers">
-          <img src="../images/trabajador.png" alt="">
-        </button>
-        <button id="rapidAcces" @click="goCrops">
-          <img src="../images/cosecha.png" alt="">
-        </button>
-        <div id="notifications">
-          <button class="notification-button">
-            <img src="../images/noti.png" alt="Icono 1">
-          </button>
-          <button class="notification-button">
-            <img src="../images/user.png" alt="Icono 2">
-          </button>
-        </div>
-      </div>
+        <div id="header">
+            <button id="regresar" @click="goBack">
+              <img src="../images/regresar.png" alt="">
+            </button>
+            <button id="rapidAcces" @click="goLots">
+              <img src="../images/planta.png" alt="">
+            </button>
+            <button id="rapidAcces" @click="goWorkers">
+              <img src="../images/trabajador.png" alt="">
+            </button>
+            <button id="rapidAcces" @click="goCrops">
+              <img src="../images/cosecha.png" alt="">
+            </button>
+            <div id="notifications">
+              <button class="notification-button">
+                <img src="../images/noti.png" alt="Icono 1">
+              </button>
+              <button class="notification-button">
+                <img src="../images/user.png" alt="Icono 2">
+              </button>
+            </div>
+          </div>
 
       <div id="title">
-        <h1 id="t">Gestión de trabajadores</h1>
+        <h1 id="t">Cosechas</h1>
       </div>
       
        
@@ -41,14 +41,16 @@
     router.go(-1);
   }
   const goWorkers = () => {
-    router.push('/main/cropManagement/workers');
-  }
-  const goCrops = () => {
-    router.push('/main/cropManagement/crops');
-  }
-  const goLots= () => {
-    router.push('/main/cropManagement/lots');
-  }
+  router.push('/main/cropManagement/workers')
+}
+const goLots = () => {
+  router.push('/main/cropManagement/lots')
+}
+
+const goCrops = () => {
+  router.push('/main/cropManagement/crops');
+}
+  
   </script>
     
   <style scoped>
