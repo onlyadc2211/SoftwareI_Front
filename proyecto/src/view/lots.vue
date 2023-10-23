@@ -28,11 +28,12 @@
         <div class="lotes">
           <div v-for="lot in lots" :key="lot.ID_LOTE" class="lote-item" @click="goToLotInfo(lot.ID_LOTE)">
             <div class="lote-content">
-              <h1>Lote {{ lot.NOMBRE_LOTES }}</h1>
+              <h1>{{ lot.NOMBRE_LOTE }}</h1>
               <p>N° plantas {{ lot.TOTAL_PLANTAS }}</p>
             </div>
           </div>
         </div>
+        
         <div v-if="isPopupVisible" class="popup">
           <div class="popup-content">
             <h2>Eliminar lote</h2>
@@ -41,7 +42,7 @@
                 <div class="deleteDiv">
                 <label>
                   <input type="checkbox" v-model="selectedLots" :value="lot.ID_LOTE">
-                  {{ lot.NOMBRE_LOTES }} ({{ lot.TOTAL_PLANTAS }} plantas)
+                  {{ lot.NOMBRE_LOTE}} ({{ lot.TOTAL_PLANTAS }} plantas)
                 </label>
               </div>
               </li>
@@ -50,6 +51,31 @@
             <button @click="hidePopup">Cerrar</button>
           </div>
         </div>
+        <div v-if="isVisible" class="popup2">
+          <div class="popup-content2">
+              <h2>Añadir lote</h2>
+              <div id="formulario2">
+                  <form @submit.prevent="submitForm" class="form2">
+                      <div class="form-group2">
+                          <label for="idLote">Id Lote</label>
+                          <input type="number" id="totalPlantas" v-model="id_lote" required class="input-field2" />
+                      </div>
+                      <div class="form-group2">
+                          <label for="nombreLote">Nombre del lote:</label>
+                          <input type="text" id="nombreLote" v-model="nombreLote" required class="input-field2" />
+                      </div>
+                   
+                      <div id="errorCorrection2"></div>
+                      <div class="formButtons2">
+                          <button type="submit2" @click="submitForm" class="submit-button2">Agregar</button>
+                          <button @click="hidePopup2" class="submit-button2">Cerrar</button>
+                      </div>
+                  </form>
+  
+              </div>
+  
+          </div>
+      </div>
       </div>
       <div class="buttons">
         <button class="btnLotes" @click="addLot">Agregar lote</button>
@@ -63,12 +89,20 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import axios from 'axios';
 import { ref } from 'vue';
 const router = useRouter();
 const lots = ref([]);
 const isPopupVisible = ref(false);
+const isVisible= ref(false);
 const selectedLots = ref([]);
+const nombreLote = ref('');
+const id_lote = ref('');
+const totalPlantas = ref(0);
 
+const hidePopup2 = () => {
+    isVisible.value = false;
+};
 const deletL = async () => {
   if (selectedLots.value.length === 0) {
     alert('Por favor, selecciona al menos un lote para eliminar.');
@@ -119,11 +153,38 @@ const goLots = () => {
   router.push('/main/cropManagement/lots');
 }
 const addLot = () => {
-  router.push('/main/cropManagement/lots/addLot')
+  isVisible.value = true;
+  
 }
 const goToLotInfo = (lotId) => {
   router.push(`/main/cropManagement/lots/lotInfo/${lotId}`);
 }
+const submitForm = async () => {
+    try {
+        const nuevoLote = {
+            ID_LOTE: parseInt(id_lote.value),
+            TOTAL_PLANTAS: parseInt(0),
+            NOMBRE_LOTE: nombreLote.value
+        };
+
+        const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote);
+
+        if (response.status === 200) {
+
+            console.log('Lote agregado con éxito');
+            id_lote.value = 0;
+            nombreLote.value = '';
+            totalPlantas.value = 0;
+
+            isVisible.value = false;
+        }
+    } catch (error) {
+
+        console.error('Error al agregar el lote:', error);
+
+    }
+};
+
 
 const fetchLots = async () => {
   try {
@@ -160,13 +221,15 @@ onMounted(() => {
 
 .popup-content {
   background-color: #fff;
-  width: 40%;
-  height: 30%;
-  padding: 20px;
+  width: 50%;
+  height: 40%;
+  display: block;
   border-radius: 5px;
   text-align: center;
-  position: relative;
   border: 3px solid #792f00;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
 }
 .popup-content button {
   background-color: #792f00;
@@ -178,13 +241,16 @@ onMounted(() => {
   width: 30%;
   margin-left: 5%;
   margin-right: 5%;
-}
-.deleteDiv{
-  height: 90%;
-  overflow-y: auto;
-  
 
 }
+.deleteDiv{
+  display: flex;
+  height: 40%;
+  width: 50%;
+  overflow-y: auto;
+
+}
+
 .btnLotes {
   margin: 3%;
   height: 70%;
@@ -195,6 +261,9 @@ onMounted(() => {
   cursor: pointer;
   border-radius: 12%;
 
+}
+.btnLotes:hover {
+  transform: scale(1.1);
 }
 
 .buttons {
@@ -210,9 +279,7 @@ onMounted(() => {
 
 }
 
-.btnLotes:hover {
-  transform: scale(1.1);
-}
+
 
 #container {
   display: flex;
@@ -361,6 +428,104 @@ onMounted(() => {
 .notification-button img {
   width: 6vh;
   height: 6vh;
+}
+.popup2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+
+}
+
+.popup-content2 {
+  background-color: #fff;
+  width: 30%;
+  height: 50%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+.popup-content2 h2{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.form2{
+  width: 90%;
+  max-width: 700px;
+  height: 90%;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.form-group2 {
+  display: flex;
+  flex-direction: column;
+
+  width: 60%;
+}
+
+.form-group2 label {
+  text-align: left;
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.input-field2 {
+  padding: 8px;
+  font-size: 20px;
+  border: 2px solid#792f00;
+  border-radius: 20px;
+  display: block;
+  margin-bottom: 10%;
+  width: 140%;
+}
+
+.input-field2:focus {
+  border: 2px solid #792f00;
+  outline: none;
+}
+.formButtons2{
+  margin-top: 5%;
+  width: 100%;
+  height: 70%;
+  
+}
+
+
+.submit-button2:hover {
+  background-color: #542200;
+}
+
+.submit-button2 {
+  background-color: #792f00;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 30%;
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 70%;
+  
+}
+
+#formulario2{
+  margin: 6%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  
+  height: 75%;
+  width: 90%;
 }
 </style>
   

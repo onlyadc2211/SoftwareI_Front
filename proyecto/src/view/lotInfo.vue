@@ -42,7 +42,7 @@
                     <option value="1">cafe 1</option>
                     <option value="2">cafe 2</option>
                     <option value="3">cafe 3</option>
-                   
+
                   </select>
                 </div>
                 <div class="form-group">
@@ -55,11 +55,40 @@
                   <button @click="hidePopup" class="submit-button">Cerrar</button>
                 </div>
               </form>
-
             </div>
-
           </div>
         </div>
+
+        <div v-if="isVisible" class="popup">
+          <div class="popup-content">
+            <h2>Añadir plaga</h2>
+            <div id="formulario">
+              <form @submit.prevent="submitForm2" class="form">
+
+                <div class="form-group">
+                  <label for="tipoPlaga">Tipo plaga</label>
+                  <select id="tipoPlaga" v-model="id_plaga" required class="input-field">
+                    <option value="1">Broca de cafe</option>
+                    <option value="2">Roya de cafeto</option>
+                    <option value="3">Cortadores</option>
+                    <option value="4">Palomillas</option>
+
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="fechaAfectacion">Fecha de afectación:</label>
+                  <input type="date" id="fechaAfectacion" v-model="fechaAfec" required class="input-field" />
+                </div>
+                <div id="errorCorrection"></div>
+                <div class="formButtons">
+                  <button type="submit" class="submit-button">Agregar</button>
+                  <button @click="hidePopup2" class="submit-button">Cerrar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <div id="cont1" class="contenedores">
           <div id="nPlantas">
             <h1>Total Plantas</h1>
@@ -77,31 +106,11 @@
                 </thead>
                 <tbody>
 
-                  <tr>
-                    <td>Plaga 1</td>
-                    <td>2023-10-21</td>
+                  <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA">
+                    <td>{{ plaga.ID_PLAGA }}</td>
+                    <td>{{plaga.FECHA_AFECTACION}}</td>
                   </tr>
-                  <tr>
-                    <td>Plaga 2</td>
-                    <td>2023-10-22</td>
-                  </tr>
-                  <tr>
-                    <td>Plaga 2</td>
-                    <td>2023-10-22</td>
-                  </tr>
-                  <tr>
-                    <td>Plaga 2</td>
-                    <td>2023-10-22</td>
-                  </tr>
-                  <tr>
-                    <td>Plaga 2</td>
-                    <td>2023-10-22</td>
-                  </tr>
-                  <tr>
-                    <td>Plaga 2</td>
-                    <td>2023-10-22</td>
-                  </tr>
-
+      
                 </tbody>
               </table>
             </div>
@@ -115,14 +124,14 @@
               <div v-for="sector in sectors" :key="sector.ID_SECTOR" class="lote-item">
                 <div class="lote-content">
                   <h1 class="text">Sector {{ sector.ID_SECTOR }}</h1>
-                  <p class="text">N° plantas {{ sector.NUMERO_TOTAL_PLANTAS }}</p>
+                  <p class="text">N° plantas {{ sector.NUMERO_PLANTAS }}</p>
                   <p class="text">Tipo planta {{ sector.ID_TIPO_PLANTA }}</p>
                 </div>
               </div>
             </div>
           </div>
           <div id="btns">
-            <button class="btnInfo">
+            <button class="btnInfo" @click="addPests">
               Plagas
             </button>
             <button class="btnInfo">
@@ -135,11 +144,7 @@
 
         </div>
       </div>
-
-
     </div>
-
-
   </div>
 </template>
   
@@ -148,7 +153,7 @@ import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 const router = useRouter();
-const nameLot = ref('Lote N*')
+const nameLot = ref('')
 const plantsNumber = ref(0)
 const lotId = parseInt(router.currentRoute.value.params.id);
 const sectors = ref([])
@@ -156,34 +161,62 @@ const isPopupVisible = ref(false);
 const id_sec = ref()
 const id_plant = ref('')
 const nPlants = ref('')
+const isVisible = ref('')
+const fechaAfec = ref('')
+const id_plaga = ref('')
 
+const formatearFecha = (fecha) =>{
+      if (fecha) {
+        const partes = fecha.split('-');
+        if (partes.length === 3) {
+          const [anio, mes, dia] = partes;
+          return `${anio}-${mes}/${dia}`;
+        }
+      }
+      return ''; 
+};
 
 const addSection = () => {
   isPopupVisible.value = true;
 };
+const addPests = () => {
+  isVisible.value = true;
+};
 const hidePopup = () => {
   isPopupVisible.value = false;
 };
-const getLotInfo = async () => {
+const hidePopup2 = () => {
+  isVisible.value = false;
+};
+const historialPlagas = ref([]);
+const fetchHistorialPlagas = async () => {
   try {
-    console.log(lotId)
     const response = await fetch(`http://localhost:3000/api/lotes/${lotId}`);
     if (response.ok) {
       const data = await response.json();
-      nameLot.value = data.NOMBRE_LOTES;
+      historialPlagas.value = data.historial_plagas;
+    } else {
+      console.error('Error al obtener el historial de plagas.');
+    }
+  } catch (error) {
+    console.error('Error al obtener el historial de plagas:', error);
+  }
+};
+const getLotInfo = async () => {
+  try {
+
+    const response = await fetch(`http://localhost:3000/api/lotes/${lotId}`);
+    if (response.ok) {
+      const data = await response.json();
+      nameLot.value = data.NOMBRE_LOTE;
       plantsNumber.value = data.TOTAL_PLANTAS;
+      sectors.value = data.sectores
+      console.log(data)
     } else {
 
       console.error('Error al obtener información del lote con ID:', lotId);
     }
-    const response2 = await axios.get(`http://localhost:3000/api/sectores/${lotId}`);
-    if (response2.ok) {
-      const data = await response2.json();
-      sectors.value = data
-    } else {
 
-      console.error('Error al obtener información del lote con ID:', lotId);
-    }
   } catch (error) {
 
     console.error('Error al obtener información del lote:', error);
@@ -203,35 +236,68 @@ const goCrops = () => {
   router.push('/main/cropManagement/crops');
 }
 const submitForm = async () => {
-    try {
-        const nuevoSector = {
-            ID_SECTOR: parseInt(id_sec.value),
-            ID_TIPO_PLANTA: parseInt(id_plant.value),
-            NUMERO_TOTAL_PLANTAS: parseInt(nPlants.value),
-            ID_LOTE: lotId,
-        };
+  console.log("planta" + id_plant.value)
+  try {
+    const nuevoSector = {
+      ID_SECTOR: parseInt(id_sec.value),
+      ID_LOTE: lotId,
+      ID_TIPO_PLANTA: parseInt(id_plant.value),
+      NUMERO_PLANTAS: parseInt(nPlants.value),
 
-        const response = await axios.post('http://localhost:3000/api/sectores', nuevoSector);
+    };
 
-        if (response.status === 200) {
+    const response = await axios.post('http://localhost:3000/api/sectores', nuevoSector);
 
-            console.log('Lote agregado con éxito');
-            id_sec.value = 0;
-            id_plant.value = '';
-            nPlants.value = 0;
+    if (response.status === 200) {
 
-            hidePopup()
-            onMounted()
-        }
-    } catch (error) {
+      console.log('Lote agregado con éxito');
+      id_sec.value = 0;
+      id_plant.value = '';
+      nPlants.value = 0;
 
-        console.error('Error al agregar Sector:', error);
-
+      hidePopup()
+      onMounted()
     }
+  } catch (error) {
+
+    console.error('Error al agregar Sector:', error);
+
+  }
+};
+const submitForm2 = async () => {
+  try {
+   
+    const nuevaPlaga= {
+      ID_LOTE: lotId,
+      ID_PLAGA: parseInt(id_plaga.value),
+      FECHA_AFECTACION: new Date(fechaAfec.value),
+
+    };
+    console.log("id plaga" + id_plaga.value)
+    console.log(fechaAfec)
+    
+    const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga);
+
+    if (response.status === 200) {
+
+      console.log('Plaga agregada con éxito');
+      id_sec.value = 0;
+      id_plant.value = '';
+      nPlants.value = 0;
+
+      hidePopup2()
+      onMounted()
+    }
+  } catch (error) {
+
+    console.error('Error al agregar plaga:', error);
+
+  }
 };
 
 onMounted(() => {
   getLotInfo();
+  fetchHistorialPlagas();
 });
 </script>
   
@@ -267,17 +333,19 @@ form {
   border-radius: 20px;
   display: block;
   margin-bottom: 10%;
+  width: 100%;
 }
 
 .input-field:focus {
   border: 2px solid #792f00;
   outline: none;
 }
-.formButtons{
+
+.formButtons {
   margin-top: 5%;
   width: 100%;
   height: 20%;
-  
+
 }
 
 
@@ -292,10 +360,10 @@ form {
   border-radius: 5px;
   cursor: pointer;
   width: 30%;
-  margin-left: 5%;
-  margin-right: 5%;
+  margin-left: 10%;
+  margin-right: 10%;
   height: 50%;
-  
+
 }
 
 .popup {
@@ -313,15 +381,17 @@ form {
 
 .popup-content {
   background-color: #fff;
-  width: 50%;
-  height: 70%;
+  width: 30%;
+  height: 65%;
   border-radius: 15px;
   border: 3px solid #792f00;
 }
-.popup-content h2{
+
+.popup-content h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 0%;
 }
 
 
@@ -372,7 +442,7 @@ form {
 #nPlantas {
   height: 35%;
   width: 98%;
-  margin: 1%;
+  margin: 3%;
   float: inline-start;
 }
 
@@ -455,6 +525,7 @@ form {
   color: white;
   font-size: 20px;
   cursor: pointer;
+  border-radius: 20px;
 }
 
 .btnInfo:hover {
@@ -579,6 +650,15 @@ form {
   height: 100%;
   border-bottom-left-radius: 2%;
   border-bottom-right-radius: 2%;
+}
+
+
+#formulario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  margin: 5%;
 }
 </style>
   

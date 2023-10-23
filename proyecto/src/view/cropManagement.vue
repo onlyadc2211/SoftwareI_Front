@@ -39,7 +39,7 @@
         <img src="../images/cosecha.png" alt="" class="btn-img">
         <h2 class="btn-text">Cosechas</h2>
       </div>
-      <div class="btns" @click="goCrops">
+      <div class="btns" @click="goPests">
         <img src="../images/plagas.png" alt="" class="btn-img">
         <h2 class="btn-text">Plagas</h2>
       </div>
@@ -64,6 +64,9 @@ const goLots = () => {
 
 const goCrops = () => {
   router.push('/main/cropManagement/crops');
+}
+const goPests = () => {
+  router.push('/main/cropManagement/pests');
 }
 
 </script>
