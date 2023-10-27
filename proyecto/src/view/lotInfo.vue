@@ -91,28 +91,60 @@
 
         <div id="cont1" class="contenedores">
           <div id="nPlantas">
-            <h1>Total Plantas</h1>
-            <h2> Numero de plantas {{ plantsNumber }}</h2>
+            <h1>Total Plantas: {{ plantsNumber }}</h1>
+
+            <div class="navegateButtons">
+              <button @click="sPests">Plagas</button>
+              <button>Cosechas</button>
+              <button @click="sWorkers">Trabajadores</button>
+            </div>
           </div>
           <div id="plagas">
-            <h1 id="tituloPlagas">Plagas</h1>
-            <div id="historialPlagas">
-              <table id="plagasTable">
-                <thead>
-                  <tr>
-                    <th class="tableTitle">Nombre Plaga</th>
-                    <th class="tableTitle">Fecha de Afectación</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div id="hPlagas" v-if="showPests">
+              <h1 id="tituloPlagas">Plagas</h1>
+              <div id="historialPlagas">
+                <table id="plagasTable">
+                  <thead>
+                    <tr>
+                      <th class="tableTitle">Nombre Plaga</th>
+                      <th class="tableTitle">Fecha de Afectación</th>
+                      <th class="tableTitle">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
 
-                  <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA">
-                    <td>{{ plaga.ID_PLAGA }}</td>
-                    <td>{{plaga.FECHA_AFECTACION}}</td>
-                  </tr>
-      
-                </tbody>
-              </table>
+                    <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA">
+                      <td>{{ plaga.plagas.NOMBRE_PLAGA }}</td>
+                      <td>{{ formatearFecha(plaga.FECHA_AFECTACION) }}</td>
+                      <td>{{plaga.ESTADO_PLAGA}}</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div v-if="showWorkers" id="divTrabajadores">
+              <h1 id="tituloPlagas">Trabajadores</h1>
+              <div id="historialTrabajadores">
+                <table id="workersTable">
+                  <thead>
+                    <tr>
+                      <th class="tableTitle">Trabajador</th>
+                      <th class="tableTitle">Fecha_asignacion</th>
+                      <th class="tableTitle">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    <tr v-for="trabajador in historialTrabajadores" :key="trabajador.ID_PERSONA">
+                      <td>{{ trabajador.personas.NOMBRE_PERSONA }} {{ trabajador.personas.APELLIDO_PERSONA}}</td>
+                      <td>{{ formatearFecha(trabajador.FECHA_ASIGNACION) }}</td>
+                      <td>{{ trabajador.ESTADO_ASIGNACION }}</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -125,7 +157,7 @@
                 <div class="lote-content">
                   <h1 class="text">Sector {{ sector.ID_SECTOR }}</h1>
                   <p class="text">N° plantas {{ sector.NUMERO_PLANTAS }}</p>
-                  <p class="text">Tipo planta {{ sector.ID_TIPO_PLANTA }}</p>
+                  <p class="text"> {{ sector.tipo_plantas.NOMBRE_PLANTA }}</p>
                 </div>
               </div>
             </div>
@@ -164,17 +196,23 @@ const nPlants = ref('')
 const isVisible = ref('')
 const fechaAfec = ref('')
 const id_plaga = ref('')
+const showWorkers = ref(false)
+const showPests = ref(true)
 
-const formatearFecha = (fecha) =>{
-      if (fecha) {
-        const partes = fecha.split('-');
-        if (partes.length === 3) {
-          const [anio, mes, dia] = partes;
-          return `${anio}-${mes}/${dia}`;
-        }
-      }
-      return ''; 
-};
+const formatearFecha= (fechaISO)=> {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  const fechaFormateada = new Date(fechaISO).toLocaleDateString(undefined, options);
+  return fechaFormateada;
+}
+const sWorkers = () => {
+  showWorkers.value = true
+  showPests.value = false
+}
+const sPests = () => {
+  showWorkers.value = false
+  showPests.value = true
+
+}
 
 const addSection = () => {
   isPopupVisible.value = true;
@@ -189,6 +227,20 @@ const hidePopup2 = () => {
   isVisible.value = false;
 };
 const historialPlagas = ref([]);
+const historialTrabajadores = ref([]);
+const fetchHistorialTrabajadores = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/userlotes/${lotId}`);
+    if (response.ok) {
+      const data = await response.json();
+      historialTrabajadores.value = data;
+    } else {
+      console.error('Error al obtener el historial de plagas.');
+    }
+  } catch (error) {
+    console.error('Error al obtener el historial de plagas:', error);
+  }
+};
 const fetchHistorialPlagas = async () => {
   try {
     const response = await fetch(`http://localhost:3000/api/lotes/${lotId}`);
@@ -266,8 +318,8 @@ const submitForm = async () => {
 };
 const submitForm2 = async () => {
   try {
-   
-    const nuevaPlaga= {
+
+    const nuevaPlaga = {
       ID_LOTE: lotId,
       ID_PLAGA: parseInt(id_plaga.value),
       FECHA_AFECTACION: new Date(fechaAfec.value),
@@ -275,7 +327,7 @@ const submitForm2 = async () => {
     };
     console.log("id plaga" + id_plaga.value)
     console.log(fechaAfec)
-    
+
     const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga);
 
     if (response.status === 200) {
@@ -298,10 +350,27 @@ const submitForm2 = async () => {
 onMounted(() => {
   getLotInfo();
   fetchHistorialPlagas();
+  fetchHistorialTrabajadores();
 });
 </script>
   
 <style scoped>
+.navegateButtons {
+  
+  height: 35%;
+  width: 94%;
+  margin: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navegateButtons button {
+  margin: 5%;
+  height: 50%;
+  width: 30%;
+}
+
 form {
   width: 90%;
   max-width: 700px;
@@ -412,9 +481,7 @@ form {
   margin-bottom: 1%;
 }
 
-#plagasTable th {
-  padding-right: 50px;
-}
+
 
 #cont1 {
   height: 95%;
@@ -440,25 +507,60 @@ form {
 }
 
 #nPlantas {
-  height: 35%;
+  height: 43%;
   width: 98%;
   margin: 3%;
   float: inline-start;
+  
 }
 
-#plagas {
-  height: 46%;
-  width: 98%;
-  margin: 1%;
-  float: inline-start;
+#plagasTable th{
+  text-align: center;
+  padding-left: 5%;
+  
 }
+#plagasTable tr{
+cursor: pointer;
+
+  
+}
+#workersTable tr{
+  cursor: pointer;
+  
+    
+  }
+#plagasTable td{
+  text-align: center;
+  padding-left: 10%;
+  
+}
+#workersTable th{
+  text-align: center;
+  padding: 10px 20px;
+  
+}
+#workersTable td{
+  text-align: center;
+  padding-left: 3%;
+  
+}
+
 
 #historialPlagas {
-  height: 62%;
+  overflow-y: auto;
+  max-height: 18vh;
   width: 98%;
   margin: 1%;
   float: inline-start;
+  
+}
+#historialTrabajadores{
   overflow-y: auto;
+  max-height: 18vh;
+  width: 98%;
+  margin: 1%;
+  float: inline-start;
+  
 }
 
 #sec {

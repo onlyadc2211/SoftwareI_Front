@@ -27,6 +27,42 @@
       <div id="title">
           <h1 id="t">Trabajadores</h1>
           <div id="contenido">
+            <div v-if="isVisible" class="popup">
+              <div class="popup-content">
+                <h2>Trabajador</h2>
+                <div id="formulario">
+                  <form @submit.prevent="submitForm2" class="form">
+    
+                    <div class="form-group">
+                      <label for="lote_Trabajador">Trabajador</label>
+                      <select id="lote_Trabajador" v-model="id_trabajador_asig" required class="input-field">
+                        <option v-for="trabajador in trabajadores" :value="trabajador.ID_PERSONA">
+                          {{ trabajador.NOMBRE_PERSONA }} {{ trabajador.APELLIDO_PERSONA }}
+                        </option>
+                      
+                      
+    
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="lote_Trabajador">Lote</label>
+                      <select id="lote_Trabajador" v-model="id_lote_asig" required class="input-field">
+                        <option v-for="lote in lotes" :value="lote.ID_LOTE">
+                          {{ lote.NOMBRE_LOTE }} 
+                        </option>
+                      
+    
+                      </select>
+                    </div>
+                    <div id="errorCorrection"></div>
+                    <div class="formButtons">
+                      <button type="submit" class="submit-button" @click="asignarLote">Agregar</button>
+                      <button @click="hidePopup2" class="submit-button">Cerrar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
               <div class="trabajadores">
 
                 <table id="table">
@@ -35,6 +71,7 @@
                       <th class="tableTitle">Nombre trabajador</th>
                       <th class="tableTitle">Telefono</th>
                       <th class="tableTitle">Lotes asignados</th>
+                      <th class="tableTitle">Estado</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -43,6 +80,7 @@
                       <td>{{ worker.personas.NOMBRE_PERSONA }} {{ worker.personas.APELLIDO_PERSONA }}</td>
                       <td>{{worker.personas.TELEFONO_PERSONA}}</td>
                       <td>{{worker.ID_LOTE}}</td>
+                      <td>{{worker.ESTADO_ASIGNACION}}</td>
                     </tr>
         
                   </tbody>
@@ -50,7 +88,7 @@
 
               </div>
               <div class="botones">
-                  <button class="btnLotes" @click="addLot">Agregar</button>
+                  <button class="btnLotes" @click="addWorker">Agregar</button>
                   <button class="btnLotes">Modificar</button>
                   <button class="btnLotes" @click="deletePopup">Eliminar</button>
               </div>
@@ -66,8 +104,18 @@ import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 const router = useRouter();
+const isVisible = ref('');
+const trabajadores = ref([]);
+const lotes = ref([]);
+const id_trabajador_asig =ref(0)
+const id_lote_asig = ref(0)
 
-
+const addWorker = () => {
+  isVisible.value = true;
+};
+const hidePopup2 = () => {
+  isVisible.value = false;
+};
 const goBack = () => {
   router.go(-1);
 }
@@ -81,6 +129,58 @@ const goLots = () => {
 const goCrops = () => {
   router.push('/main/cropManagement/crops');
 }
+const asignarLote = async () => {
+  try {
+    const nuevaAsignacion = {
+      ID_LOTE: parseInt(id_lote_asig.value),
+      ID_PERSONA: parseInt(id_trabajador_asig.value),
+      FECHA_ASIGNACION: new Date(),
+      ESTADO_ASIGNACION: "A",
+
+    };
+    console.log(new Date())
+    const response = await axios.post('http://localhost:3000/api/userLotes', nuevaAsignacion);
+
+    if (response.status === 200) {
+      alert("Asignacion exitosa");
+      id_lote_asig.value = 0;
+      id_trabajador_asig.value = 0;
+      hidePopup2()
+      onMounted()
+    }
+  } catch (error) {
+
+    console.error('Error al agregar Sector:', error);
+
+  }
+};
+
+const obtenerLotes =async ()=>{
+  try {
+    const response = await fetch(`http://localhost:3000/api/lotes`);
+    if (response.ok) {
+      const data = await response.json();
+      lotes.value = data;
+    } else {
+      console.error('Error al obtener lotes.');
+    }
+  } catch (error) {
+    console.error('Error al obtener lotes', error);
+  }
+};
+const obtenerTrabajadores =async ()=>{
+  try {
+    const response = await fetch(`http://localhost:3000/api/person`);
+    if (response.ok) {
+      const data = await response.json();
+      trabajadores.value = data;
+    } else {
+      console.error('Error al obtener trabajadores.');
+    }
+  } catch (error) {
+    console.error('Error al obtener trabajadores', error);
+  }
+};
 
 const empleados = ref([]);
 const fetchEmpleados = async () => {
@@ -99,8 +199,9 @@ const fetchEmpleados = async () => {
 
 
 onMounted(() => {
-
   fetchEmpleados();
+  obtenerTrabajadores();
+  obtenerLotes();
 });
 </script>
   
@@ -110,7 +211,7 @@ onMounted(() => {
 .trabajadores {
 
   width: 96%;
-  height: 75%;
+  max-height: 75%;
   background-color: #fed1b2;
   margin: 2%;
   margin-bottom: 0%;
@@ -133,8 +234,8 @@ onMounted(() => {
   border-collapse: collapse;
 }
 #table td {
-  text-align: center; /* Alinea el texto en el centro de las celdas de datos */
-  padding: 90px; /* Agrega un espacio interno */
+  text-align: center; 
+  padding: 90px; 
 }
 
 .botones {
@@ -152,7 +253,7 @@ onMounted(() => {
   display: flex;
   font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
   width: 90%;
-  height: 90vh;
+  height: 80vh;
   margin: auto;
   margin-top: 3%;
   background-color:  #ffa364;
@@ -283,6 +384,107 @@ border-radius:20px;
 }
 .btnLotes:hover {
 transform: scale(1.1);
+}
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+
+}
+
+.popup-content {
+  background-color: #fff;
+  width: 30%;
+  height: 60%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+  
+}
+
+.popup-content h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0%;
+}
+form {
+  width: 90%;
+  max-width: 700px;
+  height: 85%;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 5%;
+  
+
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  width: 90%;
+}
+
+.form-group label {
+  text-align: left;
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.input-field {
+  padding: 8px;
+  font-size: 20px;
+  border: 2px solid#792f00;
+  border-radius: 20px;
+  display: block;
+  margin-bottom: 10%;
+  width: 100%;
+}
+
+.input-field:focus {
+  border: 2px solid #792f00;
+  outline: none;
+}
+
+.formButtons {
+  margin-top: 10%;
+  width: 100%;
+  height: 20%;
+
+}
+
+
+.submit-button:hover {
+  background-color: #542200;
+}
+
+.submit-button {
+  background-color: #792f00;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 30%;
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 50%;
+
+}
+#formulario {
+
+  height: 80%;
+  width: 95%;
+  margin: 2%;
+  
 }
 </style>
   
