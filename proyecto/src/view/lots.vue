@@ -253,7 +253,7 @@ onMounted(() => {
 
 .btnLotes {
   margin: 3%;
-  height: 70%;
+  height: 60%;
   width: 20%;
   background-color: #792f00;
   font-size: 200%;
@@ -513,7 +513,7 @@ onMounted(() => {
   width: 30%;
   margin-left: 10%;
   margin-right: 10%;
-  height: 70%;
+  height: 30px;
   
 }
 

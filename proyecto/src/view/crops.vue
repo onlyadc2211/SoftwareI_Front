@@ -27,9 +27,34 @@
       <div id="title">
           <h1 id="t">Cosechas</h1>
           <div id="contenido">
+            <div v-if="isVisible" class="popup2">
+              <div class="popup-content2">
+                  <h2>Añadir cosecha</h2>
+                  <div id="formulario2">
+                      <form @submit.prevent="submitForm" class="form2">
+                          <div class="form-group2">
+                              <label for="idLote">Id cosecha</label>
+                              <input type="number" id="totalPlantas" v-model="id_cosecha" required class="input-field2" />
+                          </div>
+                          <div class="form-group2">
+                              <label for="nombreLote">Fecha:</label>                            
+                              <input type="date" id="fechaAfectacion" v-model="fechaCosecha" required class="input-field2" />
+                          </div>
+                       
+                          <div id="errorCorrection2"></div>
+                          <div class="formButtons2">
+                              <button type="submit2" @click="submitForm" class="submit-button2">Agregar</button>
+                              <button @click="hideAddCrop" class="submit-button2">Cerrar</button>
+                          </div>
+                      </form>
+      
+                  </div>
+      
+              </div>
+          </div>
               <div class="cosechas">
                   <div class="pests">
-                      <div v-for="index in 20" :key="index" class="crops-item">
+                      <div v-for="index in 5" :key="index" class="crops-item">
                           <div class="crops-content">
                               <h1>Cosecha{{ index }}</h1>
                               <p>Cantidad</p>
@@ -43,7 +68,7 @@
                   </div>
               </div>
               <div class="botones">
-                  <button class="btnLotes" @click="addLot">Agregar</button>
+                  <button class="btnLotes" @click="showAddCrop">Agregar</button>
                   <button class="btnLotes">Modificar</button>
                   <button class="btnLotes" @click="deletePopup">Eliminar</button>
               </div>
@@ -59,6 +84,36 @@ import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import axios from 'axios';
 const router = useRouter();
+const isVisible = ref(false);
+const id_cosecha = ref();
+const fechaCosecha = ref('');
+const showAddCrop = ()=>{
+  isVisible.value = true;
+}
+const hideAddCrop = ()=>{
+  isVisible.value = false;
+}
+const submitForm = async () => {
+    try {
+        const nuevaCosecha = {
+            ID_COSECHA: parseInt(id_cosecha.value),
+            FECHA_COSECHA: new Date(fechaCosecha.value),
+        };
+
+        const response = await axios.post('http://localhost:3000/api/cosechas', nuevaCosecha);
+
+        if (response.status === 200) {
+            console.log('Fecha agragada con éxito');
+            id_cosecha.value = 0;
+            fechaCosecha.value = '';
+            isVisible.value = false;
+        }
+    } catch (error) {
+
+        console.error('Error al agregar cosecha: ', error);
+
+    }
+};
 
 const goBack = () => {
   router.go(-1);
@@ -279,6 +334,105 @@ border-radius: 12%;
 }
 .btnLotes:hover {
 transform: scale(1.1);
+}
+
+.popup2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+
+}
+
+.popup-content2 {
+  background-color: #fff;
+  width: 30%;
+  height: 50%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+.popup-content2 h2{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.form2{
+  width: 90%;
+  max-width: 700px;
+  height: 90%;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.form-group2 {
+  display: flex;
+  flex-direction: column;
+
+  width: 60%;
+}
+
+.form-group2 label {
+  text-align: left;
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.input-field2 {
+  padding: 8px;
+  font-size: 20px;
+  border: 2px solid#792f00;
+  border-radius: 20px;
+  display: block;
+  margin-bottom: 10%;
+  width: 140%;
+}
+
+.input-field2:focus {
+  border: 2px solid #792f00;
+  outline: none;
+}
+.formButtons2{
+  margin-top: 5%;
+  width: 100%;
+  height: 70%;
+  
+}
+
+
+.submit-button2:hover {
+  background-color: #542200;
+}
+
+.submit-button2 {
+  background-color: #792f00;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 30%;
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 30px;
+  
+}
+
+#formulario2{
+  margin: 6%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  
+  height: 75%;
+  width: 90%;
 }
 </style>
   
