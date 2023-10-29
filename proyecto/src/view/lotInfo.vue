@@ -64,7 +64,6 @@
             <h2>Añadir plaga</h2>
             <div id="formulario">
               <form @submit.prevent="submitForm2" class="form">
-
                 <div class="form-group">
                   <label for="tipoPlaga">Tipo plaga</label>
                   <select id="tipoPlaga" v-model="id_plaga" required class="input-field">
@@ -92,7 +91,7 @@
           <div class="popup-content3">
             <h2>Añadir cosecha</h2>
             <div id="formulario3">
-              <form @submit.prevent="submitForm2" class="form3">
+              <form @submit.prevent="submitForm3" class="form3">
                 <div class="form-group3">
                   <label for="idCosecha">Fecha cosecha</label>
                   <select id="idCosecha" v-model="id_cos" required class="input-field3">
@@ -108,7 +107,7 @@
 
                 <div id="errorCorrection3"></div>
                 <div class="formButtons23">
-                  <button type="submit3" @click="submitForm" class="submit-button3">Agregar</button>
+                  <button type="submit3"  class="submit-button3">Agregar</button>
                   <button @click="hideAddCrops" class="submit-button3">Cerrar</button>
                 </div>
               </form>
@@ -765,6 +764,29 @@ const submitForm = async () => {
 const id_cos = ref();
 const cantidadPlantasCosecha = ref();
 const submitForm2 = async () => {
+  try {
+
+    const nuevaPlaga = {
+      ID_LOTE: lotId,
+      ID_PLAGA: parseInt(id_plaga.value),
+      FECHA_AFECTACION: new Date(fechaAfec.value),
+      ESTADO_PLAGA: "A"
+    };
+
+    const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga);
+
+    if (response.status === 200) {
+      location.reload();
+      hidePopup2();
+      onMounted()
+    }
+  } catch (error) {
+
+    console.error('Error al agregar plaga:', error);
+
+  }
+};
+const submitForm3 = async () => {
   try {
 
     const nuevaPlaga = {
