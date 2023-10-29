@@ -151,7 +151,7 @@
                     <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA" @click="dataPests(plaga)">
                       <td>{{ plaga.plagas.NOMBRE_PLAGA }}</td>
                       <td>{{ formatearFecha(plaga.FECHA_AFECTACION) }}</td>
-                      <td>{{ plaga.ESTADO_PLAGA }}</td>
+                      <td>{{ validateStatus(plaga.ESTADO_PLAGA)  }}</td>
                     </tr>
 
                   </tbody>
@@ -174,7 +174,7 @@
                       @click="dataWorker(trabajador)">
                       <td>{{ trabajador.personas.NOMBRE_PERSONA }} {{ trabajador.personas.APELLIDO_PERSONA }}</td>
                       <td>{{ formatearFecha(trabajador.FECHA_ASIGNACION) }}</td>
-                      <td>{{ trabajador.ESTADO_ASIGNACION }}</td>
+                      <td>{{ validateStatus(trabajador.ESTADO_ASIGNACION) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -191,7 +191,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="cosecha in historialCosechas" :key="cosecha.ID_COSECHA">
+                    <tr v-for="cosecha in historialCosechas" :key="cosecha.ID_COSECHA" @click="dataCrop(cosecha)">
                       <td>{{ formatearFecha(cosecha.cosechas.FECHA_COSECHA) }}</td>
                       <td>{{ cosecha.CANTIDAD }}</td>
                     </tr>
@@ -311,7 +311,7 @@
                   <form class="editPestForm" @submit.prevent="editSect">
                     <div class="editFormGroup">
                       <label for="sec">Estado: </label>
-                      <select id="tipoPlanta" v-model="newStatusWorker" required class="">
+                      <select id="tipoPlanta" v-model="newStatusPest" required class="">
                         <option value="A">Activo</option>
                         <option value="I">Inactivo</option>
                       </select>
@@ -319,6 +319,32 @@
                     <div class="editSecButtons">
                       <button @click="editPests">Cambiar</button>
                       <button @click="dataPestsHide">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="isCropVisible" class="popupPests">
+            <div class="popup-contentPests">
+              <button class="deleteBtn" @click="removeCrop">
+                <img src="../images/delete_btn.png" alt="Texto alternativo 1">
+              </button>
+              <h2>Cosecha: {{formatearFecha(selectedCrop.cosechas.FECHA_COSECHA)}}</h2>
+              <div class="sector">
+                <div class="info">                  
+                  <h4>Cantidad recolectado: {{selectedCrop.CANTIDAD}}</h4>
+                </div>
+                <div class="editarPests">
+                  <h4>Cambiar cantidad recolectada</h4>
+                  <form class="editPestForm" @submit.prevent="editCrop">
+                    <div class="editFormGroup">
+                      <label for="sec">Cantidad </label>
+                      <input type="number" v-model="newCropValue">                      
+                    </div>
+                    <div class="editSecButtons">
+                      <button @click="editCrop">Cambiar</button>
+                      <button @click="dataCrophide">Cancelar</button>
                     </div>
                   </form>
                 </div>
@@ -358,8 +384,30 @@ const nPlantasUpdate = ref();
 const isWorkerVisible = ref(false);
 const selectedWorker = ref(null);
 const newStatusWorker = ref('');
+const newStatusPest = ref('');
 const isPestsVisible = ref(false);
 const selectedPest = ref(null);
+const selectedCrop = ref(null);
+const isCropVisible = ref(false);
+const newCropValue = ref('');
+const validateStatus=(status)=>{
+  if (status === "I") {
+    return "Inactivo"
+  } else {
+    return "Activo"
+  }
+}
+const dataCrop = (crop) => {
+  isCropVisible.value = true;
+  selectedCrop.value = crop;
+  
+}
+const dataCrophide = () => {
+  isCropVisible.value = false;
+  
+  
+}
+
 const dataPests = (plaga) => {
   isPestsVisible.value = true;
   selectedPest.value = plaga;
@@ -387,6 +435,7 @@ const editSect = async () => {
 
     if (response.status === 200) {
       console.log('Sector actualizado con éxito');
+      alert("Sector actualizado con éxito");
       hideSector();
       location.reload();
     } else {
@@ -394,6 +443,44 @@ const editSect = async () => {
     }
   } catch (error) {
     console.error('Error al actualizar', error);
+  }
+};
+const editCrop = async () => {
+  try {
+    const sectorUpdate = {
+      ID_LOTE: lotId,
+      ID_COSECHA: parseInt(selectedCrop.value.ID_COSECHA),
+      CANTIDAD: newCropValue.value,
+    };
+
+    const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate);
+
+    if (response.status === 200) {
+      console.log('Cosecha actualizada con éxito');
+      alert("Cosecha actualizada con éxito");
+      dataPestsHide();
+      location.reload();
+    } else {
+      console.error('Error al actualizar');
+    }
+  } catch (error) {
+    console.error('Error al actualizar', error);
+  }
+};
+const removeCrop = async()=>{
+  try {
+    const id_crop = selectedCrop.value.ID_COSECHA;
+    const id_lote = lotId
+    const response = await axios.delete(`http://localhost:3000/historial/cosechas/${id_lote}/${id_crop}`);
+    if (response.status === 200) {
+      alert("Cosecha eliminada exitosamente");
+      dataCrophide();
+      location.reload();
+    } else {
+      console.error('Error al eliminar cosecha');
+    }
+  } catch (error) {
+    console.error('Error al eliminar cosecha', error);
   }
 };
 const removeWorker = async()=>{
@@ -438,14 +525,15 @@ const editWorker = async () => {
 const editPests = async () => {
 
   try {
-    const workerUpdate = {
-      ID_LOTE: lotId,
-      ID_PLAGA: selectedPest.value.ID_PLAGA,
-      FECHA_AFECTACION: selectedPest.FECHA_AFECTACION,
-      ESTADO_PLAGA: newStatusWorker.value,
-    };
+    console.log(new Date(selectedPest.value.FECHA_AFECTACION))
+    const pestId = selectedPest.value.ID_PLAGA;
+    const lot = lotId;
+    const fechaAfectacion = new Date(selectedPest.value.FECHA_AFECTACION);
+    const newStatus = newStatusPest.value;
 
-    const response = await axios.put(`http://localhost:3000/api/historial/plagas/${lotId}/${selectedPest.value.ID_PLAGA}`, workerUpdate);
+    const response = await axios.patch(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`,{
+       FECHA_AFECTACION: fechaAfectacion, ESTADO_PLAGA: newStatus
+  });
 
     if (response.status === 200) {
       console.log('Plaga actualizado con éxito');
@@ -479,7 +567,11 @@ const deletePests = async () => {
   try {
     const pestId = selectedPest.value.ID_PLAGA;
     const lot = lotId;
-    const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lotId}/${pestId}`);
+    const fechaAfectacion = new Date(selectedPest.value.FECHA_AFECTACION);
+    console.log(fechaAfectacion)
+    const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`, {
+      data: { FECHA_AFECTACION : fechaAfectacion } 
+    });
 
     if (response.status === 200) {
       console.log("Plaga borrada exitosamente");
@@ -554,7 +646,7 @@ const historialPlagas = ref([]);
 const historialTrabajadores = ref([]);
 const fetchHistorialTrabajadores = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/cos_pers/${lotId}`);
+    const response = await fetch(`http://localhost:3000/api/lotes/Spers/${lotId}`);
     if (response.ok) {
       const data = await response.json();
       historialTrabajadores.value = data.lotes_personas;
@@ -569,7 +661,7 @@ const fetchHistorialTrabajadores = async () => {
 const historialCosechas = ref([]);
 const fetchHistorialCosechas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/cos_pers/${lotId}`);
+    const response = await fetch(`http://localhost:3000/api/lotes/Scos/${lotId}`);
     if (response.ok) {
       const data = await response.json();
       historialCosechas.value = data.historial_cosechas;
@@ -596,7 +688,7 @@ const fetchCosechas = async () => {
 };
 const fetchHistorialPlagas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/sec_plag/${lotId}`);
+    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`);
     if (response.ok) {
       const data = await response.json();
       historialPlagas.value = data.historial_plagas;
@@ -610,7 +702,7 @@ const fetchHistorialPlagas = async () => {
 const getLotInfo = async () => {
   try {
 
-    const response = await fetch(`http://localhost:3000/api/lotes/sec_plag/${lotId}`);
+    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`);
     if (response.ok) {
       const data = await response.json();
       nameLot.value = data.NOMBRE_LOTE;
@@ -703,6 +795,7 @@ onMounted(() => {
   fetchCosechas();
 });
 </script>
+
   
 <style scoped>
 .popupPests {
@@ -873,7 +966,9 @@ onMounted(() => {
 .editFormGroup input {
   border-radius: 20px;
   border: 2px solid#792f00;
-  height: 90%;
+  height: 98%;
+  font-size: 20px;
+  width: 105%;
 }
 
 .editFormGroup select {
@@ -1192,6 +1287,9 @@ form {
   float: inline-start;
 
 
+}
+#historialCosechas tr{
+  cursor: pointer;
 }
 
 #cosechasTable th {

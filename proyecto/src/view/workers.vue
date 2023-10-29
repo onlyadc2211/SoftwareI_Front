@@ -77,7 +77,7 @@
                       <td>{{ worker.personas.NOMBRE_PERSONA }} {{ worker.personas.APELLIDO_PERSONA }}</td>
                       <td>{{worker.personas.TELEFONO_PERSONA}}</td>
                       <td>{{worker.lotes.NOMBRE_LOTE}}</td>
-                      <td>{{worker.ESTADO_ASIGNACION}}</td>
+                      <td>{{validateStatus(worker.ESTADO_ASIGNACION)}}</td>
                     </tr>
         
                   </tbody>
