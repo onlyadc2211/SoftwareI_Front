@@ -76,7 +76,7 @@
                     <tr v-for="worker in empleados" :key="worker.ID_LOTE" @click="showWorker(worker)">
                       <td>{{ worker.personas.NOMBRE_PERSONA }} {{ worker.personas.APELLIDO_PERSONA }}</td>
                       <td>{{worker.personas.TELEFONO_PERSONA}}</td>
-                      <td>{{worker.ID_LOTE}}</td>
+                      <td>{{worker.lotes.NOMBRE_LOTE}}</td>
                       <td>{{worker.ESTADO_ASIGNACION}}</td>
                     </tr>
         
@@ -89,7 +89,7 @@
               </div>
               <div v-if="isWorkerVisible" class="popupWorker">
                 <div class="popup-contentWorker">
-                  <button class="deleteBtn" @click="deleteSector">
+                  <button class="deleteBtn" @click="removeWorker">
                     <img src="../images/delete_btn.png" alt="Texto alternativo 1">
                   </button>
                   <h2> {{ selectedWorker.personas.NOMBRE_PERSONA }} {{ selectedWorker.personas.APELLIDO_PERSONA }} </h2>
@@ -128,6 +128,9 @@
                         </div>
                       </form>
                     </div>
+                    <div class="exitButton">
+                      <button @click="hideDataWorker">Salir</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -150,10 +153,80 @@ const id_trabajador_asig =ref('')
 const id_lote_asig = ref(0)
 const isWorkerVisible = ref(false);
 const selectedWorker = ref(null);
+const newStatusWorker = ref('');
+const newDate= ref(null);
+
+const editStatus = async()=>{
+  try {
+    const id_persona = selectedWorker.value.ID_PERSONA;
+    const id_lote = selectedWorker.value.ID_LOTE;
+    const fechaA = selectedWorker.value.FECHA_ASIGNACION;
+    const newData = {
+      ID_LOTE : id_lote,
+      ID_PERSONA : id_persona,
+      FECHA_ASIGNACION : fechaA,
+      ESTADO_ASIGNACION : newStatusWorker.value,
+    }
+    const response = await axios.patch(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,newData);
+    if (response.status === 200) {
+      console.log("Plaga borrada exitosamente");
+      hideDataWorker();
+      location.reload();
+    } else {
+      console.error('Error al actualizar');
+    }
+  } catch (error) {
+    console.error('Error al actualizar', error);
+  }
+};
+const editDate = async()=>{
+  try {
+    const id_persona = selectedWorker.value.ID_PERSONA;
+    const id_lote = selectedWorker.value.ID_LOTE;
+    const fechaA = new Date(newDate.value);
+    const status = selectedWorker.value.ESTADO_ASIGNACION;
+    console.log(fechaA)
+    const newData = {
+      ID_LOTE : id_lote,
+      ID_PERSONA : id_persona,
+      FECHA_ASIGNACION : fechaA,
+      ESTADO_ASIGNACION : status,
+    }
+    const response = await axios.put(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,newData);
+    if (response.status === 200) {
+      alert("Fecha cambiada exitosamente");
+      hideDataWorker();
+      location.reload();
+    } else {
+      console.error('Error al actualizar');
+    }
+  } catch (error) {
+    console.error('Error al actualizar', error);
+  }
+};
+
+const removeWorker = async()=>{
+  try {
+    const id_persona = selectedWorker.value.ID_PERSONA;
+    const id_lote = selectedWorker.value.ID_LOTE;
+    const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`);
+    if (response.status === 200) {
+      console.log("Plaga borrada exitosamente");
+      alert("Trabajador eliminado exitosamente");
+      hideDataWorker();
+      location.reload();
+    } else {
+      console.error('Error al eliminar plaga');
+    }
+  } catch (error) {
+    console.error('Error al eliminar plaga', error);
+  }
+};
 
 const showWorker=(trabajador)=>{
   isWorkerVisible.value = true;
   selectedWorker.value = trabajador;
+  console.log(selectedWorker.value)
 }
 const hideDataWorker=()=>{
   isWorkerVisible.value = false;
@@ -166,11 +239,11 @@ const validateStatus=(status)=>{
     return "Activo"
   }
 }
-const formatearFecha = (fechaISO) => {
+const formatearFecha = ref((fechaISO) => {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
   const fechaFormateada = new Date(fechaISO).toLocaleDateString(undefined, options);
   return fechaFormateada;
-}
+});
 const addWorker = () => {
   isVisible.value = true;
 };
@@ -208,6 +281,7 @@ const asignarLote = async () => {
       id_trabajador_asig.value = 0;
       hidePopup2()
       onMounted()
+      location.reload();
     }
   } catch (error) {
 
@@ -284,7 +358,7 @@ onMounted(() => {
 .popup-contentWorker {
   background-color: #fff;
   width: 37%;
-  height: 98%;
+  height: 96%;
   border-radius: 15px;
   border: 3px solid #792f00;
   display: flex;
@@ -323,8 +397,27 @@ onMounted(() => {
   cursor: pointer;
   margin: 2%;
   margin-bottom: 0%;
-  height: 60px;
-  width: 15%;
+  height: 50px;
+  width: 12%;
+}
+.exitButton{
+  
+  height: 10%;
+  display: flex;
+  justify-content: space-around;
+}
+.exitButton button{ 
+  margin-left: auto;
+  margin-right: 3%;
+  width: 25%;
+  height: 60%;
+  border-radius: 20px;
+  background-color:#792f00;
+  color: #fff;
+  cursor: pointer;
+}
+.exitButton button:hover {
+  transform: scale(1.1);
 }
 
 .deleteBtn:hover {
@@ -336,7 +429,7 @@ onMounted(() => {
   height: 70%;
 }
 .editarWorker2 {
-  height: 28%;
+  height: 27%;
   width: 95%;
   margin: 2%;
   border: 3px solid #792f00;

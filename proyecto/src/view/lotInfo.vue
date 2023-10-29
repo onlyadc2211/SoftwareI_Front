@@ -267,7 +267,7 @@
           </div>
           <div v-if="isWorkerVisible" class="popupWorker">
             <div class="popup-contentWorker">
-              <button class="deleteBtn" @click="deleteSector">
+              <button class="deleteBtn" @click="removeWorker">
                 <img src="../images/delete_btn.png" alt="Texto alternativo 1">
               </button>
               <h2>{{ selectedWorker.personas.NOMBRE_PERSONA }} {{ selectedWorker.personas.APELLIDO_PERSONA }} </h2>
@@ -396,6 +396,23 @@ const editSect = async () => {
     console.error('Error al actualizar', error);
   }
 };
+const removeWorker = async()=>{
+  try {
+    const id_persona = selectedWorker.value.ID_PERSONA;
+    const id_lote = selectedWorker.value.ID_LOTE;
+    const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`);
+    if (response.status === 200) {
+      console.log("Plaga borrada exitosamente");
+      alert("Trabajador eliminado exitosamente");
+      hideDataWorker();
+      location.reload();
+    } else {
+      console.error('Error al eliminar plaga');
+    }
+  } catch (error) {
+    console.error('Error al eliminar plaga', error);
+  }
+};
 const editWorker = async () => {
   try {
     const workerUpdate = {
@@ -419,6 +436,7 @@ const editWorker = async () => {
   }
 };
 const editPests = async () => {
+
   try {
     const workerUpdate = {
       ID_LOTE: lotId,
@@ -460,7 +478,7 @@ const deleteSector = async () => {
 const deletePests = async () => {
   try {
     const pestId = selectedPest.value.ID_PLAGA;
-
+    const lot = lotId;
     const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lotId}/${pestId}`);
 
     if (response.status === 200) {
