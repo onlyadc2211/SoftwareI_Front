@@ -117,7 +117,7 @@ const deletL = async () => {
       });
 
       if (response.ok) {
-        
+        location.reload();
       } else {
    
         console.error('Error al eliminar el lote con ID:', lotId);
@@ -177,6 +177,7 @@ const submitForm = async () => {
             totalPlantas.value = 0;
 
             isVisible.value = false;
+            location.reload();
         }
     } catch (error) {
 

@@ -97,7 +97,7 @@
                   <label for="idCosecha">Fecha cosecha</label>
                   <select id="idCosecha" v-model="id_cos" required class="input-field3">
                     <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
-                      {{formatearFecha(cosecha.FECHA_COSECHA)}} </option>
+                      {{ formatearFecha(cosecha.FECHA_COSECHA) }} </option>
                   </select>
                 </div>
                 <div class="form-group3">
@@ -148,8 +148,7 @@
                     </tr>
                   </thead>
                   <tbody>
-
-                    <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA">
+                    <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA" @click="dataPests(plaga)">
                       <td>{{ plaga.plagas.NOMBRE_PLAGA }}</td>
                       <td>{{ formatearFecha(plaga.FECHA_AFECTACION) }}</td>
                       <td>{{ plaga.ESTADO_PLAGA }}</td>
@@ -171,7 +170,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="trabajador in historialTrabajadores" :key="trabajador.ID_PERSONA">
+                    <tr v-for="trabajador in historialTrabajadores" :key="trabajador.ID_PERSONA"
+                      @click="dataWorker(trabajador)">
                       <td>{{ trabajador.personas.NOMBRE_PERSONA }} {{ trabajador.personas.APELLIDO_PERSONA }}</td>
                       <td>{{ formatearFecha(trabajador.FECHA_ASIGNACION) }}</td>
                       <td>{{ trabajador.ESTADO_ASIGNACION }}</td>
@@ -192,8 +192,8 @@
                   </thead>
                   <tbody>
                     <tr v-for="cosecha in historialCosechas" :key="cosecha.ID_COSECHA">
-                      <td>{{ formatearFecha(cosecha.cosechas.FECHA_COSECHA)}}</td>
-                      <td>{{ cosecha.CANTIDAD}}</td>                      
+                      <td>{{ formatearFecha(cosecha.cosechas.FECHA_COSECHA) }}</td>
+                      <td>{{ cosecha.CANTIDAD }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -203,58 +203,56 @@
         </div>
 
         <div id="cont2" class="contenedores">
-        
+
           <div id="sec">
             <div class="lotes">
-            
+
               <div v-for="sector in sectors" :key="sector.ID_SECTOR" class="lote-item">
-                
+
                 <div class="lote-content" @click="showSector(sector)">
                   <h1 class="text">Sector {{ sector.ID_SECTOR }}</h1>
                   <p class="text">N° plantas {{ sector.NUMERO_PLANTAS }}</p>
                   <p class="text"> {{ sector.tipo_plantas.NOMBRE_PLANTA }}</p>
                 </div>
-              
-            </div>
-            <div v-if="isSectorVisible" class="popup4">
-              <div class="popup-content4">
-                <button class="deleteBtn">
-                  <img src="../images/delete_btn.png" alt="Texto alternativo 1">
-                </button>
-                <h2>Sector {{ selectedSector.ID_SECTOR }}</h2>
-                <div class="sector">
-                  <div class="info">
-                    <h4>Numero de plantas {{selectedSector.NUMERO_PLANTAS}}</h4>
-                    <h4>Tipo de planta: {{selectedSector.tipo_plantas.NOMBRE_PLANTA}}</h4>
-                    
-                  </div>
-                  <div class="editar">
-                    <h4>Editar lote</h4>
-                    <form class="ediSecForm">
-                      <div class="editFormGroup">
-                      <label for="sec">Tipo planta</label>
-                      <select id="tipoPlanta" v-model="id_plant" required class="">
-                        <option value="1">cafe 1</option>
-                        <option value="2">cafe 2</option>
-                        <option value="3">cafe 3</option>
-    
-                      </select>
+
+              </div>
+              <div v-if="isSectorVisible" class="popup4">
+                <div class="popup-content4">
+                  <button class="deleteBtn" @click="deleteSector">
+                    <img src="../images/delete_btn.png" alt="Texto alternativo 1">
+                  </button>
+                  <h2>Sector {{ selectedSector.ID_SECTOR }}</h2>
+                  <div class="sector">
+                    <div class="info">
+                      <h4>Numero de plantas {{ selectedSector.NUMERO_PLANTAS }}</h4>
+                      <h4>Tipo de planta: {{ selectedSector.tipo_plantas.NOMBRE_PLANTA }}</h4>
                     </div>
-                    <div class="editFormGroup">
-                      <label for="sec">Numero de plantas</label>
-                      <input type="number" >
+                    <div class="editar">
+                      <h4>Editar lote</h4>
+                      <form class="ediSecForm" @submit.prevent="editSect">
+                        <div class="editFormGroup">
+                          <label for="sec">Tipo planta</label>
+                          <select id="tipoPlanta" v-model="tPlantasUpdate" required class="">
+                            <option value="1">cafe 1</option>
+                            <option value="2">cafe 2</option>
+                            <option value="3">cafe 3</option>
+
+                          </select>
+                        </div>
+                        <div class="editFormGroup">
+                          <label for="sec">Numero de plantas</label>
+                          <input type="number" v-model="nPlantasUpdate">
+                        </div>
+                        <div class="editSecButtons">
+                          <button @click="editSect">Editar</button>
+                          <button @click="hideSector">Cancelar</button>
+                        </div>
+                      </form>
                     </div>
-                    <div class="editSecButtons">
-                      <button>Editar</button>
-                      <button @click="hideSector">Cancelar</button>
-                    </div>
-                    </form>
-                   
                   </div>
                 </div>
               </div>
-            </div>  
-          </div>
+            </div>
           </div>
           <div id="btns">
             <button class="btnInfo" @click="addPests">
@@ -267,7 +265,66 @@
               Añadir seccion
             </button>
           </div>
-
+          <div v-if="isWorkerVisible" class="popupWorker">
+            <div class="popup-contentWorker">
+              <button class="deleteBtn" @click="deleteSector">
+                <img src="../images/delete_btn.png" alt="Texto alternativo 1">
+              </button>
+              <h2>{{ selectedWorker.personas.NOMBRE_PERSONA }} {{ selectedWorker.personas.APELLIDO_PERSONA }} </h2>
+              <div class="sector">
+                <div class="info">
+                  <h4>Fecha asignación: {{ formatearFecha(selectedWorker.FECHA_ASIGNACION) }}</h4>
+                  <h4>Estado: {{ selectedWorker.ESTADO_ASIGNACION }}</h4>
+                </div>
+                <div class="editarWorker">
+                  <h4>Cambiar estado</h4>
+                  <form class="ediSecForm" @submit.prevent="editSect">
+                    <div class="editFormGroup">
+                      <label for="sec">Estado: </label>
+                      <select id="tipoPlanta" v-model="newStatusWorker" required class="">
+                        <option value="A">Activo</option>
+                        <option value="I">Inactivo</option>
+                      </select>
+                    </div>
+                    <div class="editSecButtons">
+                      <button @click="editWorker">Cambiar</button>
+                      <button @click="hideDataWorker">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="isPestsVisible" class="popupPests">
+            <div class="popup-contentPests">
+              <button class="deleteBtn" @click="deletePests">
+                <img src="../images/delete_btn.png" alt="Texto alternativo 1">
+              </button>
+              <h2>Plaga: {{selectedPest.plagas.NOMBRE_PLAGA}}</h2>
+              <div class="sector">
+                <div class="info">
+                  <h4>Fecha afectación: {{ formatearFecha(selectedPest.FECHA_AFECTACION) }}</h4>
+                  <h4>Estado: {{selectedPest.ESTADO_PLAGA }}</h4>
+                </div>
+                <div class="editarPests">
+                  <h4>Cambiar estado</h4>
+                  <form class="editPestForm" @submit.prevent="editSect">
+                    <div class="editFormGroup">
+                      <label for="sec">Estado: </label>
+                      <select id="tipoPlanta" v-model="newStatusWorker" required class="">
+                        <option value="A">Activo</option>
+                        <option value="I">Inactivo</option>
+                      </select>
+                    </div>
+                    <div class="editSecButtons">
+                      <button @click="editPests">Cambiar</button>
+                      <button @click="dataPestsHide">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -296,15 +353,139 @@ const showPests = ref(true);
 const showCrops = ref(false);
 const isSectorVisible = ref(false);
 const selectedSector = ref(null);
+const tPlantasUpdate = ref();
+const nPlantasUpdate = ref();
+const isWorkerVisible = ref(false);
+const selectedWorker = ref(null);
+const newStatusWorker = ref('');
+const isPestsVisible = ref(false);
+const selectedPest = ref(null);
+const dataPests = (plaga) => {
+  isPestsVisible.value = true;
+  selectedPest.value = plaga;
+  console.log(selectedPest.value)
+}
+const dataPestsHide = (plaga) => {
+  isPestsVisible.value = false;
+}
+const dataWorker = (trabajador) => {
+  isWorkerVisible.value = true;
+  selectedWorker.value = trabajador
+}
+const hideDataWorker = () => {
+  isWorkerVisible.value = false;
+}
+const editSect = async () => {
+  try {
+    const sectorUpdate = {
+      ID_LOTE: lotId,
+      ID_TIPO_PLANTA: parseInt(tPlantasUpdate.value),
+      NUMERO_PLANTAS: nPlantasUpdate.value,
+    };
 
-const showSector=(sector)=>{
+    const response = await axios.put(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, sectorUpdate);
+
+    if (response.status === 200) {
+      console.log('Sector actualizado con éxito');
+      hideSector();
+      location.reload();
+    } else {
+      console.error('Error al actualizar sector');
+    }
+  } catch (error) {
+    console.error('Error al actualizar', error);
+  }
+};
+const editWorker = async () => {
+  try {
+    const workerUpdate = {
+      ID_LOTE: lotId,
+      ID_PERSONA: selectedWorker.value.ID_PERSONA,
+      FECHA_ASIGNACION: selectedWorker.FECHA_ASIGNACION,
+      ESTADO_ASIGNACION: newStatusWorker.value,
+    };
+
+    const response = await axios.put(`http://localhost:3000/api/userlotes/${lotId}/${selectedWorker.value.ID_PERSONA}`, workerUpdate);
+
+    if (response.status === 200) {
+      console.log('Trabajador actualizado con éxito');
+      hideDataWorker();
+      location.reload();
+    } else {
+      console.error('Error al actualizar trabajador');
+    }
+  } catch (error) {
+    console.error('Error al actualizar trabajador', error);
+  }
+};
+const editPests = async () => {
+  try {
+    const workerUpdate = {
+      ID_LOTE: lotId,
+      ID_PLAGA: selectedPest.value.ID_PLAGA,
+      FECHA_AFECTACION: selectedPest.FECHA_AFECTACION,
+      ESTADO_PLAGA: newStatusWorker.value,
+    };
+
+    const response = await axios.put(`http://localhost:3000/api/historial/plagas/${lotId}/${selectedPest.value.ID_PLAGA}`, workerUpdate);
+
+    if (response.status === 200) {
+      console.log('Plaga actualizado con éxito');
+      hideDataWorker();
+      location.reload();
+    } else {
+      console.error('Error al actualizar plaga');
+    }
+  } catch (error) {
+    console.error('Error al actualizar plaga', error);
+  }
+};
+const deleteSector = async () => {
+  try {
+    console.log(selectedSector.ID_SECTOR)
+    const response = await fetch(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, {
+      method: 'DELETE',
+    });
+    if (response.ok) {
+      console.log("Sector borrado exitosamente")
+      hideSector();
+      location.reload();
+    } else {
+      console.error('Error al eliminar sector');
+    }
+  } catch (error) {
+    console.error('Error al eliminar sector', error);
+  }
+};
+const deletePests = async () => {
+  try {
+    const pestId = selectedPest.value.ID_PLAGA;
+
+    const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lotId}/${pestId}`);
+
+    if (response.status === 200) {
+      console.log("Plaga borrada exitosamente");
+      dataPestsHide();
+      location.reload();
+    } else {
+      console.error('Error al eliminar plaga');
+    }
+  } catch (error) {
+    console.error('Error al eliminar plaga', error);
+  }
+};
+
+
+
+const showSector = (sector) => {
   isSectorVisible.value = true;
   selectedSector.value = sector;
-  
+
+
 }
-const hideSector=()=>{
+const hideSector = () => {
   isSectorVisible.value = false;
-  
+
 }
 
 const formatearFecha = (fechaISO) => {
@@ -353,7 +534,7 @@ const historialPlagas = ref([]);
 const historialTrabajadores = ref([]);
 const fetchHistorialTrabajadores = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/cosechas/${lotId}`);
+    const response = await fetch(`http://localhost:3000/api/lotes/cos_pers/${lotId}`);
     if (response.ok) {
       const data = await response.json();
       historialTrabajadores.value = data.lotes_personas;
@@ -364,23 +545,11 @@ const fetchHistorialTrabajadores = async () => {
     console.error('Error al obtener el historial de plagas:', error);
   }
 };
-const deleteSec = async () => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/lotes/cosechas/${lotId}`);
-    if (response.ok) {
-      const data = await response.json();
-      historialTrabajadores.value = data.lotes_personas;
-    } else {
-      console.error('Error al obtener el historial de plagas.');
-    }
-  } catch (error) {
-    console.error('Error al obtener el historial de plagas:', error);
-  }
-};
+
 const historialCosechas = ref([]);
 const fetchHistorialCosechas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/cosechas/${lotId}`);
+    const response = await fetch(`http://localhost:3000/api/lotes/cos_pers/${lotId}`);
     if (response.ok) {
       const data = await response.json();
       historialCosechas.value = data.historial_cosechas;
@@ -473,6 +642,7 @@ const submitForm = async () => {
 
       hidePopup()
       onMounted()
+      location.reload();
     }
   } catch (error) {
 
@@ -490,11 +660,11 @@ const submitForm2 = async () => {
       ID_COSECHA: parseInt(id_cos.value),
       CANTIDAD: parseInt(cantidadPlantasCosecha.value),
     };
-    
+
     const response = await axios.post('http://localhost:3000/api/historial/cosechas', nuevaPlaga);
 
     if (response.status === 200) {
-
+      location.reload();
       hideAddCrops()
       onMounted()
     }
@@ -515,6 +685,87 @@ onMounted(() => {
 </script>
   
 <style scoped>
+.popupPests {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.popup-contentPests {
+  background-color: #fff;
+  width: 30%;
+  height: 60%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-contentPests h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0%;
+}
+
+.editarPests {
+  height: 68%;
+  width: 95%;
+  margin: 2%;
+  border: 3px solid #792f00;
+  border-radius: 20px;
+
+}
+.editPestFormForm {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0%;
+}
+.popupWorker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.popup-contentWorker {
+  background-color: #fff;
+  width: 30%;
+  height: 60%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-contentWorker h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0%;
+}
+
+.editarWorker {
+  height: 68%;
+  width: 95%;
+  margin: 2%;
+  border: 3px solid #792f00;
+  border-radius: 20px;
+
+}
+
 .popup4 {
   position: fixed;
   top: 0;
@@ -544,10 +795,11 @@ onMounted(() => {
   justify-content: center;
   margin: 0%;
 }
-.deleteBtn{
+
+.deleteBtn {
   align-self: flex-end;
-  background-color: red; 
-  color: white; 
+  background-color: transparent;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -556,75 +808,86 @@ onMounted(() => {
   height: 60px;
   width: 15%;
 }
+
 .deleteBtn:hover {
   transform: scale(1.1);
 }
-.deleteBtn img{
+
+.deleteBtn img {
   width: 80%;
   height: 70%;
 }
 
-.sector{
+.sector {
   height: 70%;
-  width:96%;
+  width: 96%;
   margin: 2%;
-  
+
 }
-.info{
+
+.info {
   height: 20%;
   width: 95%;
   margin: 3%;
-  
+
 }
-.info h4{
+
+.info h4 {
   margin: 1%;
 }
-.ediSecForm{
+
+.ediSecForm {
   display: flex;
   flex-direction: column;
-  
+
   margin: 0%;
 }
-.editFormGroup{
+
+.editFormGroup {
   display: flex;
   flex-direction: column;
   height: 30%;
   margin-left: 2%;
 }
-.editFormGroup input{
+
+.editFormGroup input {
   border-radius: 20px;
   border: 2px solid#792f00;
   height: 90%;
 }
-.editFormGroup select{
+
+.editFormGroup select {
   border-radius: 20px;
   border: 2px solid#792f00;
   height: 90%;
   font-size: 20px;
 }
 
-.editSecButtons button{
+.editSecButtons button {
   margin: 4%;
   margin-left: 11%;
   height: 40px;
   width: 35%;
-  background-color:#792f00;
+  background-color: #792f00;
   color: #fff;
   border-radius: 20px;
   cursor: pointer;
 }
+
 .editSecButtons button:hover {
   transform: scale(1.1);
 }
-.editar{
+
+.editar {
   height: 71%;
   width: 95%;
   margin: 2%;
   border: 3px solid #792f00;
   border-radius: 20px;
-  
+
 }
-.editar h4{
+
+.editar h4 {
   margin: 1%;
 }
 
@@ -642,7 +905,7 @@ onMounted(() => {
   width: 80%;
   height: 38px;
   vertical-align: middle;
-  
+
 
 
 }
@@ -679,10 +942,12 @@ form {
 
   width: 60%;
 }
-.form-group select{
+
+.form-group select {
   width: 160%;
 }
-.form-group input{
+
+.form-group input {
   width: 150%;
 }
 
@@ -760,6 +1025,7 @@ form {
   justify-content: center;
   margin-bottom: 0%;
 }
+
 .popup2 {
   position: fixed;
   top: 0;
@@ -897,15 +1163,17 @@ form {
   float: inline-start;
 
 }
-#historialCosechas{
+
+#historialCosechas {
   overflow-y: auto;
   max-height: 25vh;
   width: 98%;
   margin: 1%;
   float: inline-start;
-  
+
 
 }
+
 #cosechasTable th {
   text-align: center;
   padding: 10px 20px;
@@ -1047,6 +1315,10 @@ form {
 }
 
 #regresar:hover {
+  transform: scale(1.1);
+}
+
+tr:hover {
   transform: scale(1.1);
 }
 

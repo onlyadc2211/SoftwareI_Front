@@ -158,8 +158,8 @@ const submitForm = async () => {
 
       if (contrasena.value === confirmarContrasena.value) {//validar aca que sea mayor que 0
         const response = await axios.post('http://localhost:3000/api/connection', {
-          ID_PERSONA: parseInt(cedula.value),
-          ID_ROL: parseInt(rol.value),
+          ID_PERSONA: cedula.value,
+          ID_ROL: rol.value,
           NOMBRE_USUARIO: usuarioRegistro.value,
           CORREO_USUARIO: correo.value,
           PASSWORD_USUARIO: contrasena.value,

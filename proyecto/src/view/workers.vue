@@ -39,9 +39,7 @@
                         <option v-for="trabajador in trabajadores" :value="trabajador.ID_PERSONA">
                           {{ trabajador.NOMBRE_PERSONA }} {{ trabajador.APELLIDO_PERSONA }}
                         </option>
-                      
-                      
-    
+
                       </select>
                     </div>
                     <div class="form-group">
@@ -64,7 +62,6 @@
               </div>
             </div>
               <div class="trabajadores">
-
                 <table id="table">
                   <thead>
                     <tr>
@@ -76,7 +73,7 @@
                   </thead>
                   <tbody>
   
-                    <tr v-for="worker in empleados" :key="worker.ID_LOTE">
+                    <tr v-for="worker in empleados" :key="worker.ID_LOTE" @click="showWorker(worker)">
                       <td>{{ worker.personas.NOMBRE_PERSONA }} {{ worker.personas.APELLIDO_PERSONA }}</td>
                       <td>{{worker.personas.TELEFONO_PERSONA}}</td>
                       <td>{{worker.ID_LOTE}}</td>
@@ -89,8 +86,50 @@
               </div>
               <div class="botones">
                   <button class="btnLotes" @click="addWorker">Agregar</button>
-                  <button class="btnLotes">Modificar</button>
-                  <button class="btnLotes" @click="deletePopup">Eliminar</button>
+              </div>
+              <div v-if="isWorkerVisible" class="popupWorker">
+                <div class="popup-contentWorker">
+                  <button class="deleteBtn" @click="deleteSector">
+                    <img src="../images/delete_btn.png" alt="Texto alternativo 1">
+                  </button>
+                  <h2> {{ selectedWorker.personas.NOMBRE_PERSONA }} {{ selectedWorker.personas.APELLIDO_PERSONA }} </h2>
+                  <div class="sector">
+                    <div class="info">
+                      <h4>Telefono: {{ selectedWorker.personas.TELEFONO_PERSONA }}</h4>
+                      <h4>Lote asignado: {{ selectedWorker.ID_LOTE }} </h4>
+                      <h4>Estado de asignación: {{validateStatus( selectedWorker.ESTADO_ASIGNACION) }}</h4>
+                      <h4>Fecha de asignación: {{formatearFecha(selectedWorker.FECHA_ASIGNACION) }}</h4>
+                    </div>
+                    <div class="editarWorker">
+                      <h4>Cambiar estado</h4>
+                      <form class="ediSecForm" @submit.prevent="editStatus">
+                        <div class="editFormGroup">
+                          <label for="sec">Estado: </label>
+                          <select id="tipoPlanta" v-model="newStatusWorker" required class="">
+                            <option value="A">Activo</option>
+                            <option value="I">Inactivo</option>
+                          </select>
+                        </div>
+                        <div class="editSecButtons">
+                          <button @click="editWorker">Cambiar</button>
+                          
+                        </div>
+                      </form>
+                    </div>
+                    <div class="editarWorker2">
+                      <h4>Cambiar fecha de asignación</h4>
+                      <form class="ediSecForm" @submit.prevent="editDate">
+                        <div class="editFormGroup2">
+                          <label for="sec">Fecha: </label>
+                          <input type="date" v-model="newDate">
+                        </div>
+                        <div class="editSecButtons2">
+                          <button @click="editWorker">Cambiar</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
               </div>
           </div>
       </div>
@@ -107,9 +146,31 @@ const router = useRouter();
 const isVisible = ref('');
 const trabajadores = ref([]);
 const lotes = ref([]);
-const id_trabajador_asig =ref(0)
+const id_trabajador_asig =ref('')
 const id_lote_asig = ref(0)
+const isWorkerVisible = ref(false);
+const selectedWorker = ref(null);
 
+const showWorker=(trabajador)=>{
+  isWorkerVisible.value = true;
+  selectedWorker.value = trabajador;
+}
+const hideDataWorker=()=>{
+  isWorkerVisible.value = false;
+  
+}
+const validateStatus=(status)=>{
+  if (status === "I") {
+    return "Inactivo"
+  } else {
+    return "Activo"
+  }
+}
+const formatearFecha = (fechaISO) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  const fechaFormateada = new Date(fechaISO).toLocaleDateString(undefined, options);
+  return fechaFormateada;
+}
 const addWorker = () => {
   isVisible.value = true;
 };
@@ -133,7 +194,7 @@ const asignarLote = async () => {
   try {
     const nuevaAsignacion = {
       ID_LOTE: parseInt(id_lote_asig.value),
-      ID_PERSONA: parseInt(id_trabajador_asig.value),
+      ID_PERSONA: id_trabajador_asig.value,
       FECHA_ASIGNACION: new Date(),
       ESTADO_ASIGNACION: "A",
 
@@ -174,6 +235,7 @@ const obtenerTrabajadores =async ()=>{
     if (response.ok) {
       const data = await response.json();
       trabajadores.value = data;
+      
     } else {
       console.error('Error al obtener trabajadores.');
     }
@@ -189,6 +251,7 @@ const fetchEmpleados = async () => {
     if (response.ok) {
       const data = await response.json();
       empleados.value = data;
+      console.error(empleados.value);
     } else {
       console.error('Error al obtener trabajadores.');
     }
@@ -206,8 +269,174 @@ onMounted(() => {
 </script>
   
 <style scoped>
+.popupWorker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
 
+.popup-contentWorker {
+  background-color: #fff;
+  width: 37%;
+  height: 98%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+  display: flex;
+  flex-direction: column;
+}
 
+.popup-contentWorker h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0%;
+}
+.info h4{
+  margin: 2%;
+}
+
+.editarWorker {
+  height: 24%;
+  width: 95%;
+  margin: 2%;
+  border: 3px solid #792f00;
+  border-radius: 20px;
+
+}
+.editarWorker h4{
+  margin-bottom: 0%;
+  margin-top: 1%;
+  margin-left: 2%;
+}
+.deleteBtn {
+  align-self: flex-end;
+  background-color: transparent;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 2%;
+  margin-bottom: 0%;
+  height: 60px;
+  width: 15%;
+}
+
+.deleteBtn:hover {
+  transform: scale(1.1);
+}
+
+.deleteBtn img {
+  width: 80%;
+  height: 70%;
+}
+.editarWorker2 {
+  height: 28%;
+  width: 95%;
+  margin: 2%;
+  border: 3px solid #792f00;
+  border-radius: 20px;
+
+}
+.editarWorker2 h4{
+  margin-bottom: 0%;
+  margin-top: 1%;
+  margin-left: 2%;
+}
+.ediSecForm {
+  display: flex;
+  flex-direction: column;
+  margin-left: 2%;
+  width: 96%;
+  height: 80%;
+}
+
+.editFormGroup {
+  display: flex;
+  flex-direction: column;
+  height: 30%;
+  margin: 2%;
+  margin-left: 1%;
+}
+.editFormGroup2 {
+  display: flex;
+  flex-direction: column;
+  height: 70%;
+  margin: 2%;
+  margin-left: 1%;
+  
+}
+.editFormGroup2 input[type="date"] {
+  border-radius: 20px;
+  border: 2px solid#792f00;
+  height: 80%;
+  margin: 2%;
+}
+
+.editFormGroup select {
+  border-radius: 20px;
+  border: 2px solid#792f00;
+  height: 100px;
+  font-size: 20px;
+}
+.editSecButtons{
+  margin-top: 1%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 99%;
+  margin-left: 2%;
+  
+}
+.editSecButtons2{
+  margin-top: 1%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 99%;
+  margin-left: 2%;
+  height: 33%;
+  
+}
+.editSecButtons2 button {
+  margin: 4%;
+  margin-left: auto;
+  height: 40px;
+  width: 35%;
+  background-color: #792f00;
+  color: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.editSecButtons button {
+  margin: 4%;
+  margin-left: auto;
+  height: 40px;
+  width: 35%;
+  background-color: #792f00;
+  color: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.editSecButtons button:hover {
+  transform: scale(1.1);
+}
+.editSecButtons2 button:hover {
+  transform: scale(1.1);
+}
+tr{
+  cursor: pointer;
+}
+tr:hover {
+  transform: scale(1.1);
+}
 .trabajadores {
 
   width: 96%;
@@ -380,7 +609,7 @@ font-size: 30px;
 color: white;
 cursor: pointer;
 border-radius:20px;
-
+margin-left: auto;
 }
 .btnLotes:hover {
 transform: scale(1.1);
@@ -401,7 +630,7 @@ transform: scale(1.1);
 .popup-content {
   background-color: #fff;
   width: 30%;
-  height: 60%;
+  height: 50%;
   border-radius: 15px;
   border: 3px solid #792f00;
   
@@ -411,7 +640,7 @@ transform: scale(1.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0%;
+  margin-bottom: 5%;
 }
 form {
   width: 90%;
@@ -456,7 +685,7 @@ form {
 }
 
 .formButtons {
-  margin-top: 10%;
+  margin-top: 1%;
   width: 100%;
   height: 20%;
 
@@ -476,7 +705,7 @@ form {
   width: 30%;
   margin-left: 10%;
   margin-right: 10%;
-  height: 50%;
+  height: 35px;
 
 }
 #formulario {

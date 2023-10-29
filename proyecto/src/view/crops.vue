@@ -32,10 +32,7 @@
                   <h2>Añadir cosecha</h2>
                   <div id="formulario2">
                       <form @submit.prevent="submitForm" class="form2">
-                          <div class="form-group2">
-                              <label for="idLote">Id cosecha</label>
-                              <input type="number" id="totalPlantas" v-model="id_cosecha" required class="input-field2" />
-                          </div>
+
                           <div class="form-group2">
                               <label for="nombreLote">Fecha:</label>                            
                               <input type="date" id="fechaAfectacion" v-model="fechaCosecha" required class="input-field2" />
@@ -96,14 +93,13 @@ const hideAddCrop = ()=>{
 const submitForm = async () => {
     try {
         const nuevaCosecha = {
-            ID_COSECHA: parseInt(id_cosecha.value),
             FECHA_COSECHA: new Date(fechaCosecha.value),
         };
 
         const response = await axios.post('http://localhost:3000/api/cosechas', nuevaCosecha);
 
         if (response.status === 200) {
-            console.log('Fecha agragada con éxito');
+            console.log('cosecha agregada con éxito');
             id_cosecha.value = 0;
             fechaCosecha.value = '';
             isVisible.value = false;
@@ -352,7 +348,7 @@ transform: scale(1.1);
 .popup-content2 {
   background-color: #fff;
   width: 30%;
-  height: 50%;
+  height: 40%;
   border-radius: 15px;
   border: 3px solid #792f00;
 }
