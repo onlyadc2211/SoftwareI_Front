@@ -507,9 +507,11 @@ const hideSector = () => {
 }
 
 const formatearFecha = (fechaISO) => {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-  const fechaFormateada = new Date(fechaISO).toLocaleDateString(undefined, options);
-  return fechaFormateada;
+  const fecha = new Date(fechaISO);
+  const year = fecha.getUTCFullYear();
+  const month = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(fecha.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 const sWorkers = () => {
   showWorkers.value = true
