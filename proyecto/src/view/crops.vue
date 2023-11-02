@@ -28,14 +28,14 @@
       <div id="contenido">
         <div class="cosechas">
           <div class="pests">
-            <div v-for="cosecha in cosechasArray" :key="cosecha.ID_COSECHA" class="crops-item">
+            <div v-for="cosecha in cosechasArray" :key="cosecha.ID_COSECHA" class="crops-item" @click="editCosVisible(cosecha)">
               <div class="crops-content">
                 <h1>Cosecha: {{ cosecha.ID_COSECHA }}</h1>
                 <p>Fecha: {{ formatearFecha(cosecha.FECHA_COSECHA) }}</p>
                 <div class="lotesAsignados">
                   <ul>
                     <li v-for="lote in cosecha.lotes" :key="lote.ID_LOTE">
-                      {{ lote.NOMBRE_LOTE }}  : {{ lote.CANTIDAD }} KG
+                      {{ lote.NOMBRE_LOTE }}  : {{ lote.CANTIDAD }} 
                     </li>
                   </ul>
                 </div>
@@ -64,6 +64,25 @@
             <div class="formButtons2">
               <button type="submit2" @click="submitForm" class="submit-button2">Agregar</button>
               <button @click="hideAddCrop" class="submit-button2">Cerrar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div v-if="isVisibleEditcos" class="popup2">
+      <div class="popup-content3">
+        <h2>Editar cosecha: {{selectedcos.ID_COSECHA}}</h2>
+        <h3>Fecha actual: {{formatearFecha(selectedcos.FECHA_COSECHA)}}</h3>
+        <div id="formulario2">
+          <form @submit.prevent="submitFormEdit" class="form2">
+            <div class="form-group2">
+              <label for="nombreLote">Nueva fecha:</label>
+              <input type="date" id="fechaAfectacion" v-model="fechaCosechaEdit" required class="input-field2" />
+            </div>
+            <div id="errorCorrection2"></div>
+            <div class="formButtons2">
+              <button type="submit2" @click="submitFormEdit" class="submit-button2">Agregar</button>
+              <button @click="editCosHide" class="submit-button2">Cerrar</button>
             </div>
           </form>
         </div>
@@ -101,9 +120,12 @@ const router = useRouter();
 const isVisible = ref(false);
 const id_cosecha = ref();
 const fechaCosecha = ref('');
+const fechaCosechaEdit = ref('');
 const cosechas = ref([]);
 const cargando = ref(true);
 const isVisibleCos = ref(false);
+const isVisibleEditcos= ref(false);
+const selectedcos = ref(null);
 const formatearFecha = (fechaISO) => {
   const fecha = new Date(fechaISO);
   const year = fecha.getUTCFullYear();
@@ -113,6 +135,13 @@ const formatearFecha = (fechaISO) => {
 }
 const id_cos = ref();
 
+const editCosVisible = (cosecha)=>{
+isVisibleEditcos.value = true;
+selectedcos.value = cosecha;
+}
+const editCosHide = ()=>{
+isVisibleEditcos.value = false;
+}
 const deleteCos = ()=>{
 isVisibleCos.value = true;
 }
@@ -160,6 +189,29 @@ const submitForm = async () => {
   } catch (error) {
 
     console.error('Error al agregar cosecha: ', error);
+
+  }
+};
+const submitFormEdit = async () => {
+  try {
+    const nuevaCosecha = {
+      ID_COSECHA: selectedcos.value.ID_COSECHA,
+      FECHA_COSECHA: new Date(fechaCosechaEdit.value),
+    };
+
+    const response = await axios.put(`http://localhost:3000/api/cosechas/${selectedcos.value.ID_COSECHA}`, nuevaCosecha);
+
+    if (response.status === 200) {
+      console.log('cosecha editada con éxito');
+      alert("cosecha editada con exito")
+      id_cosecha.value = 0;
+      fechaCosechaEdit.value = '';
+      editCosHide();
+    }
+  } catch (error) {
+
+    console.error('Error al agregar cosecha: ', error);
+    
 
   }
 };
@@ -470,11 +522,31 @@ onMounted(() => {
   border-radius: 15px;
   border: 3px solid #792f00;
 }
+.popup-content3 {
+  background-color: #fff;
+  width: 30%;
+  height: 40%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+.popup-content3 h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.popup-content3 h3 {
+  margin-left: 2%;
+  margin-bottom: 0%;
+}
 
 .popup-content2 h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.popup-content2 h3 {
+  margin-left: 2%;
+  margin-bottom: 0%;
 }
 
 .form2 {
@@ -490,7 +562,6 @@ onMounted(() => {
 .form-group2 {
   display: flex;
   flex-direction: column;
-
   width: 60%;
 }
 .form-group2 select{
@@ -499,6 +570,7 @@ onMounted(() => {
   border: 2px solid#792f00;
   border-radius: 20px;
   display: block;
+  margin-top: 0%;
   margin-bottom: 10%;
   width: 160%;
 }
@@ -508,6 +580,7 @@ onMounted(() => {
   display: block;
   font-size: 15px;
   font-weight: bold;
+  margin-top: 0%;
 }
 
 .input-field2 {
@@ -534,7 +607,9 @@ onMounted(() => {
 
 
 .submit-button2:hover {
+  transform: scale(1,1);
   background-color: #542200;
+  
 }
 
 .submit-button2 {

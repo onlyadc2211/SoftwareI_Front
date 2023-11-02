@@ -25,7 +25,11 @@
     </div>
 
     <div id="title">
-      <h1 id="t">{{ nameLot }}</h1>
+      <h1 id="t">{{ nameLot }}
+        <button class="editButton" @click="editLot">
+          <img src="../images/edit.png" alt="">
+        </button>
+      </h1>
       <div id="contenido">
         <div v-if="isPopupVisible" class="popup2">
           <div class="popup-content2">
@@ -350,6 +354,24 @@
               </div>
             </div>
           </div>
+          <div v-if="isVisibleEdiLot" class="popupEditLot">
+            <div class="popup-contentEditLot">
+              <h2>Editar lote: {{nameLot}}</h2>
+              <div id="formulario2">
+                <form @submit.prevent="submitFormEditLot" class="form2">
+                  <div class="form-group2">
+                    <label for="nombreLote">Nuevo nombre:</label>
+                    <input type="text" v-model="newNameLot" required class="input-field2" />
+                  </div>
+                  <div id="errorCorrection2"></div>
+                  <div class="formButtons2">
+                    <button type="submit2" @click="submitFormEditLot" class="submit-button2">Editar</button>
+                    <button @click="editLotHide" class="submit-button2">Cerrar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -389,6 +411,32 @@ const selectedPest = ref(null);
 const selectedCrop = ref(null);
 const isCropVisible = ref(false);
 const newCropValue = ref('');
+const isVisibleEdiLot = ref(false);
+const newNameLot = ref('');
+const editLot = ()=>{
+  isVisibleEdiLot.value = true;
+}
+const editLotHide = ()=>{
+  isVisibleEdiLot.value = false;
+}
+const submitFormEditLot = async () => {
+  try {
+    const response = await axios.patch(`http://localhost:3000/api/lotes/${lotId}`,{
+       NOMBRE_LOTE: newNameLot.value.toLocaleUpperCase()
+  });
+
+    if (response.status === 200) {
+      console.log('Lote editado con éxito');
+      newNameLot.value = '';
+      alert("Lote editado con éxito")
+      editLotHide();
+      location.reload();
+    }
+  } catch (error) {
+    console.error('Error al agregar cosecha: ', error);
+  
+  }
+};
 const validateStatus=(status)=>{
   if (status === "I") {
     return "Inactivo"
@@ -455,7 +503,7 @@ const editCrop = async () => {
     const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate);
 
     if (response.status === 200) {
-      console.log('Cosecha actualizada con éxito');
+      console.log('Cosecha: actualizada con éxito' + lotId +selectedCrop.value.ID_COSECHA );
       alert("Cosecha actualizada con éxito");
       dataPestsHide();
       location.reload();
@@ -470,7 +518,7 @@ const removeCrop = async()=>{
   try {
     const id_crop = selectedCrop.value.ID_COSECHA;
     const id_lote = lotId
-    const response = await axios.delete(`http://localhost:3000/historial/cosechas/${id_lote}/${id_crop}`);
+    const response = await axios.delete(`http://localhost:3000/api/historial/cosechas/${id_lote}/${id_crop}`);
     if (response.status === 200) {
       alert("Cosecha eliminada exitosamente");
       dataCrophide();
@@ -719,7 +767,7 @@ const getLotInfo = async () => {
   }
 };
 const goBack = () => {
-  router.go(-1);
+  router.push("/main/cropManagement")
 }
 const goWorkers = () => {
   router.push('/main/cropManagement/workers')
@@ -820,6 +868,138 @@ onMounted(() => {
 
   
 <style scoped>
+.popupEditLot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+
+}
+
+
+.popup-contentEditLot {
+  background-color: #fff;
+  width: 30%;
+  height: 35%;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+.popup-contentEditLot h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#formulario2 {
+  margin: 6%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+
+  height: 75%;
+  width: 90%;
+}
+.formButtons2 {
+  margin-top: 5%;
+  width: 100%;
+  height: 70%;
+
+}
+
+
+.submit-button2:hover {
+  transform: scale(1,1);
+  background-color: #542200;
+  
+}
+
+.submit-button2 {
+  background-color: #792f00;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 30%;
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 30px;
+
+}
+
+
+
+.form2 {
+  width: 90%;
+  max-width: 700px;
+  height: 90%;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.form-group2 {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+}
+.form-group2 select{
+ padding: 8px;
+  font-size: 20px;
+  border: 2px solid#792f00;
+  border-radius: 20px;
+  display: block;
+  margin-top: 0%;
+  margin-bottom: 10%;
+  width: 160%;
+}
+
+.form-group2 label {
+  text-align: left;
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 0%;
+}
+
+.input-field2 {
+  padding: 8px;
+  font-size: 20px;
+  border: 2px solid#792f00;
+  border-radius: 20px;
+  display: block;
+  margin-bottom: 10%;
+  width: 140%;
+}
+
+.input-field2:focus {
+  border: 2px solid #792f00;
+  outline: none;
+}
+
+.formButtons2 {
+  margin-top: 5%;
+  width: 100%;
+  height: 70%;
+
+}
+.editButton{
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.editButton img{
+  width: 80%;
+  height: 20px;
+}
+.editButton :hover{
+  transform: scale(1.1);
+}
 .popupPests {
   position: fixed;
   top: 0;

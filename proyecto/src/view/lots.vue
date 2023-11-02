@@ -164,7 +164,7 @@ const submitForm = async () => {
         const nuevoLote = {
             ID_LOTE: parseInt(id_lote.value),
             TOTAL_PLANTAS: parseInt(0),
-            NOMBRE_LOTE: nombreLote.value
+            NOMBRE_LOTE: nombreLote.value.toLocaleUpperCase()
         };
 
         const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote);
@@ -179,6 +179,7 @@ const submitForm = async () => {
             isVisible.value = false;
             location.reload();
         }
+        
     } catch (error) {
 
         console.error('Error al agregar el lote:', error);

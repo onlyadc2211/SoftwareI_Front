@@ -23,6 +23,11 @@ const router = createRouter({
       component: () => import('../view/cropManagement.vue')
     },
     {
+      name: 'Gestion de ventas',
+      path: '/main/salesManagement',
+      component: () => import('../view/salesManagement.vue')
+    },
+    {
       name: 'Gestion de trabajadores',
       path: '/main/cropManagement/workers',
       component: () => import('../view/workers.vue')

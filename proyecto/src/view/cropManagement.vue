@@ -5,7 +5,7 @@
       <button id="regresar" @click="goBack">
         <img src="../images/regresar.png" alt="">
       </button>
-      <button id="rapidAcces" @click="goBack">
+      <button id="rapidAcces" @click="goLots">
         <img src="../images/planta.png" alt="">
       </button>
       <button id="rapidAcces" @click="goWorkers">

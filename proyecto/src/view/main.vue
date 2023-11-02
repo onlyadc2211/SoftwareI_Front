@@ -16,7 +16,7 @@
           </div>
         <div id="buttons">
             <button class="main-button" @click="goCropManagement">Cultivos</button>
-            <button class="main-button">Ventas</button>
+            <button class="main-button" @click="goSales">Ventas</button>
             <button class="main-button" @click="goBack">Salir</button>
         </div>
         
@@ -33,6 +33,9 @@ const router = useRouter();
 
 const goCropManagement = () => {
     router.push('/main/cropManagement');
+}
+const goSales = () => {
+    router.push('/main/salesManagement');
 }
 
 const goBack = () => {
