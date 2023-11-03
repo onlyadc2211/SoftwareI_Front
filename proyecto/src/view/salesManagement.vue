@@ -27,16 +27,16 @@
         <h1 id="t">Ventas</h1>
       </div>
       <div id="buttons">
-        <div class="btns" @click="goLots">
-          <img src="../images/planta.png" alt="" class="btn-img">
+        <div class="btns" @click="goSales">
+          <img src="../images/ventas.png" alt="" class="btn-img">
           <h2 class="btn-text">Gestionar ventas</h2>
         </div>
         <div class="btns" @click="goWorkers">
-          <img src="../images/trabajador.png" alt="" class="btn-img">
+          <img src="../images/factura.png" alt="" class="btn-img">
           <h2 class="btn-text">Facturas</h2>
         </div>
         <div class="btns" @click="goCrops">
-          <img src="../images/cosecha.png" alt="" class="btn-img">
+          <img src="../images/productos.png" alt="" class="btn-img">
           <h2 class="btn-text">Productos</h2>
         </div>
       </div>
@@ -53,6 +53,9 @@
   }
   const goWorkers = () => {
     router.push('/main/cropManagement/workers')
+  }
+  const goSales = () => {
+    router.push('/main/salesManagement/sales')
   }
 
   

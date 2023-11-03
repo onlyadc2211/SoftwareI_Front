@@ -273,7 +273,7 @@ const fetchAllCrops = async () => {
 };
 
 const goBack = () => {
-  router.go(-1);
+  router.push("/main/cropManagement");
 }
 const goWorkers = () => {
   router.push('/main/cropManagement/workers')

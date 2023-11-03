@@ -141,7 +141,7 @@ const hidePopup = () => {
   isPopupVisible.value = false;
 };
 const goBack = () => {
-  router.go(-1);
+  router.push('/main/cropManagement');
 }
 const goWorkers = () => {
   router.push('/main/cropManagement/workers');

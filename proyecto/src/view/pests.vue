@@ -57,7 +57,7 @@ import axios from 'axios';
 const router = useRouter();
 
 const goBack = () => {
-    router.go(-1);
+  router.push("/main/cropManagement");
 }
 const goWorkers = () => {
     router.push('/main/cropManagement/workers')

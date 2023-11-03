@@ -39,7 +39,7 @@ const goSales = () => {
 }
 
 const goBack = () => {
-    router.go(-1);
+    router.push("/");
 }
 </script>
   

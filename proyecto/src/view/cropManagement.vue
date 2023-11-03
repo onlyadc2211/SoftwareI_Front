@@ -11,7 +11,7 @@
       <button id="rapidAcces" @click="goWorkers">
         <img src="../images/trabajador.png" alt="">
       </button>
-      <button id="rapidAcces" @click="goBack">
+      <button id="rapidAcces" @click="goCrops">
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">

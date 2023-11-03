@@ -152,11 +152,11 @@ const submitForm = async () => {
     diferentPassword.value = false;
 
     if (registrationFormVisible.value) {
-      // Lógica para el formulario de registro de usuarios
+     
 
 
 
-      if (contrasena.value === confirmarContrasena.value) {//validar aca que sea mayor que 0
+      if (contrasena.value === confirmarContrasena.value) {
         const response = await axios.post('http://localhost:3000/api/connection', {
           ID_PERSONA: cedula.value,
           ID_ROL: rol.value,
@@ -188,7 +188,7 @@ const submitForm = async () => {
     } else if (personRegistrationVisible.value) {
       // Lógica para el formulario de registro de personas
       const response = await axios.post('http://localhost:3000/api/person', {
-        ID_PERSONA: parseInt(cedulaPersona.value),
+        ID_PERSONA: cedulaPersona.value,
         NOMBRE_PERSONA: nombre.value,
         APELLIDO_PERSONA: apellido.value,
         TELEFONO_PERSONA: telefono.value,

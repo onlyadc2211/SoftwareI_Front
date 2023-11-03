@@ -145,6 +145,7 @@
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import CropManagement from './cropManagement.vue';
 const router = useRouter();
 const isVisible = ref('');
 const trabajadores = ref([]);
@@ -251,7 +252,7 @@ const hidePopup2 = () => {
   isVisible.value = false;
 };
 const goBack = () => {
-  router.go(-1);
+  router.push("/main/cropManagement");
 }
 const goWorkers = () => {
   router.push('/main/cropManagement/workers')
