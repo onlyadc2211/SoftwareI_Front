@@ -15,11 +15,14 @@
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">
-        <button class="notification-button">
-          <img src="../images/noti.png" alt="Icono 1">
+        <button class="notification-button"  @click="goHome">
+          <img src="../images/home.png" alt="Icono 1">
         </button>
         <button class="notification-button">
-          <img src="../images/user.png" alt="Icono 2">
+          <img src="../images/noti.png" alt="Icono 2">
+        </button>
+        <button class="notification-button">
+          <img src="../images/user.png" alt="Icono 3">
         </button>
       </div>
     </div>
@@ -413,6 +416,9 @@ const isCropVisible = ref(false);
 const newCropValue = ref('');
 const isVisibleEdiLot = ref(false);
 const newNameLot = ref('');
+const goHome = () => {
+  router.push('/main');
+}
 const editLot = ()=>{
   isVisibleEdiLot.value = true;
 }

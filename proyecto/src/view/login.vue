@@ -22,10 +22,7 @@
                 id="password"
                 required
               />
-              <button @click.prevent="togglePasswordVisibility" id="btnMostrar">
-                {{ showPassword ? 'Ocultar' : 'Mostrar' }}
-              </button>
-              <div v-if="loginError" id="loginError">{{ loginError }}</div>
+            
             </div>
           </div>
         </template>

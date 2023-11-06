@@ -16,10 +16,10 @@
       </button>
       <div id="notifications">
         <button class="notification-button">
-          <img src="../images/noti.png" alt="Icono 1">
+          <img src="../images/noti.png" alt="Icono 2">
         </button>
         <button class="notification-button">
-          <img src="../images/user.png" alt="Icono 2">
+          <img src="../images/user.png" alt="Icono 3">
         </button>
       </div>
     </div>
