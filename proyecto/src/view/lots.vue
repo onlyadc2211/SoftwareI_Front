@@ -127,15 +127,16 @@ const deletL = async () => {
       } else {
    
         console.error('Error al eliminar el lote con ID:', lotId);
-    
+        alert("No es posible eliminar lotes con registros activos");
       }
     }
-
- 
     fetchLots();
     hidePopup();
   } catch (error) {
     console.error('Error al eliminar lotes:', error);
+      if(error.response.status === 500){
+                alert("No es posible eliminar lotes con registros activos");
+            }
     alert('Ocurrió un error al eliminar los lotes. Por favor, intenta de nuevo.');
   }
 };

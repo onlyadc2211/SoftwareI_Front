@@ -625,6 +625,9 @@ const hidePopup2 = () => {
 const goBack = () => {
     router.push("/main/salesManagement");
 }
+const goHome = () => {
+    router.push("/main");
+}
 const goWorkers = () => {
     router.push('/main/cropManagement/workers')
 }

@@ -196,7 +196,7 @@
         </div>
         <div v-if="isBillVisible" class="popup2">
             <div class="popup-content3">
-                <button class="deleteBtn" @click="submitFormDeleteSale">
+                <button class="deleteBtn" @click="submitFormDeleteBill">
                     <img src="../images/delete_btn.png" alt="Texto alternativo 1">
                 </button>
                 <h2>Editar factura</h2>
@@ -216,7 +216,7 @@
                                             {{ formatearFecha(venta.FECHA_VENTA)}} ID: {{ venta.ID_VENTA}}
                                         </option>
                                     </select>
-                                    <button class="btnAddClient" @click="addClient">+</button>
+                                    
                                 </div>
                             </div>
                             <div class="formButtons2">
@@ -229,26 +229,26 @@
                         <form @submit.prevent="submitFormEditStatus" class="form2">
                             <div class="form-group2">
                                 <label for="estadoProductoUpdate">Cambiar producto</label>
-                                <select id="tipoPlanta" v-model="productoFacturaUpdate" required class="input-field">
+                                <select id="tipoPlanta" v-model="productoFacturaUpdate" required class="input-field" @change="takeProduct(),changeSubValue()">
                                     <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
                                         {{producto.NOMBRE_PRODUCTO}}
                                     </option>
                                 </select>
                             </div>
                             <div class="formButtons2">
-                                <button type="submitEditStatus" @click="submitFormEditSaleStaus"
+                                <button type="submitEditStatus" @click="submitFormEditBillProduct"
                                     class="submit-button2">Cambiar</button>
                             </div>
                         </form>
                     </div>
                     <div class="formulario2">
-                        <form @submit.prevent="submitFormEditCrop" class="form2">
+                        <form @submit.prevent="submitFormEdit" class="form2">
                             <div class="form-group2">
                                 <label for="precioProductoUpdate">Cambiar cantidad:</label>
-                                <input type="number" required class="input-field">
+                                <input type="number" required class="input-field" @change="changeValue" v-model="cantidadFacturaUpdate">
                             </div>
                             <div class="formButtons2">
-                                <button type="submitEditCrop" @click="submitFormEditSaleCrop"
+                                <button type="submitEditCrop" @click="submitFormEditBillValue"
                                     class="submit-button2">Cambiar</button>
                             </div>
                         </form>
@@ -257,7 +257,7 @@
                         <form @submit.prevent="submitFormEditSaleDate" class="form2">
                             <div class="form-group2T">
                                 <label for="precioProductoUpdate">Precio unitario</label>
-                                <textarea cols="1" rows="1" class="input-fieldT"  readonly >{{ subTotal}}</textarea >
+                                <textarea cols="1" rows="1" class="input-fieldT"  readonly >{{ precio_unitario_factura}}</textarea >
                             </div>
                             <div class="form-group2T">
                                 <label for="precioProductoUpdate">Subtotal</label>
@@ -268,8 +268,8 @@
                     </div>
                 </div>
                 <div class="formButtons2">
-                    <button @click="newBill" class="submit-button2">Generar factura</button>
-                    <button @click="hideSale" class="submit-button2">Cerrar</button>
+                    
+                    <button @click="hideBill" class="submit-button2">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -308,9 +308,64 @@ const selectedProduct = ref(null);
 const subTotal = ref();
 const selectedBill = ref(null);
 const isBillVisible = ref(false);
+const productoFacturaUpdate = ref();
+const cantidadFacturaUpdate = ref();
+const message = ref('');
+const switchButton = ref(false);
+const validate = ref(false);
+const isAlertVisible = ref(false);
+const messageDelete = ("¿Seguro que deseas eliminar la factura?");
+const openAlert = (m) => {
+    isAlertVisible.value = true;
+    message.value = m;
+    
+}
+const closeAlert = () => {
+    isAlertVisible.value = false;
+    switchButton.value = true;
+
+}
+const confirm = () => {
+    validate.value = true;
+    switchButton.value = true;
+    closeAlert();
+
+}
 const goHome = () => {
   router.push('/main');
 }
+
+const submitFormDeleteBill = async () => {
+    openAlert(messageDelete);
+    const confirmed = await new Promise((resolve) => {
+        switchButton.value = false;
+        const checkInterval = setInterval(() => {
+            if (switchButton.value) {
+                clearInterval(checkInterval);
+                resolve(validate.value);
+            }
+        }, 500);
+    });
+    if (confirmed) {
+        try {
+            const response = await axios.delete(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`);
+            if (response.status === 200) {
+                console.log('Factura eliminada con éxito');
+                alert("Factura eliminada con éxito");
+                hideBill()
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error al eliminar venta ', error);
+            if(error.response.status === 500){
+                alert("No es posible eliminar facturas con registros activos");
+            }
+            
+        }
+    } else {
+        
+    }
+};
 
 const ventaFacturaUpdate = ref();
 const submitFormEditSaleBill = async () => {
@@ -325,7 +380,7 @@ const submitFormEditSaleBill = async () => {
             console.log('Factura editada con éxito');
             alert("Factura editada con éxito")
             ventaFacturaUpdate.value = '';
-            hideEditProduct();
+            hideBill();
             location.reload();
         }
     } catch (error) {
@@ -335,7 +390,56 @@ const submitFormEditSaleBill = async () => {
 
     }
 };
+const submitFormEditBillProduct= async () => {
+    try {
+        const newData= {
+           ID_VENTA : selectedBill.value.ID_VENTA,
+           ID_PRODUCTO: parseInt(productoFacturaUpdate.value),
+           CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
+        };
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData);
+        if (response.status === 200) {
+            console.log('Factura editada con éxito');
+            alert("Factura editada con éxito")
+            ventaFacturaUpdate.value = '';
+            hideBill();
+            location.reload();
+        }
+    } catch (error) {
 
+        console.error('Error al editar factura ', error);
+        if(error.response.status === 500){
+                alert("No es posile editar la factura, el producto ya se encuentra registrado");
+            }
+
+
+    }
+};
+const submitFormEditBillValue= async () => {
+    try {
+        const newData= {
+           ID_VENTA : selectedBill.value.ID_VENTA,
+           ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
+           CANTIDAD_PRODUCTO: cantidadFacturaUpdate.value
+        }
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData);
+        if (response.status === 200) {
+            console.log('Factura editada con éxito');
+            alert("Factura editada con éxito")
+            ventaFacturaUpdate.value = '';
+            hideBill();
+            location.reload();
+        }
+    } catch (error) {
+
+        console.error('Error al editar factura ', error);
+        if(error.response.status === 500){
+                alert("No es posile editar la factura, el producto ya se encuentra registrado");
+            }
+
+
+    }
+};
 const fetchProductos = async () => {
     try {
         const response = await fetch(`http://localhost:3000/api/productos`);
@@ -350,14 +454,22 @@ const fetchProductos = async () => {
         console.error('Error al obtener el historial de productos', error);
     }
 };
+
 const takeProduct =()=>{
     
-    selectedProduct.value = productos.value.find(producto => producto.ID_PRODUCTO === id_producto_factura.value);
+    selectedProduct.value = productos.value.find(producto => producto.ID_PRODUCTO === productoFacturaUpdate.value);
     precio_unitario_factura.value = selectedProduct.value.PRECIO_ACTUAL_PRODUCTO;
     console.log(precio_unitario_factura.value)
 }
+
 const changeSubValue =()=>{
-    subTotal.value = cantidad_producto_factura.value *precio_unitario_factura.value
+    subTotal.value = selectedBill.value.CANTIDAD_PRODUCTO * precio_unitario_factura.value
+}
+
+
+const changeValue=()=>{
+    subTotal.value = cantidadFacturaUpdate.value * selectedBill.value.PRECIO_VENTA_UNITARIO;
+    precio_unitario_factura.value= selectedBill.value.PRECIO_VENTA_UNITARIO;
 }
 
 const crearFactura = async () => {
@@ -388,7 +500,7 @@ const showSale = (b) => {
     isBillVisible.value = true;
     selectedBill.value = b;
 }
-const hideSale = () => {
+const hideBill = () => {
     isBillVisible.value = false;
     
 }
@@ -510,14 +622,6 @@ const crearVenta = async () => {
 
 
 
-
-const validateStatus = (status) => {
-    if (status === "C") {
-        return "Pagado"
-    } else {
-        return "Pendiente"
-    }
-}
 const formatearFecha = ref((fechaISO) => {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     const fechaFormateada = new Date(fechaISO).toLocaleDateString(undefined, options);
@@ -567,6 +671,57 @@ onMounted(() => {
 </script>
     
 <style scoped>
+.myPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    background-color: rgba(255, 255, 255, 0.7);
+
+
+}
+
+.myPopup-content {
+    background-color: #fff;
+    width: 400px;
+    height: 200px;
+    border-radius: 15px;
+    border: 3px solid #792f00;
+}
+
+.alertMessage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+}
+
+.alertButtons {
+    display: flex;
+    justify-content: center;
+    margin-top: 10%;
+}
+
+.alertButtons button {
+    background-color: #792f00;
+    color: white;
+    height: 45px;
+    width: 90px;
+    border-radius: 15px;
+    margin-left: 5%;
+    margin-right: 5%;
+    cursor: pointer;
+}
+
+.alertButtons button:hover {
+    transform: scale(1, 1);
+    background-color: #542200;
+}
 .popup2 {
     position: fixed;
     top: 0;
