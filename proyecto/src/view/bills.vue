@@ -15,93 +15,91 @@
                 <img src="../images/cosecha.png" alt="">
             </button>
             <div id="notifications">
-                <button class="notification-button" @click="goHome">
+                <button class="notification-button"  @click="goHome">
                     <img src="../images/home.png" alt="Icono 1">
-                </button>
-                <button class="notification-button">
+                  </button>
+                  <button class="notification-button">
                     <img src="../images/noti.png" alt="Icono 2">
-                </button>
-                <button class="notification-button">
+                  </button>
+                  <button class="notification-button">
                     <img src="../images/user.png" alt="Icono 3">
-                </button>
+                  </button>
             </div>
         </div>
 
         <div id="title">
-            <h1 id="t">Ventas</h1>
+            <h1 id="t">Facturas</h1>
             <div id="contenido">
-                <div v-if="isVisible" class="popup">
+                <div v-if="isVisibleAddBill" class="popup">
                     <div class="popup-content">
-                        <h2>Nueva venta</h2>
+                        <h2>Crear factura</h2>
                         <div id="formulario">
                             <form @submit.prevent="submitForm2" class="form">
 
                                 <div class="form-group">
-                                    <label for="venta_cliente">Cliente</label>
+                                    <label for="venta_cliente">Venta</label>
                                     <div class="select-wrapper">
-                                        <select id="venta_cliente" v-model="clienteVenta" required class="input-field">
-                                            <option v-for="trabajador in trabajadores" :value="trabajador.ID_PERSONA">
-                                                {{ trabajador.NOMBRE_PERSONA }} {{ trabajador.APELLIDO_PERSONA }}
+                                        <select id="venta_cliente" v-model="id_venta_factura" required class="input-field">
+                                            <option v-for="venta in ventas" :value="venta.ID_VENTA">
+                                                {{formatearFecha(venta.FECHA_VENTA)}} ID: {{ venta.ID_VENTA}}
                                             </option>
                                         </select>
-                                        <button class="btnAddClient" @click="addClient">+</button>
+                                        <button class="btnAddClient" @click="addSale">+</button>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="lote_Trabajador">Cosecha</label>
-                                    <select id="lote_Trabajador" v-model="cosechaVenta" required class="input-field">
-                                        <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
-                                            {{ cosecha.FECHA_COSECHA }} ID: {{ cosecha.ID_COSECHA }}
+                                    <label for="lote_Trabajador">Producto</label>
+                                    <select id="venta_cliente" v-model="id_producto_factura" required class="input-field" @change="takeProduct(),changeSubValue()" >
+                                        <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
+                                        {{ producto.NOMBRE_PRODUCTO}}
                                         </option>
-
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="lote_Trabajador">Estado</label>
-                                    <select id="lote_Trabajador" v-model="estadoVenta" required class="input-field">
-                                        <option value="P"> Pendiente</option>
-                                        <option value="C"> Pagado</option>
-                                    </select>
+                                    <label for="lote_Trabajador">Cantidad</label>
+                                    
+                                    <input type="number" v-model="cantidad_producto_factura" @change="changeSubValue" required class="input-field">
                                 </div>
                                 <div class="form-group">
-                                    <label for="fechaAfectacion">Fecha de venta</label>
-                                    <input type="date" id="fechaAfectacion" v-model="fechaVenta" required
-                                        class="input-fieldDate" />
+                                    <label for="lote_Trabajador" >Precio Unitario</label>
+                                    
+                                    <textarea cols="1" rows="1" class="input-field"  readonly >{{ precio_unitario_factura}}</textarea >
+                                </div>
+                                <div class="form-group">
+                                    <label for="lote_Trabajador" >Subtotal</label>
+                                    
+                                    <textarea cols="1" rows="1" class="input-field"  readonly >{{ subTotal}}</textarea >
                                 </div>
 
                                 <div class="formButtons">
-                                    <button type="submit" class="submit-button" @click="crearVenta">Agregar</button>
+                                    <button type="submit" class="submit-button" @click="crearFactura">Agregar</button>
                                     <button @click="hidePopup2" class="submit-button">Cerrar</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                <div class="ventas">
+                <div class="facturas">
                     <table id="table">
                         <thead>
                             <tr>
-                                <th class="tableTitle">Id</th>
-                                <th class="tableTitle">Comprador</th>
-                                <th class="tableTitle">Cosecha</th>
-                                <th class="tableTitle">Estado
-                                    <button class="bntFiltro">▼</button>
-                                </th>
-                                <th class="tableTitle">Total</th>
-                                <th class="tableTitle">Fecha</th>
+                                <th class="tableTitle">Venta</th>
+                                <th class="tableTitle">Producto</th>
+                                <th class="tableTitle">Cantidad</th>
+                                <th class="tableTitle">Subtotal</th>
+                                <th class="tableTitle">Precio unitario</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
 
-                            <tr v-for="venta in ventas" :key="venta.ID_LOTE" @click="showSale(venta)">
-                                <td class="tdTableID">{{ venta.ID_VENTA }} </td>
-                                <td class="tdTable">{{ venta.personas.NOMBRE_PERSONA }} {{ venta.personas.APELLIDO_PERSONA }}
-                                </td>
-                                <td class="tdTable">{{ formatearFecha(venta.cosechas.FECHA_COSECHA) }}</td>
-                                <td class="tdTable">{{ validateStatus(venta.ESTADO_VENTA) }}</td>
-                                <td class="tdTable">{{ venta.VALOR_TOTAL_VENTA ?
-                                    venta.VALOR_TOTAL_VENTA.toLocaleString('es-ES') : '' }}</td>
-                                <td class="tdTable">{{ formatearFecha(venta.FECHA_VENTA) }}</td>
+                            <tr v-for="factura in facturas" :key="factura.ID_VENTA" @click="showSale(factura)">
+                                <td class="tdTableID"> {{formatearFecha(factura.ventas.FECHA_VENTA)}} ID:{{ factura.ventas.ID_VENTA }} </td>
+                                <td class="tdTable">{{ factura.productos.NOMBRE_PRODUCTO }}</td>
+                                <td class="tdTable">{{ factura.CANTIDAD_PRODUCTO }}</td>
+                                <td class="tdTable">{{ factura.SUBTOTAL_VENTA_PRODUCTO }}</td>
+                                <td class="tdTable">{{ factura.PRECIO_VENTA_UNITARIO}}</td>
+                                
                             </tr>
 
                         </tbody>
@@ -109,10 +107,56 @@
 
                 </div>
                 <div class="botones">
-                    <button class="btnLotes" @click="addWorker">Agregar venta</button>
+                    <button class="btnLotes" @click="addWorker">Crear factura</button>
                 </div>
+                
+            </div>
+        </div>
+        <div v-if="isVisibleAddSale" class="popup">
+            <div class="popup-content">
+                <h2>Nueva venta</h2>
+                <div id="formulario">
+                    <form @submit.prevent="submitFormAddBill" class="form">
 
+                        <div class="form-group">
+                            <label for="venta_cliente">Cliente</label>
+                            <div class="select-wrapper">
+                                <select id="venta_cliente" v-model="clienteVenta" required class="input-field">
+                                    <option v-for="trabajador in trabajadores" :value="trabajador.ID_PERSONA">
+                                        {{ trabajador.NOMBRE_PERSONA }} {{ trabajador.APELLIDO_PERSONA }}
+                                    </option>
+                                </select>
+                                <button class="btnAddClient" @click="addClient">+</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lote_Trabajador">Cosecha</label>
+                            <select id="lote_Trabajador" v-model="cosechaVenta" required class="input-field">
+                                <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
+                                    {{ cosecha.FECHA_COSECHA }} ID: {{ cosecha.ID_COSECHA }}
+                                </option>
+                                
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lote_Trabajador">Estado</label>
+                            <select id="lote_Trabajador" v-model="estadoVenta" required class="input-field">
+                                <option value="P"> Pendiente</option>
+                                <option value="C"> Pagado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaAfectacion">Fecha de venta</label>
+                            <input type="date" id="fechaAfectacion" v-model="fechaVenta" required
+                                class="input-fieldDate" />
+                        </div>
 
+                        <div class="formButtons">
+                            <button type="submit" class="submit-button" @click="crearVenta">Agregar</button>
+                            <button @click="hideAddSale" class="submit-button">Cerrar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
         <div v-if="isVisibleAddClient" class="popup">
@@ -122,26 +166,26 @@
                     <form @submit.prevent="submitFormClient" class="form">
                         <div class="form-group">
                             <label for="lote_Trabajador">Numero de documento</label>
-
+                            
                             <input type="text" v-model="clientCedule" required class="input-field">
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Nombre</label>
-
+                            
                             <input type="text" v-model="clientName" required class="input-field">
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Apellido</label>
-
+                            
                             <input type="text" v-model="clientLastName" required class="input-field">
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Télefono</label>
-
+                            
                             <input type="number" v-model="clientPhone" required class="input-field">
                         </div>
-
-
+                      
+                       
                         <div class="formButtons">
                             <button type="submit" class="submit-button" @click="crearCliente">Agregar</button>
                             <button @click="addClientClose" class="submit-button">Cerrar</button>
@@ -150,34 +194,33 @@
                 </div>
             </div>
         </div>
-        <div v-if="isSaleVisible" class="popup2">
+        <div v-if="isBillVisible" class="popup2">
             <div class="popup-content3">
                 <button class="deleteBtn" @click="submitFormDeleteSale">
                     <img src="../images/delete_btn.png" alt="Texto alternativo 1">
                 </button>
-                <h2>Editar venta</h2>
-                <h3 class="caract">Comprador: {{ selectedSale.personas.NOMBRE_PERSONA }}
-                    {{ selectedSale.personas.APELLIDO_PERSONA }}</h3>
-                <h3 class="caract">Cosecha: {{ formatearFecha(selectedSale.cosechas.FECHA_COSECHA) }}</h3>
-                <h3 class="desc">Estado:{{ selectedSale.ESTADO_VENTA }}</h3>
-                <h3 class="desc">Total:{{ selectedSale.VALOR_TOTAL_VENTA }} </h3>
-                <h3 class="desc">Fecha de venta: {{ formatearFecha(selectedSale.FECHA_VENTA) }}</h3>
+                <h2>Editar factura</h2>
+                <h3 class="caract">Venta:  {{formatearFecha(selectedBill.ventas.FECHA_VENTA) }} ID: {{selectedBill.ID_VENTA}} </h3>
+                <h3 class="caract">Producto: {{ selectedBill.productos.NOMBRE_PRODUCTO}}</h3>
+                <h3 class="desc">Cantidad: {{ selectedBill.CANTIDAD_PRODUCTO}}</h3>
+                <h3 class="desc">Subtotal:{{ selectedBill.SUBTOTAL_VENTA_PRODUCTO}} </h3>
+                <h3 class="desc">Precio unitario{{ selectedBill.PRECIO_VENTA_UNITARIO}}</h3>
                 <div class="mainSaleDiv">
                     <div class="formulario2">
-                        <form @submit.prevent="submitFormEditClient" class="form2">
+                        <form @submit.prevent="submitFormEditSale" class="form2">
                             <div class="form-group2">
-                                <label for="venta_cliente">Cliente</label>
+                                <label for="venta_cliente">Cambiar venta</label>
                                 <div class="select-wrapper2">
-                                    <select id="venta_cliente" v-model="clienteVentaUpdate" required class="input-field">
-                                        <option v-for="trabajador in trabajadores" :value="trabajador.ID_PERSONA">
-                                            {{ trabajador.NOMBRE_PERSONA }} {{ trabajador.APELLIDO_PERSONA }}
+                                    <select id="venta_cliente" v-model="ventaFacturaUpdate" required class="input-field">
+                                        <option v-for="venta in ventas" :value="venta.ID_VENTA">
+                                            {{ formatearFecha(venta.FECHA_VENTA)}} ID: {{ venta.ID_VENTA}}
                                         </option>
                                     </select>
                                     <button class="btnAddClient" @click="addClient">+</button>
                                 </div>
                             </div>
                             <div class="formButtons2">
-                                <button type="submitEditclient" @click="submitFormEditSaleClient"
+                                <button type="submitEditSale" @click="submitFormEditSaleBill"
                                     class="submit-button2">Cambiar</button>
                             </div>
                         </form>
@@ -185,10 +228,11 @@
                     <div class="formulario2">
                         <form @submit.prevent="submitFormEditStatus" class="form2">
                             <div class="form-group2">
-                                <label for="estadoProductoUpdate">Cambiar estado</label>
-                                <select id="tipoPlanta" v-model="estadoVentaUpdate" required class="input-field">
-                                    <option value="P">Pendiente</option>
-                                    <option value="C">Pagado</option>
+                                <label for="estadoProductoUpdate">Cambiar producto</label>
+                                <select id="tipoPlanta" v-model="productoFacturaUpdate" required class="input-field">
+                                    <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
+                                        {{producto.NOMBRE_PRODUCTO}}
+                                    </option>
                                 </select>
                             </div>
                             <div class="formButtons2">
@@ -200,12 +244,8 @@
                     <div class="formulario2">
                         <form @submit.prevent="submitFormEditCrop" class="form2">
                             <div class="form-group2">
-                                <label for="precioProductoUpdate">Cambiar cosecha:</label>
-                                <select id="venta_cliente" v-model="cosechaVentaUpdate" required class="input-field">
-                                    <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
-                                        {{cosecha.FECHA_COSECHA}} ID: {{ cosecha.ID_COSECHA }}
-                                    </option>
-                                </select>
+                                <label for="precioProductoUpdate">Cambiar cantidad:</label>
+                                <input type="number" required class="input-field">
                             </div>
                             <div class="formButtons2">
                                 <button type="submitEditCrop" @click="submitFormEditSaleCrop"
@@ -213,16 +253,17 @@
                             </div>
                         </form>
                     </div>
-                    <div class="formulario2">
+                    <div class="formulario2T">
                         <form @submit.prevent="submitFormEditSaleDate" class="form2">
-                            <div class="form-group2">
-                                <label for="precioProductoUpdate">Cambiar fecha de venta:</label>
-                                <input type="date" required class="input-field" v-model="fechaVentaUpdate">
+                            <div class="form-group2T">
+                                <label for="precioProductoUpdate">Precio unitario</label>
+                                <textarea cols="1" rows="1" class="input-fieldT"  readonly >{{ subTotal}}</textarea >
                             </div>
-                            <div class="formButtons2">
-                                <button type="submitEditStatus" @click="submitFormEditSaleDate"
-                                    class="submit-button2">Cambiar</button>
+                            <div class="form-group2T">
+                                <label for="precioProductoUpdate">Subtotal</label>
+                                <textarea cols="1" rows="1" class="input-fieldT"  readonly >{{ subTotal}}</textarea >
                             </div>
+                           
                         </form>
                     </div>
                 </div>
@@ -243,50 +284,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="isVisibleAddBill" class="popup">
-            <div class="popup-content">
-                <h2>Crear factura</h2>
-                <div id="formulario">
-                    <form @submit.prevent="submitForm2" class="form">
 
-                        <div class="form-group">
-                            <label for="venta_cliente">Venta</label>
-                            <div class="select-wrapper">
-                                <textarea cols="1" rows="1" class="input-field"  readonly >{{formatearFecha(selectedSale.FECHA_VENTA)}}</textarea >
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="lote_Trabajador">Producto</label>
-                            <select id="venta_cliente" v-model="id_producto_factura" required class="input-field" @change="takeProduct(),changeSubValue()" >
-                                <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
-                                {{ producto.NOMBRE_PRODUCTO}}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="lote_Trabajador">Cantidad</label>
-                            
-                            <input type="number" v-model="cantidad_producto_factura" @change="changeSubValue" required class="input-field">
-                        </div>
-                        <div class="form-group">
-                            <label for="lote_Trabajador" >Precio Unitario</label>
-                            
-                            <textarea cols="1" rows="1" class="input-field"  readonly >{{ precio_unitario_factura}}</textarea >
-                        </div>
-                        <div class="form-group">
-                            <label for="lote_Trabajador" >Subtotal</label>
-                            
-                            <textarea cols="1" rows="1" class="input-field"  readonly >{{ subTotal}}</textarea >
-                        </div>
-
-                        <div class="formButtons">
-                            <button type="submit" class="submit-button" @click="crearFactura">Agregar</button>
-                            <button @click="hideBill" class="submit-button">Cerrar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
     
@@ -296,25 +294,64 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 const router = useRouter();
-const isVisible = ref('');
+const isVisibleAddBill = ref('');
 const trabajadores = ref([]);
 const cosechas = ref([]);
 const isVisibleAddClient = ref(false);
-const isSaleVisible = ref(false);
-const selectedSale = ref(null);
-const message = ref('');
-const validate = ref(false);
-const isAlertVisible = ref(false);
-const messageDelete = ("¿Seguro que deseas eliminar la venta?");
-const switchButton = ref(false);
-const isVisibleAddBill = ref('');
-const selectedProduct = ref(null);
-const subTotal = ref();
+const isVisibleAddSale = ref(false);
+const id_venta_factura = ref();
+const precio_unitario_factura = ref();
 const id_producto_factura = ref();
 const cantidad_producto_factura = ref();
-const precio_unitario_factura = ref();
-const estadoVentaUpdate = ref();
+const productos =ref([]);
+const selectedProduct = ref(null);
+const subTotal = ref();
+const selectedBill = ref(null);
+const isBillVisible = ref(false);
+const goHome = () => {
+  router.push('/main');
+}
+
+const ventaFacturaUpdate = ref();
+const submitFormEditSaleBill = async () => {
+    try {
+        const newData= {
+           ID_VENTA : parseInt(ventaFacturaUpdate.value),
+           ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
+           CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
+        };
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData);
+        if (response.status === 200) {
+            console.log('Factura editada con éxito');
+            alert("Factura editada con éxito")
+            ventaFacturaUpdate.value = '';
+            hideEditProduct();
+            location.reload();
+        }
+    } catch (error) {
+
+        console.error('Error al editar factura ', error);
+
+
+    }
+};
+
+const fetchProductos = async () => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/productos`);
+        if (response.ok) {
+            const data = await response.json();
+            productos.value = data;
+            console.log(facturas)
+        } else {
+            console.error('Error al obtener el historial de productos');
+        }
+    } catch (error) {
+        console.error('Error al obtener el historial de productos', error);
+    }
+};
 const takeProduct =()=>{
+    
     selectedProduct.value = productos.value.find(producto => producto.ID_PRODUCTO === id_producto_factura.value);
     precio_unitario_factura.value = selectedProduct.value.PRECIO_ACTUAL_PRODUCTO;
     console.log(precio_unitario_factura.value)
@@ -322,117 +359,12 @@ const takeProduct =()=>{
 const changeSubValue =()=>{
     subTotal.value = cantidad_producto_factura.value *precio_unitario_factura.value
 }
-const newBill = () => {
-    isVisibleAddBill.value = true;
-};
-const hideBill = () => {
-    isVisibleAddBill.value = false;
-};
 
-const submitFormEditSaleStaus = async () => {
-    try {
-        const newData = {
-            
-            ID_PERSONA: selectedSale.value.ID_PERSONA,
-            ID_COSECHA: selectedSale.value.ID_COSECHA,
-            ESTADO_VENTA: estadoVentaUpdate.value,
-            FECHA_VENTA: selectedSale.value.FECHA_VENTA
-            
-        };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
-        if (response.status === 200) {
-            console.log('Venta editada con éxito');
-            alert("Venta editada con éxito")
-            estadoVentaUpdate.value = '';
-            hideSale();
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error al editar venta ', error);
-
-    }
-};
-const clienteVentaUpdate = ref();
-const submitFormEditSaleClient = async () => {
-    try {
-        const newData = {
-            
-            ID_PERSONA: clienteVentaUpdate.value,
-            ID_COSECHA: selectedSale.value.ID_COSECHA,
-            ESTADO_VENTA: selectedSale.value.ESTADO_VENTA,
-            FECHA_VENTA: selectedSale.value.FECHA_VENTA
-            
-        };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
-        if (response.status === 200) {
-            console.log('Venta editada con éxito');
-            alert("Venta editada con éxito")
-            clienteVentaUpdate.value = '';
-            hideSale();
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error al editar venta ', error);
-
-    }
-};
-const cosechaVentaUpdate = ref();
-const submitFormEditSaleCrop = async () => {
-    try {
-        const newData = {
-            
-            ID_PERSONA: selectedSale.value.ID_PERSONA,
-            ID_COSECHA: cosechaVentaUpdate.value,
-            ESTADO_VENTA: selectedSale.value.ESTADO_VENTA,
-            FECHA_VENTA: selectedSale.value.FECHA_VENTA
-            
-        };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
-        if (response.status === 200) {
-            console.log('Venta editada con éxito');
-            alert("Venta editada con éxito")
-            clienteVentaUpdate.value = '';
-            hideSale();
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error al editar venta ', error);
-
-    }
-};
-const fechaVentaUpdate = ref();
-const submitFormEditSaleDate = async () => {
-    try {
-        const newData = {
-    
-            ID_PERSONA: selectedSale.value.ID_PERSONA,
-            ID_COSECHA: selectedSale.value.ID_COSECHA,
-            ESTADO_VENTA: selectedSale.value.ESTADO_VENTA,
-            FECHA_VENTA: new Date(fechaVenta.value)
-            
-        };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
-        if (response.status === 200) {
-            console.log('Venta editada con éxito');
-            alert("Venta editada con éxito")
-            clienteVentaUpdate.value = '';
-            hideSale();
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error al editar venta ', error);
-
-    }
-};
 const crearFactura = async () => {
     try {
 
         const newData = {
-            ID_VENTA : selectedSale.value.ID_VENTA,
+            ID_VENTA : id_venta_factura.value,
             ID_PRODUCTO : id_producto_factura.value,
             CANTIDAD_PRODUCTO : cantidad_producto_factura.value
 
@@ -441,8 +373,8 @@ const crearFactura = async () => {
         const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData);
         if (response.status === 200) {
             console.log("Factura agregada correctamente");
-            alert("Factura generada correctamente");
-            hideBill();
+            alert("Factura correctamente");
+            hidePopup2();
             location.reload();
 
         } else {
@@ -452,68 +384,26 @@ const crearFactura = async () => {
         console.error('Error al actualizar', error);
     }
 };
-const openAlert = (m) => {
-    isAlertVisible.value = true;
-    message.value = m;
-    
-}
-const closeAlert = () => {
-    isAlertVisible.value = false;
-    switchButton.value = true;
-
-}
-const confirm = () => {
-    validate.value = true;
-    switchButton.value = true;
-    closeAlert();
-
-}
-const submitFormDeleteSale = async () => {
-    openAlert(messageDelete);
-    const confirmed = await new Promise((resolve) => {
-        switchButton.value = false;
-        const checkInterval = setInterval(() => {
-            if (switchButton.value) {
-                clearInterval(checkInterval);
-                resolve(validate.value);
-            }
-        }, 500);
-    });
-    if (confirmed) {
-        try {
-            const response = await axios.delete(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`);
-            if (response.status === 200) {
-                console.log('Producto eliminado con éxito');
-                alert("Venta eliminada con éxito");
-                hideSale();
-                location.reload();
-            }
-        } catch (error) {
-            console.error('Error al eliminar venta ', error);
-            if(error.response.status === 500){
-                alert("No es posible eliminar ventas con registros activos");
-            }
-            
-        }
-    } else {
-        
-    }
-};
-
-
-const showSale = (s) => {
-    isSaleVisible.value = true;
-    selectedSale.value = s;
+const showSale = (b) => {
+    isBillVisible.value = true;
+    selectedBill.value = b;
 }
 const hideSale = () => {
-    isSaleVisible.value = false;
+    isBillVisible.value = false;
     
 }
-const addClient = () => {
+
+const addClient = ()=>{
     isVisibleAddClient.value = true;
 }
+const addSale = ()=>{
+    isVisibleAddSale.value = true;
+}
 
-const addClientClose = () => {
+const hideAddSale = ()=>{
+    isVisibleAddSale.value = false;
+}
+const addClientClose = ()=>{
     isVisibleAddClient.value = false;
 }
 const fetchCosechas = async () => {
@@ -523,12 +413,28 @@ const fetchCosechas = async () => {
             const data = await response.json();
             cosechas.value = data;
         } else {
-            console.error('Error al obtener el historial de cosechas.');
+            console.error('Error al obtener el historial de cosechas');
         }
     } catch (error) {
-        console.error('Error al obtener el historial de cosechas:', error);
+        console.error('Error al obtener el historial de cosechas', error);
     }
 };
+const facturas = ref([])
+const fetchFacturas = async () => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/detalle_facturas`);
+        if (response.ok) {
+            const data = await response.json();
+            facturas.value = data;
+            console.log(facturas.value)
+        } else {
+            console.error('Error al obtener el historial de facturas.');
+        }
+    } catch (error) {
+        console.error('Error al obtener el historial de facturas:', error);
+    }
+};
+
 const ventas = ref([])
 const fetchVentas = async () => {
     try {
@@ -536,7 +442,7 @@ const fetchVentas = async () => {
         if (response.ok) {
             const data = await response.json();
             ventas.value = data;
-            console.log(ventas.value)
+            
         } else {
             console.error('Error al obtener ventas');
         }
@@ -580,12 +486,13 @@ const crearVenta = async () => {
     try {
 
         const newData = {
-
+            
             ID_PERSONA: clienteVenta.value,
             ID_COSECHA: cosechaVenta.value,
             ESTADO_VENTA: estadoVenta.value,
             FECHA_VENTA: new Date(fechaVenta.value)
         }
+        console.log(newData)
         const response = await axios.post(`http://localhost:3000/api/ventas`, newData);
         if (response.status === 200) {
             console.log("Venta agregada correctamente");
@@ -617,10 +524,10 @@ const formatearFecha = ref((fechaISO) => {
     return fechaFormateada;
 });
 const addWorker = () => {
-    isVisible.value = true;
+    isVisibleAddBill.value = true;
 };
 const hidePopup2 = () => {
-    isVisible.value = false;
+    isVisibleAddBill.value = false;
 };
 const goBack = () => {
     router.push("/main/salesManagement");
@@ -649,81 +556,17 @@ const obtenerTrabajadores = async () => {
         console.error('Error al obtener trabajadores', error);
     }
 };
-const productos = ref([])
-const fetchProductos = async () => {
-    try {
-        const response = await fetch(`http://localhost:3000/api/productos`);
-        if (response.ok) {
-            const data = await response.json();
-            productos.value = data;
-            console.log(facturas)
-        } else {
-            console.error('Error al obtener el historial de productos');
-        }
-    } catch (error) {
-        console.error('Error al obtener el historial de productos', error);
-    }
-};
+
 onMounted(() => {
     obtenerTrabajadores();
     fetchCosechas();
     fetchVentas();
+    fetchFacturas();
     fetchProductos();
 });
 </script>
     
 <style scoped>
-.myPopup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-    background-color: rgba(255, 255, 255, 0.7);
-
-
-}
-
-.myPopup-content {
-    background-color: #fff;
-    width: 400px;
-    height: 200px;
-    border-radius: 15px;
-    border: 3px solid #792f00;
-}
-
-.alertMessage {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5%;
-}
-
-.alertButtons {
-    display: flex;
-    justify-content: center;
-    margin-top: 10%;
-}
-
-.alertButtons button {
-    background-color: #792f00;
-    color: white;
-    height: 45px;
-    width: 90px;
-    border-radius: 15px;
-    margin-left: 5%;
-    margin-right: 5%;
-    cursor: pointer;
-}
-
-.alertButtons button:hover {
-    transform: scale(1, 1);
-    background-color: #542200;
-}
 .popup2 {
     position: fixed;
     top: 0;
@@ -778,6 +621,14 @@ onMounted(() => {
     border: 3px solid #792f00;
     border-radius: 15px;
 }
+.formulario2T {
+    width: 90%;
+    margin: 2%;
+    display: flex;
+    height: 75%;
+    border: 3px solid #792f00;
+    border-radius: 15px;
+}
 
 .formulario2Desc {
     width: 95%;
@@ -790,7 +641,7 @@ onMounted(() => {
 
 .form2 {
     width: 98%;
-    height: 90%;
+    height: 99%;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -807,6 +658,18 @@ onMounted(() => {
     width: 99%;
 
 
+}
+.form-group2T {
+    display: flex;
+    flex-direction: column;
+    width: 99%;
+}
+.form-group2T label {
+    text-align: left;
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 0%;
 }
 
 .form-group2 select {
@@ -904,6 +767,7 @@ onMounted(() => {
 }
 
 
+
 .select-wrapper {
     display: flex;
     align-items: center;
@@ -914,7 +778,7 @@ onMounted(() => {
     border: 2px solid #792f00;
     border-radius: 20px;
     font-size: 20px;
-
+    
 }
 
 .select-wrapper .btnAddClient {
@@ -924,18 +788,16 @@ onMounted(() => {
     border-radius: 20px;
     cursor: pointer;
     font-size: 20px;
-    margin-left: 5px;
+    margin-left: 5px; 
 }
 
 #cliente-group .btnAddClient {
     background-color: transparent;
     border: none;
-    color: #792f00;
-    /* Color original del texto del botón */
+    color: #792f00; /* Color original del texto del botón */
     cursor: pointer;
     font-size: 20px;
 }
-
 .popupWorker {
     position: fixed;
     top: 0;
@@ -1141,7 +1003,7 @@ tr:hover {
     transform: scale(1.1);
 }
 
-.ventas {
+.facturas {
 
     width: 96%;
     max-height: 75%;
@@ -1344,7 +1206,7 @@ tr:hover {
 .popup-content {
     background-color: #fff;
     width: 30%;
-    height: 90%;
+    height: 85%;
     border-radius: 15px;
     border: 3px solid #792f00;
 
@@ -1373,7 +1235,7 @@ form {
 .form-group {
     display: flex;
     flex-direction: column;
-    margin-top: 0%;
+
     width: 90%;
 }
 
@@ -1383,7 +1245,15 @@ form {
     font-size: 15px;
     font-weight: bold;
 }
+.form-group input{
+    width: 85%;
+}
+.form-group textarea{
+    width: 85%;
+    resize: none;
 
+    overflow-y: hidden;
+}
 .input-field {
     padding: 8px;
     font-size: 20px;
@@ -1391,6 +1261,15 @@ form {
     border-radius: 20px;
     display: block;
     margin-bottom: 10%;
+    width: 91%;
+}
+.input-fieldT {
+    padding: 4px;
+    font-size: 20px;
+    border: 2px solid#792f00;
+    border-radius: 20px;
+    display: block;
+    margin-bottom: 5%;
     width: 91%;
 }
 
@@ -1439,6 +1318,7 @@ form {
     height: 80%;
     width: 95%;
     margin: 2%;
+    margin-top: 4%;
 
 }</style>
     

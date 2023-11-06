@@ -15,11 +15,14 @@
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">
-        <button class="notification-button">
-          <img src="../images/noti.png" alt="Icono 1">
+        <button class="notification-button"  @click="goHome">
+          <img src="../images/home.png" alt="Icono 1">
         </button>
         <button class="notification-button">
-          <img src="../images/user.png" alt="Icono 2">
+          <img src="../images/noti.png" alt="Icono 2">
+        </button>
+        <button class="notification-button">
+          <img src="../images/user.png" alt="Icono 3">
         </button>
       </div>
     </div>
@@ -126,6 +129,9 @@ const cargando = ref(true);
 const isVisibleCos = ref(false);
 const isVisibleEditcos= ref(false);
 const selectedcos = ref(null);
+const goHome = () => {
+  router.push('/main');
+}
 const formatearFecha = (fechaISO) => {
   const fecha = new Date(fechaISO);
   const year = fecha.getUTCFullYear();

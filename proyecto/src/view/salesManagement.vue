@@ -11,15 +11,16 @@
         <button id="rapidAcces" @click="goWorkers">
           <img src="../images/trabajador.png" alt="">
         </button>
-        <button id="rapidAcces" @click="goBack">
+        <button id="rapidAcces" @click="goCrops">
           <img src="../images/cosecha.png" alt="">
         </button>
         <div id="notifications">
+         
           <button class="notification-button">
-            <img src="../images/noti.png" alt="Icono 1">
+            <img src="../images/noti.png" alt="Icono 2">
           </button>
           <button class="notification-button">
-            <img src="../images/user.png" alt="Icono 2">
+            <img src="../images/user.png" alt="Icono 3">
           </button>
         </div>
       </div>
@@ -31,11 +32,11 @@
           <img src="../images/ventas.png" alt="" class="btn-img">
           <h2 class="btn-text">Gestionar ventas</h2>
         </div>
-        <div class="btns" @click="goWorkers">
+        <div class="btns" @click="goBills">
           <img src="../images/factura.png" alt="" class="btn-img">
           <h2 class="btn-text">Facturas</h2>
         </div>
-        <div class="btns" @click="goCrops">
+        <div class="btns" @click="goProducts">
           <img src="../images/productos.png" alt="" class="btn-img">
           <h2 class="btn-text">Productos</h2>
         </div>
@@ -57,7 +58,20 @@
   const goSales = () => {
     router.push('/main/salesManagement/sales')
   }
+  const goCrops = () => {
+    router.push('/main/cropManagement/crops')
+  }
+  const goLots = () => {
+    router.push('/main/cropManagement/lots')
+  }
+  const goProducts = () => {
+    router.push('/main/salesManagement/products')
+  }
 
+  const goBills = () => {
+    router.push('/main/salesManagement/bills')
+  }
+ 
   
   </script>
     

@@ -14,6 +14,9 @@
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">
+        <button class="notification-button"  @click="goHome">
+          <img src="../images/home.png" alt="Icono 1">
+        </button>
         <button class="notification-button">
           <img src="../images/noti.png" alt="Icono 1">
         </button>
@@ -29,6 +32,7 @@
           <div v-for="lot in lots" :key="lot.ID_LOTE" class="lote-item" @click="goToLotInfo(lot.ID_LOTE)">
             <div class="lote-content">
               <h1>{{ lot.NOMBRE_LOTE }}</h1>
+              <p>ID: {{ lot.ID_LOTE }}</p>
               <p>N° plantas {{ lot.TOTAL_PLANTAS }}</p>
             </div>
           </div>
@@ -99,7 +103,9 @@ const selectedLots = ref([]);
 const nombreLote = ref('');
 const id_lote = ref('');
 const totalPlantas = ref(0);
-
+const goHome = () => {
+  router.push('/main');
+}
 const hidePopup2 = () => {
     isVisible.value = false;
 };
@@ -336,6 +342,13 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+}
+.lotes p{
+  margin-bottom: 1%;
+  margin-top: 1%;
+}
+.lotes h1{
+  margin-bottom: 1%;
 }
 
 .lote-item {

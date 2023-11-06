@@ -33,6 +33,16 @@ const router = createRouter({
       component: () => import('../view/sales.vue')
     },
     {
+      name: 'Facturas',
+      path: '/main/salesManagement/bills',
+      component: () => import('../view/bills.vue')
+    },
+    {
+      name: 'Productos',
+      path: '/main/salesManagement/products',
+      component: () => import('../view/products.vue')
+    },
+    {
       name: 'Gestion de trabajadores',
       path: '/main/cropManagement/workers',
       component: () => import('../view/workers.vue')
