@@ -15,7 +15,7 @@
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">
-        <button class="notification-button"  @click="goHome">
+        <button class="notification-button" @click="goHome">
           <img src="../images/home.png" alt="Icono 1">
         </button>
         <button class="notification-button">
@@ -114,7 +114,7 @@
 
                 <div id="errorCorrection3"></div>
                 <div class="formButtons23">
-                  <button type="submit3"  class="submit-button3">Agregar</button>
+                  <button type="submit3" class="submit-button3">Agregar</button>
                   <button @click="hideAddCrops" class="submit-button3">Cerrar</button>
                 </div>
               </form>
@@ -157,7 +157,7 @@
                     <tr v-for="plaga in historialPlagas" :key="plaga.ID_PLAGA" @click="dataPests(plaga)">
                       <td>{{ plaga.plagas.NOMBRE_PLAGA }}</td>
                       <td>{{ formatearFecha(plaga.FECHA_AFECTACION) }}</td>
-                      <td>{{ validateStatus(plaga.ESTADO_PLAGA)  }}</td>
+                      <td>{{ validateStatus(plaga.ESTADO_PLAGA) }}</td>
                     </tr>
 
                   </tbody>
@@ -306,11 +306,11 @@
               <button class="deleteBtn" @click="deletePests">
                 <img src="../images/delete_btn.png" alt="Texto alternativo 1">
               </button>
-              <h2>Plaga: {{selectedPest.plagas.NOMBRE_PLAGA}}</h2>
+              <h2>Plaga: {{ selectedPest.plagas.NOMBRE_PLAGA }}</h2>
               <div class="sector">
                 <div class="info">
                   <h4>Fecha afectación: {{ formatearFecha(selectedPest.FECHA_AFECTACION) }}</h4>
-                  <h4>Estado: {{selectedPest.ESTADO_PLAGA }}</h4>
+                  <h4>Estado: {{ selectedPest.ESTADO_PLAGA }}</h4>
                 </div>
                 <div class="editarPests">
                   <h4>Cambiar estado</h4>
@@ -336,17 +336,17 @@
               <button class="deleteBtn" @click="removeCrop">
                 <img src="../images/delete_btn.png" alt="Texto alternativo 1">
               </button>
-              <h2>Cosecha: {{formatearFecha(selectedCrop.cosechas.FECHA_COSECHA)}}</h2>
+              <h2>Cosecha: {{ formatearFecha(selectedCrop.cosechas.FECHA_COSECHA) }}</h2>
               <div class="sector">
-                <div class="info">                  
-                  <h4>Cantidad recolectado: {{selectedCrop.CANTIDAD}}</h4>
+                <div class="info">
+                  <h4>Cantidad recolectado: {{ selectedCrop.CANTIDAD }}</h4>
                 </div>
                 <div class="editarPests">
                   <h4>Cambiar cantidad recolectada</h4>
                   <form class="editPestForm" @submit.prevent="editCrop">
                     <div class="editFormGroup">
                       <label for="sec">Cantidad </label>
-                      <input type="number" v-model="newCropValue">                      
+                      <input type="number" v-model="newCropValue">
                     </div>
                     <div class="editSecButtons">
                       <button @click="editCrop">Cambiar</button>
@@ -359,7 +359,7 @@
           </div>
           <div v-if="isVisibleEdiLot" class="popupEditLot">
             <div class="popup-contentEditLot">
-              <h2>Editar lote: {{nameLot}}</h2>
+              <h2>Editar lote: {{ nameLot }}</h2>
               <div id="formulario2">
                 <form @submit.prevent="submitFormEditLot" class="form2">
                   <div class="form-group2">
@@ -375,6 +375,17 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="isAlertVisible" class="myPopup">
+      <div class="myPopup-content">
+        <div class="alertMessage">
+          <h3>{{ message }}</h3>
+        </div>
+        <div class="alertButtons">
+          <button @click="confirm">Si</button>
+          <button @click="closeAlert">No</button>
         </div>
       </div>
     </div>
@@ -416,20 +427,48 @@ const isCropVisible = ref(false);
 const newCropValue = ref('');
 const isVisibleEdiLot = ref(false);
 const newNameLot = ref('');
+const message = ref('');
+const validate = ref(false);
+const isAlertVisible = ref(false);
+const messageDelete = ref("¿Seguro que deseas eliminar el la cosecha?");
+const switchButton = ref(false);
+const token = localStorage.getItem('token');
+const openAlert = (m) => {
+  isAlertVisible.value = true;
+  message.value = m;
+
+}
+const closeAlert = () => {
+  isAlertVisible.value = false;
+  switchButton.value = true;
+
+}
+const confirm = () => {
+  validate.value = true;
+  switchButton.value = true;
+  closeAlert();
+
+}
 const goHome = () => {
   router.push('/main');
 }
-const editLot = ()=>{
+const editLot = () => {
   isVisibleEdiLot.value = true;
 }
-const editLotHide = ()=>{
+const editLotHide = () => {
   isVisibleEdiLot.value = false;
 }
 const submitFormEditLot = async () => {
   try {
-    const response = await axios.patch(`http://localhost:3000/api/lotes/${lotId}`,{
-       NOMBRE_LOTE: newNameLot.value.toLocaleUpperCase()
-  });
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await axios.patch(`http://localhost:3000/api/lotes/${lotId}`, {
+      NOMBRE_LOTE: newNameLot.value.toLocaleUpperCase()
+    },config);
 
     if (response.status === 200) {
       console.log('Lote editado con éxito');
@@ -439,11 +478,15 @@ const submitFormEditLot = async () => {
       location.reload();
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al agregar cosecha: ', error);
-  
+
   }
 };
-const validateStatus=(status)=>{
+const validateStatus = (status) => {
   if (status === "I") {
     return "Inactivo"
   } else {
@@ -453,12 +496,12 @@ const validateStatus=(status)=>{
 const dataCrop = (crop) => {
   isCropVisible.value = true;
   selectedCrop.value = crop;
-  
+
 }
 const dataCrophide = () => {
   isCropVisible.value = false;
-  
-  
+
+
 }
 
 const dataPests = (plaga) => {
@@ -483,6 +526,12 @@ const editSect = async () => {
       ID_TIPO_PLANTA: parseInt(tPlantasUpdate.value),
       NUMERO_PLANTAS: nPlantasUpdate.value,
     };
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
 
     const response = await axios.put(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, sectorUpdate);
 
@@ -495,6 +544,10 @@ const editSect = async () => {
       console.error('Error al actualizar sector');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al actualizar', error);
   }
 };
@@ -505,11 +558,16 @@ const editCrop = async () => {
       ID_COSECHA: parseInt(selectedCrop.value.ID_COSECHA),
       CANTIDAD: newCropValue.value,
     };
-
-    const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate,config);
 
     if (response.status === 200) {
-      console.log('Cosecha: actualizada con éxito' + lotId +selectedCrop.value.ID_COSECHA );
+      console.log('Cosecha: actualizada con éxito' + lotId + selectedCrop.value.ID_COSECHA);
       alert("Cosecha actualizada con éxito");
       dataPestsHide();
       location.reload();
@@ -517,40 +575,92 @@ const editCrop = async () => {
       console.error('Error al actualizar');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al actualizar', error);
   }
 };
-const removeCrop = async()=>{
-  try {
-    const id_crop = selectedCrop.value.ID_COSECHA;
-    const id_lote = lotId
-    const response = await axios.delete(`http://localhost:3000/api/historial/cosechas/${id_lote}/${id_crop}`);
-    if (response.status === 200) {
-      alert("Cosecha eliminada exitosamente");
-      dataCrophide();
-      location.reload();
-    } else {
-      console.error('Error al eliminar cosecha');
+const removeCrop = async () => {
+  messageDelete.value = '¿Seguro que deseas eliminar la cosecha?'
+  openAlert(messageDelete);
+  const confirmed = await new Promise((resolve) => {
+    switchButton.value = false;
+    const checkInterval = setInterval(() => {
+      if (switchButton.value) {
+        clearInterval(checkInterval);
+        resolve(validate.value);
+      }
+    }, 500);
+  });
+  if (confirmed) {
+
+
+    try {
+      const id_crop = selectedCrop.value.ID_COSECHA;
+      const id_lote = lotId
+      const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+      const response = await axios.delete(`http://localhost:3000/api/historial/cosechas/${id_lote}/${id_crop}`,config);
+      if (response.status === 200) {
+        alert("Cosecha eliminada exitosamente");
+        dataCrophide();
+        location.reload();
+      } else {
+        console.error('Error al eliminar cosecha');
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
     }
-  } catch (error) {
-    console.error('Error al eliminar cosecha', error);
+      console.error('Error al eliminar cosecha', error);
+    }
   }
 };
-const removeWorker = async()=>{
-  try {
-    const id_persona = selectedWorker.value.ID_PERSONA;
-    const id_lote = selectedWorker.value.ID_LOTE;
-    const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`);
-    if (response.status === 200) {
-      console.log("Plaga borrada exitosamente");
-      alert("Trabajador eliminado exitosamente");
-      hideDataWorker();
-      location.reload();
-    } else {
-      console.error('Error al eliminar plaga');
+const removeWorker = async () => {
+  messageDelete.value = "¿Seguro que deseas borrar el trabajador?"
+  openAlert(messageDelete);
+  const confirmed = await new Promise((resolve) => {
+    switchButton.value = false;
+    const checkInterval = setInterval(() => {
+      if (switchButton.value) {
+        clearInterval(checkInterval);
+        resolve(validate.value);
+      }
+    }, 500);
+  });
+  if (confirmed) {
+    try {
+      const id_persona = selectedWorker.value.ID_PERSONA;
+      const id_lote = selectedWorker.value.ID_LOTE;
+      const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+      const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,config);
+      if (response.status === 200) {
+        console.log("Plaga borrada exitosamente");
+        alert("Trabajador eliminado exitosamente");
+        hideDataWorker();
+        location.reload();
+      } else {
+        console.error('Error al eliminar plaga');
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
     }
-  } catch (error) {
-    console.error('Error al eliminar plaga', error);
+      console.error('Error al eliminar plaga', error);
+    }
   }
 };
 const editWorker = async () => {
@@ -561,17 +671,27 @@ const editWorker = async () => {
       FECHA_ASIGNACION: selectedWorker.FECHA_ASIGNACION,
       ESTADO_ASIGNACION: newStatusWorker.value,
     };
-
-    const response = await axios.put(`http://localhost:3000/api/userlotes/${lotId}/${selectedWorker.value.ID_PERSONA}`, workerUpdate);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await axios.put(`http://localhost:3000/api/userlotes/${lotId}/${selectedWorker.value.ID_PERSONA}`, workerUpdate,config);
 
     if (response.status === 200) {
       console.log('Trabajador actualizado con éxito');
+      alert("Trabajador actualizado con éxito");
       hideDataWorker();
       location.reload();
     } else {
       console.error('Error al actualizar trabajador');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al actualizar trabajador', error);
   }
 };
@@ -583,58 +703,114 @@ const editPests = async () => {
     const lot = lotId;
     const fechaAfectacion = new Date(selectedPest.value.FECHA_AFECTACION);
     const newStatus = newStatusPest.value;
-
-    const response = await axios.patch(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`,{
-       FECHA_AFECTACION: fechaAfectacion, ESTADO_PLAGA: newStatus
-  });
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await axios.patch(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`, {
+      FECHA_AFECTACION: fechaAfectacion, ESTADO_PLAGA: newStatus
+    },config);
 
     if (response.status === 200) {
       console.log('Plaga actualizado con éxito');
+      alert("Plaga actualizado con éxito");
       hideDataWorker();
       location.reload();
     } else {
       console.error('Error al actualizar plaga');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al actualizar plaga', error);
   }
 };
 const deleteSector = async () => {
-  try {
-    console.log(selectedSector.ID_SECTOR)
-    const response = await fetch(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, {
-      method: 'DELETE',
-    });
-    if (response.ok) {
-      console.log("Sector borrado exitosamente")
-      hideSector();
-      location.reload();
-    } else {
-      console.error('Error al eliminar sector');
+  messageDelete.value = "¿Seguro que deseas borrar el sector?"
+  openAlert(messageDelete);
+  const confirmed = await new Promise((resolve) => {
+    switchButton.value = false;
+    const checkInterval = setInterval(() => {
+      if (switchButton.value) {
+        clearInterval(checkInterval);
+        resolve(validate.value);
+      }
+    }, 500);
+  });
+  if (confirmed) {
+    try {
+      const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+      const response = await fetch(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, {
+        method: 'DELETE',
+      },config);
+      if (response.ok) {
+        console.log("Sector borrado exitosamente")
+        alert("Sector borrado exitosamente")
+        hideSector();
+        location.reload();
+      } else {
+        console.error('Error al eliminar sector');
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
     }
-  } catch (error) {
-    console.error('Error al eliminar sector', error);
+      console.error('Error al eliminar sector', error);
+    }
   }
 };
 const deletePests = async () => {
-  try {
-    const pestId = selectedPest.value.ID_PLAGA;
-    const lot = lotId;
-    const fechaAfectacion = new Date(selectedPest.value.FECHA_AFECTACION);
-    console.log(fechaAfectacion)
-    const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`, {
-      data: { FECHA_AFECTACION : fechaAfectacion } 
-    });
+  messageDelete.value = "¿Seguro que deseas borrar la plaga?"
+  openAlert(messageDelete);
+  const confirmed = await new Promise((resolve) => {
+    switchButton.value = false;
+    const checkInterval = setInterval(() => {
+      if (switchButton.value) {
+        clearInterval(checkInterval);
+        resolve(validate.value);
+      }
+    }, 500);
+  });
+  if (confirmed) {
+    try {
+      const pestId = selectedPest.value.ID_PLAGA;
+      const lot = lotId;
+      const fechaAfectacion = new Date(selectedPest.value.FECHA_AFECTACION);
+      const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+      const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`, {
+        data: { FECHA_AFECTACION: fechaAfectacion }
+      },config);
 
-    if (response.status === 200) {
-      console.log("Plaga borrada exitosamente");
-      dataPestsHide();
-      location.reload();
-    } else {
-      console.error('Error al eliminar plaga');
+      if (response.status === 200) {
+        console.log("Plaga borrada exitosamente");
+        alert("Plaga borrada exitosamente")
+        dataPestsHide();
+        location.reload();
+      } else {
+        console.error('Error al eliminar plaga');
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
     }
-  } catch (error) {
-    console.error('Error al eliminar plaga', error);
+      console.error('Error al eliminar plaga', error);
+    }
   }
 };
 
@@ -699,7 +875,13 @@ const historialPlagas = ref([]);
 const historialTrabajadores = ref([]);
 const fetchHistorialTrabajadores = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/Spers/${lotId}`);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch(`http://localhost:3000/api/lotes/Spers/${lotId}`,config);
     if (response.ok) {
       const data = await response.json();
       historialTrabajadores.value = data.lotes_personas;
@@ -707,6 +889,10 @@ const fetchHistorialTrabajadores = async () => {
       console.error('Error al obtener el historial de plagas.');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al obtener el historial de plagas:', error);
   }
 };
@@ -714,7 +900,13 @@ const fetchHistorialTrabajadores = async () => {
 const historialCosechas = ref([]);
 const fetchHistorialCosechas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/Scos/${lotId}`);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch(`http://localhost:3000/api/lotes/Scos/${lotId}`,config);
     if (response.ok) {
       const data = await response.json();
       historialCosechas.value = data.historial_cosechas;
@@ -722,13 +914,23 @@ const fetchHistorialCosechas = async () => {
       console.error('Error al obtener el historial de plagas.');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al obtener el historial de plagas:', error);
   }
 };
 const cosechas = ref([]);
 const fetchCosechas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/cosechas`);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch(`http://localhost:3000/api/cosechas`,config);
     if (response.ok) {
       const data = await response.json();
       cosechas.value = data;
@@ -736,12 +938,22 @@ const fetchCosechas = async () => {
       console.error('Error al obtener el historial de plagas.');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al obtener el historial de plagas:', error);
   }
 };
 const fetchHistorialPlagas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`,config);
     if (response.ok) {
       const data = await response.json();
       historialPlagas.value = data.historial_plagas;
@@ -750,12 +962,21 @@ const fetchHistorialPlagas = async () => {
     }
   } catch (error) {
     console.error('Error al obtener el historial de plagas:', error);
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
   }
 };
 const getLotInfo = async () => {
   try {
-
-    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`);
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`,config);
     if (response.ok) {
       const data = await response.json();
       nameLot.value = data.NOMBRE_LOTE;
@@ -763,17 +984,23 @@ const getLotInfo = async () => {
       sectors.value = data.sectores
       console.log(data)
     } else {
-
+      if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
       console.error('Error al obtener información del lote con ID:', lotId);
     }
 
   } catch (error) {
-
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al obtener información del lote:', error);
   }
 };
 const goBack = () => {
-  router.push("/main/cropManagement")
+  router.push("/main/cropManagement/lots")
 }
 const goWorkers = () => {
   router.push('/main/cropManagement/workers')
@@ -795,12 +1022,19 @@ const submitForm = async () => {
       NUMERO_PLANTAS: parseInt(nPlants.value),
 
     };
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
 
-    const response = await axios.post('http://localhost:3000/api/sectores', nuevoSector);
+    const response = await axios.post('http://localhost:3000/api/sectores', nuevoSector, config);
 
     if (response.status === 200) {
 
       console.log('Lote agregado con éxito');
+      alert("Lote agregado con éxito");
       id_sec.value = 0;
       id_plant.value = '';
       nPlants.value = 0;
@@ -810,8 +1044,12 @@ const submitForm = async () => {
       location.reload();
     }
   } catch (error) {
-
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al agregar Sector:', error);
+    alert("El sector ya existe");
 
   }
 };
@@ -826,16 +1064,26 @@ const submitForm2 = async () => {
       FECHA_AFECTACION: new Date(fechaAfec.value),
       ESTADO_PLAGA: "A"
     };
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
 
-    const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga);
+    const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga,config);
 
     if (response.status === 200) {
+      alert("Plaga agregada con éxito");
       location.reload();
       hidePopup2();
       onMounted()
     }
   } catch (error) {
-
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al agregar plaga:', error);
 
   }
@@ -848,10 +1096,17 @@ const submitForm3 = async () => {
       ID_COSECHA: parseInt(id_cos.value),
       CANTIDAD: parseInt(cantidadPlantasCosecha.value),
     };
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
 
-    const response = await axios.post('http://localhost:3000/api/historial/cosechas', nuevaPlaga);
+    const response = await axios.post('http://localhost:3000/api/historial/cosechas', nuevaPlaga,config);
 
     if (response.status === 200) {
+      alert("Cosecha agregada con éxito");
       location.reload();
       hideAddCrops()
       onMounted()
@@ -874,6 +1129,58 @@ onMounted(() => {
 
   
 <style scoped>
+.myPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+
+
+}
+
+.myPopup-content {
+  background-color: #fff;
+  width: 400px;
+  height: 200px;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+
+.alertMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.alertButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 10%;
+}
+
+.alertButtons button {
+  background-color: #792f00;
+  color: white;
+  height: 45px;
+  width: 90px;
+  border-radius: 15px;
+  margin-left: 5%;
+  margin-right: 5%;
+  cursor: pointer;
+}
+
+.alertButtons button:hover {
+  transform: scale(1, 1);
+  background-color: #542200;
+}
+
 .popupEditLot {
   position: fixed;
   top: 0;
@@ -895,11 +1202,13 @@ onMounted(() => {
   border-radius: 15px;
   border: 3px solid #792f00;
 }
+
 .popup-contentEditLot h2 {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 #formulario2 {
   margin: 6%;
   display: flex;
@@ -910,6 +1219,7 @@ onMounted(() => {
   height: 75%;
   width: 90%;
 }
+
 .formButtons2 {
   margin-top: 5%;
   width: 100%;
@@ -919,9 +1229,9 @@ onMounted(() => {
 
 
 .submit-button2:hover {
-  transform: scale(1,1);
+  transform: scale(1, 1);
   background-color: #542200;
-  
+
 }
 
 .submit-button2 {
@@ -954,8 +1264,9 @@ onMounted(() => {
   flex-direction: column;
   width: 60%;
 }
-.form-group2 select{
- padding: 8px;
+
+.form-group2 select {
+  padding: 8px;
   font-size: 20px;
   border: 2px solid#792f00;
   border-radius: 20px;
@@ -994,18 +1305,22 @@ onMounted(() => {
   height: 70%;
 
 }
-.editButton{
+
+.editButton {
   background-color: transparent;
   border: none;
   cursor: pointer;
 }
-.editButton img{
+
+.editButton img {
   width: 80%;
   height: 20px;
 }
-.editButton :hover{
+
+.editButton :hover {
   transform: scale(1.1);
 }
+
 .popupPests {
   position: fixed;
   top: 0;
@@ -1043,12 +1358,14 @@ onMounted(() => {
   border-radius: 20px;
 
 }
+
 .editPestFormForm {
   display: flex;
   flex-direction: column;
 
   margin: 0%;
 }
+
 .popupWorker {
   position: fixed;
   top: 0;
@@ -1496,7 +1813,8 @@ form {
 
 
 }
-#historialCosechas tr{
+
+#historialCosechas tr {
   cursor: pointer;
 }
 

@@ -18,6 +18,22 @@ const router = createRouter({
       component: () => import('../view/main.vue')
     },
     {
+      name: 'Main Worker',
+      path: '/mainWorker',
+      component: () => import('../view/mainWorker.vue')
+    },
+    
+    {
+      name: 'Gestion de cultivos trabajador',
+      path: '/main/cropManagementWorker',
+      component: () => import('../view/cropManagementWorker.vue')
+    },
+    {
+      name: 'Lotes Worker',
+      path: '/main/cropManagementWorker/lotsWorker',
+      component: () => import('../view/lotsWorker.vue')
+    },
+    {
       name: 'Gestion de cultivos',
       path: '/main/cropManagement',
       component: () => import('../view/cropManagement.vue')

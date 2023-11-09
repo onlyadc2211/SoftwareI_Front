@@ -14,7 +14,7 @@
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">
-        <button class="notification-button"  @click="goHome">
+        <button class="notification-button" @click="goHome">
           <img src="../images/home.png" alt="Icono 1">
         </button>
         <button class="notification-button">
@@ -37,18 +37,18 @@
             </div>
           </div>
         </div>
-        
+
         <div v-if="isPopupVisible" class="popup">
           <div class="popup-content">
             <h2>Eliminar lote</h2>
             <ul>
               <li v-for="lot in lots" :key="lot.ID_LOTE">
                 <div class="deleteDiv">
-                <label>
-                  <input type="checkbox" v-model="selectedLots" :value="lot.ID_LOTE">
-                  {{ lot.NOMBRE_LOTE}} ({{ lot.TOTAL_PLANTAS }} plantas)
-                </label>
-              </div>
+                  <label>
+                    <input type="checkbox" v-model="selectedLots" :value="lot.ID_LOTE">
+                    {{ lot.NOMBRE_LOTE }} ({{ lot.TOTAL_PLANTAS }} plantas)
+                  </label>
+                </div>
               </li>
             </ul>
             <button @click="deletL">Eliminar</button>
@@ -57,34 +57,45 @@
         </div>
         <div v-if="isVisible" class="popup2">
           <div class="popup-content2">
-              <h2>Añadir lote</h2>
-              <div id="formulario2">
-                  <form @submit.prevent="submitForm" class="form2">
-                      <div class="form-group2">
-                          <label for="idLote">Id Lote</label>
-                          <input type="number" id="totalPlantas" v-model="id_lote" required class="input-field2" />
-                      </div>
-                      <div class="form-group2">
-                          <label for="nombreLote">Nombre del lote:</label>
-                          <input type="text" id="nombreLote" v-model="nombreLote" required class="input-field2" />
-                      </div>
-                   
-                      <div id="errorCorrection2"></div>
-                      <div class="formButtons2">
-                          <button type="submit2" @click="submitForm" class="submit-button2">Agregar</button>
-                          <button @click="hidePopup2" class="submit-button2">Cerrar</button>
-                      </div>
-                  </form>
-  
-              </div>
-  
+            <h2>Añadir lote</h2>
+            <div id="formulario2">
+              <form @submit.prevent="submitForm" class="form2">
+                <div class="form-group2">
+                  <label for="idLote">Id Lote</label>
+                  <input type="number" id="totalPlantas" v-model="id_lote" required class="input-field2" />
+                </div>
+                <div class="form-group2">
+                  <label for="nombreLote">Nombre del lote:</label>
+                  <input type="text" id="nombreLote" v-model="nombreLote" required class="input-field2" />
+                </div>
+
+                <div id="errorCorrection2"></div>
+                <div class="formButtons2">
+                  <button type="submit2" @click="submitForm" class="submit-button2">Agregar</button>
+                  <button @click="hidePopup2" class="submit-button2">Cerrar</button>
+                </div>
+              </form>
+
+            </div>
+
           </div>
-      </div>
+        </div>
       </div>
       <div class="buttons">
         <button class="btnLotes" @click="addLot">Agregar lote</button>
         <button class="btnLotes">Agregar planta</button>
         <button class="btnLotes" @click="deletePopup">Eliminar</button>
+      </div>
+    </div>
+    <div v-if="isAlertVisible" class="myPopup">
+      <div class="myPopup-content">
+        <div class="alertMessage">
+          <h3>{{ message }}</h3>
+        </div>
+        <div class="alertButtons">
+          <button @click="confirm">Si</button>
+          <button @click="closeAlert">No</button>
+        </div>
       </div>
     </div>
   </div>
@@ -98,46 +109,93 @@ import { ref } from 'vue';
 const router = useRouter();
 const lots = ref([]);
 const isPopupVisible = ref(false);
-const isVisible= ref(false);
+const isVisible = ref(false);
 const selectedLots = ref([]);
 const nombreLote = ref('');
 const id_lote = ref('');
 const totalPlantas = ref(0);
+const message = ref('');
+const validate = ref(false);
+const isAlertVisible = ref(false);
+const messageDelete = ref("");
+const switchButton = ref(false);
+const token = localStorage.getItem('token');
+const openAlert = (m) => {
+  isAlertVisible.value = true;
+  message.value = m;
+
+}
+const closeAlert = () => {
+  isAlertVisible.value = false;
+  switchButton.value = true;
+
+}
+const confirm = () => {
+  validate.value = true;
+  switchButton.value = true;
+  closeAlert();
+
+}
 const goHome = () => {
   router.push('/main');
 }
 const hidePopup2 = () => {
-    isVisible.value = false;
+  isVisible.value = false;
 };
 const deletL = async () => {
+
   if (selectedLots.value.length === 0) {
     alert('Por favor, selecciona al menos un lote para eliminar.');
     return;
   }
-  try {
-    const selectedLotsArray = Array.from(selectedLots.value);
+  messageDelete.value = "¿Seguro que deseas borrar el lote?"
+  openAlert(messageDelete);
+  const confirmed = await new Promise((resolve) => {
+    switchButton.value = false;
+    const checkInterval = setInterval(() => {
+      if (switchButton.value) {
+        clearInterval(checkInterval);
+        resolve(validate.value);
+      }
+    }, 500);
+  });
+  if (confirmed) {
+    try {
+      const selectedLotsArray = Array.from(selectedLots.value);
 
-    for (const lotId of selectedLotsArray) {
-      const response = await fetch(`http://localhost:3000/api/lotes/${lotId}`, {
-        method: 'DELETE',
-      });
+      for (const lotId of selectedLotsArray) {
+        const response = await fetch(`http://localhost:3000/api/lotes/${lotId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
 
-      if (response.ok) {
-        location.reload();
-      } else {
-   
-        console.error('Error al eliminar el lote con ID:', lotId);
+        });
+
+        if (response.ok) {
+          alert("Lote eliminado exitosamente")
+          location.reload();
+
+        } else {
+
+          console.error('Error al eliminar el lote con ID:', lotId);
+          alert("No es posible eliminar lotes con registros activos");
+        }
+      }
+      fetchLots();
+      hidePopup();
+    } catch (error) {
+      console.error('Error al eliminar lotes:', error);
+      if (error.response.status === 500) {
         alert("No es posible eliminar lotes con registros activos");
       }
+      if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
+      alert('Ocurrió un error al eliminar los lotes. Por favor, intenta de nuevo.');
     }
-    fetchLots();
-    hidePopup();
-  } catch (error) {
-    console.error('Error al eliminar lotes:', error);
-      if(error.response.status === 500){
-                alert("No es posible eliminar lotes con registros activos");
-            }
-    alert('Ocurrió un error al eliminar los lotes. Por favor, intenta de nuevo.');
   }
 };
 
@@ -161,47 +219,57 @@ const goLots = () => {
 }
 const addLot = () => {
   isVisible.value = true;
-  
+
 }
 const goToLotInfo = (lotId) => {
   router.push(`/main/cropManagement/lots/lotInfo/${lotId}`);
 }
 const submitForm = async () => {
-    try {
-        const nuevoLote = {
-            ID_LOTE: parseInt(id_lote.value),
-            TOTAL_PLANTAS: parseInt(0),
-            NOMBRE_LOTE: nombreLote.value.toLocaleUpperCase()
-        };
+  try {
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const nuevoLote = {
+      ID_LOTE: parseInt(id_lote.value),
+      TOTAL_PLANTAS: parseInt(0),
+      NOMBRE_LOTE: nombreLote.value.toLocaleUpperCase()
+    };
 
-        const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote);
+    const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote, config);
 
-        if (response.status === 200) {
+    if (response.status === 200) {
 
-            console.log('Lote agregado con éxito');
-            id_lote.value = 0;
-            nombreLote.value = '';
-            totalPlantas.value = 0;
+      console.log('Lote agregado con éxito');
+      id_lote.value = 0;
+      nombreLote.value = '';
+      totalPlantas.value = 0;
 
-            isVisible.value = false;
-            location.reload();
-        }
-        
-    } catch (error) {
-
-        console.error('Error al agregar el lote:', error);
-
+      isVisible.value = false;
+      location.reload();
     }
+
+  } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
+
+    alert("No es posible agregar lote porque este ya existe")
+
+  }
 };
 
 
 const fetchLots = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/lotes'); 
+    const response = await fetch('http://localhost:3000/api/lotes');
     if (response.ok) {
       const data = await response.json();
       lots.value = data;
-     
+
     }
   } catch (error) {
     console.error('Error al obtener lotes:', error);
@@ -215,6 +283,58 @@ onMounted(() => {
 </script>
   
 <style scoped>
+.myPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+
+
+}
+
+.myPopup-content {
+  background-color: #fff;
+  width: 400px;
+  height: 200px;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+
+.alertMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.alertButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 10%;
+}
+
+.alertButtons button {
+  background-color: #792f00;
+  color: white;
+  height: 45px;
+  width: 90px;
+  border-radius: 15px;
+  margin-left: 5%;
+  margin-right: 5%;
+  cursor: pointer;
+}
+
+.alertButtons button:hover {
+  transform: scale(1, 1);
+  background-color: #542200;
+}
+
 .popup {
   position: fixed;
   top: 0;
@@ -225,7 +345,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   z-index: 1;
- 
+
 }
 
 .popup-content {
@@ -240,6 +360,7 @@ onMounted(() => {
   align-items: center;
   align-self: center;
 }
+
 .popup-content button {
   background-color: #792f00;
   color: #fff;
@@ -252,7 +373,8 @@ onMounted(() => {
   margin-right: 5%;
 
 }
-.deleteDiv{
+
+.deleteDiv {
   display: flex;
   height: 40%;
   width: 50%;
@@ -271,6 +393,7 @@ onMounted(() => {
   border-radius: 12%;
 
 }
+
 .btnLotes:hover {
   transform: scale(1.1);
 }
@@ -344,11 +467,13 @@ onMounted(() => {
   flex-wrap: wrap;
   width: 100%;
 }
-.lotes p{
+
+.lotes p {
   margin-bottom: 1%;
   margin-top: 1%;
 }
-.lotes h1{
+
+.lotes h1 {
   margin-bottom: 1%;
 }
 
@@ -445,6 +570,7 @@ onMounted(() => {
   width: 6vh;
   height: 6vh;
 }
+
 .popup2 {
   position: fixed;
   top: 0;
@@ -465,12 +591,14 @@ onMounted(() => {
   border-radius: 15px;
   border: 3px solid #792f00;
 }
-.popup-content2 h2{
+
+.popup-content2 h2 {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.form2{
+
+.form2 {
   width: 90%;
   max-width: 700px;
   height: 90%;
@@ -508,11 +636,12 @@ onMounted(() => {
   border: 2px solid #792f00;
   outline: none;
 }
-.formButtons2{
+
+.formButtons2 {
   margin-top: 5%;
   width: 100%;
   height: 70%;
-  
+
 }
 
 
@@ -530,16 +659,16 @@ onMounted(() => {
   margin-left: 10%;
   margin-right: 10%;
   height: 30px;
-  
+
 }
 
-#formulario2{
+#formulario2 {
   margin: 6%;
   display: flex;
   justify-content: center;
   align-items: center;
   align-self: center;
-  
+
   height: 75%;
   width: 90%;
 }

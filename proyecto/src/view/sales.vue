@@ -85,7 +85,7 @@
                                 <th class="tableTitle">Comprador</th>
                                 <th class="tableTitle">Cosecha</th>
                                 <th class="tableTitle">Estado
-                                    <button class="bntFiltro">▼</button>
+                                    <button class="bntFiltro" @click="toggleFiltro">▼</button>
                                 </th>
                                 <th class="tableTitle">Total</th>
                                 <th class="tableTitle">Fecha</th>
@@ -93,9 +93,10 @@
                         </thead>
                         <tbody>
 
-                            <tr v-for="venta in ventas" :key="venta.ID_LOTE" @click="showSale(venta)">
+                            <tr v-for="venta in ventasFiltradas" :key="venta.ID_LOTE" @click="showSale(venta)">
                                 <td class="tdTableID">{{ venta.ID_VENTA }} </td>
-                                <td class="tdTable">{{ venta.personas.NOMBRE_PERSONA }} {{ venta.personas.APELLIDO_PERSONA }}
+                                <td class="tdTable">{{ venta.personas.NOMBRE_PERSONA }} {{ venta.personas.APELLIDO_PERSONA
+                                }}
                                 </td>
                                 <td class="tdTable">{{ formatearFecha(venta.cosechas.FECHA_COSECHA) }}</td>
                                 <td class="tdTable">{{ validateStatus(venta.ESTADO_VENTA) }}</td>
@@ -203,7 +204,7 @@
                                 <label for="precioProductoUpdate">Cambiar cosecha:</label>
                                 <select id="venta_cliente" v-model="cosechaVentaUpdate" required class="input-field">
                                     <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
-                                        {{cosecha.FECHA_COSECHA}} ID: {{ cosecha.ID_COSECHA }}
+                                        {{ cosecha.FECHA_COSECHA }} ID: {{ cosecha.ID_COSECHA }}
                                     </option>
                                 </select>
                             </div>
@@ -252,31 +253,34 @@
                         <div class="form-group">
                             <label for="venta_cliente">Venta</label>
                             <div class="select-wrapper">
-                                <textarea cols="1" rows="1" class="input-field"  readonly >{{formatearFecha(selectedSale.FECHA_VENTA)}}</textarea >
+                                <textarea cols="1" rows="1" class="input-field"
+                                    readonly>{{ formatearFecha(selectedSale.FECHA_VENTA) }}</textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Producto</label>
-                            <select id="venta_cliente" v-model="id_producto_factura" required class="input-field" @change="takeProduct(),changeSubValue()" >
+                            <select id="venta_cliente" v-model="id_producto_factura" required class="input-field"
+                                @change="takeProduct(), changeSubValue()">
                                 <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
-                                {{ producto.NOMBRE_PRODUCTO}}
+                                    {{ producto.NOMBRE_PRODUCTO }}
                                 </option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Cantidad</label>
-                            
-                            <input type="number" v-model="cantidad_producto_factura" @change="changeSubValue" required class="input-field">
+
+                            <input type="number" v-model="cantidad_producto_factura" @change="changeSubValue" required
+                                class="input-field">
                         </div>
                         <div class="form-group">
-                            <label for="lote_Trabajador" >Precio Unitario</label>
-                            
-                            <textarea cols="1" rows="1" class="input-field"  readonly >{{ precio_unitario_factura}}</textarea >
+                            <label for="lote_Trabajador">Precio Unitario</label>
+
+                            <textarea cols="1" rows="1" class="input-field" readonly>{{ precio_unitario_factura }}</textarea>
                         </div>
                         <div class="form-group">
-                            <label for="lote_Trabajador" >Subtotal</label>
-                            
-                            <textarea cols="1" rows="1" class="input-field"  readonly >{{ subTotal}}</textarea >
+                            <label for="lote_Trabajador">Subtotal</label>
+
+                            <textarea cols="1" rows="1" class="input-field" readonly>{{ subTotal }}</textarea>
                         </div>
 
                         <div class="formButtons">
@@ -292,7 +296,7 @@
     
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import axios from 'axios';
 
 const router = useRouter();
@@ -314,13 +318,33 @@ const id_producto_factura = ref();
 const cantidad_producto_factura = ref();
 const precio_unitario_factura = ref();
 const estadoVentaUpdate = ref();
-const takeProduct =()=>{
+const token = localStorage.getItem('token');
+const estadoFiltrado = ref(null);
+const toggleFiltro = () => {
+  if (estadoFiltrado.value === 'C') {
+    estadoFiltrado.value = 'P';
+  } else if (estadoFiltrado.value === 'P') {
+    estadoFiltrado.value = null; 
+  } else {
+    estadoFiltrado.value = 'C';
+  }
+};
+
+const ventasFiltradas = computed(() => {
+  if (estadoFiltrado.value === null) {
+    return ventas.value; 
+  } else {
+    return ventas.value.filter(venta => venta.ESTADO_VENTA === estadoFiltrado.value);
+  }
+});
+
+const takeProduct = () => {
     selectedProduct.value = productos.value.find(producto => producto.ID_PRODUCTO === id_producto_factura.value);
     precio_unitario_factura.value = selectedProduct.value.PRECIO_ACTUAL_PRODUCTO;
     console.log(precio_unitario_factura.value)
 }
-const changeSubValue =()=>{
-    subTotal.value = cantidad_producto_factura.value *precio_unitario_factura.value
+const changeSubValue = () => {
+    subTotal.value = cantidad_producto_factura.value * precio_unitario_factura.value
 }
 const newBill = () => {
     isVisibleAddBill.value = true;
@@ -332,15 +356,19 @@ const hideBill = () => {
 const submitFormEditSaleStaus = async () => {
     try {
         const newData = {
-            
             ID_PERSONA: selectedSale.value.ID_PERSONA,
             ID_COSECHA: selectedSale.value.ID_COSECHA,
             ESTADO_VENTA: estadoVentaUpdate.value,
             FECHA_VENTA: selectedSale.value.FECHA_VENTA
-            
+
         };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData,config);
         if (response.status === 200) {
             console.log('Venta editada con éxito');
             alert("Venta editada con éxito")
@@ -350,6 +378,10 @@ const submitFormEditSaleStaus = async () => {
         }
     } catch (error) {
         console.error('Error al editar venta ', error);
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
 
     }
 };
@@ -357,15 +389,21 @@ const clienteVentaUpdate = ref();
 const submitFormEditSaleClient = async () => {
     try {
         const newData = {
-            
+
             ID_PERSONA: clienteVentaUpdate.value,
             ID_COSECHA: selectedSale.value.ID_COSECHA,
             ESTADO_VENTA: selectedSale.value.ESTADO_VENTA,
             FECHA_VENTA: selectedSale.value.FECHA_VENTA
-            
+
         };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData,config);
         if (response.status === 200) {
             console.log('Venta editada con éxito');
             alert("Venta editada con éxito")
@@ -375,6 +413,10 @@ const submitFormEditSaleClient = async () => {
         }
     } catch (error) {
         console.error('Error al editar venta ', error);
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
 
     }
 };
@@ -382,15 +424,20 @@ const cosechaVentaUpdate = ref();
 const submitFormEditSaleCrop = async () => {
     try {
         const newData = {
-            
+
             ID_PERSONA: selectedSale.value.ID_PERSONA,
             ID_COSECHA: cosechaVentaUpdate.value,
             ESTADO_VENTA: selectedSale.value.ESTADO_VENTA,
             FECHA_VENTA: selectedSale.value.FECHA_VENTA
-            
+
         };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData,config);
         if (response.status === 200) {
             console.log('Venta editada con éxito');
             alert("Venta editada con éxito")
@@ -400,6 +447,10 @@ const submitFormEditSaleCrop = async () => {
         }
     } catch (error) {
         console.error('Error al editar venta ', error);
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
 
     }
 };
@@ -407,15 +458,21 @@ const fechaVentaUpdate = ref();
 const submitFormEditSaleDate = async () => {
     try {
         const newData = {
-    
+
             ID_PERSONA: selectedSale.value.ID_PERSONA,
             ID_COSECHA: selectedSale.value.ID_COSECHA,
             ESTADO_VENTA: selectedSale.value.ESTADO_VENTA,
             FECHA_VENTA: new Date(fechaVenta.value)
-            
+
         };
-        console.log(newData)
-        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        const response = await axios.put(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`, newData,config);
         if (response.status === 200) {
             console.log('Venta editada con éxito');
             alert("Venta editada con éxito")
@@ -425,6 +482,10 @@ const submitFormEditSaleDate = async () => {
         }
     } catch (error) {
         console.error('Error al editar venta ', error);
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
 
     }
 };
@@ -432,13 +493,19 @@ const crearFactura = async () => {
     try {
 
         const newData = {
-            ID_VENTA : selectedSale.value.ID_VENTA,
-            ID_PRODUCTO : id_producto_factura.value,
-            CANTIDAD_PRODUCTO : cantidad_producto_factura.value
+            ID_VENTA: selectedSale.value.ID_VENTA,
+            ID_PRODUCTO: id_producto_factura.value,
+            CANTIDAD_PRODUCTO: cantidad_producto_factura.value
 
         }
-        console.log(newData)
-        const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        console.log(config)
+        const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData,config);
         if (response.status === 200) {
             console.log("Factura agregada correctamente");
             alert("Factura generada correctamente");
@@ -450,12 +517,16 @@ const crearFactura = async () => {
         }
     } catch (error) {
         console.error('Error al actualizar', error);
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
     }
 };
 const openAlert = (m) => {
     isAlertVisible.value = true;
     message.value = m;
-    
+
 }
 const closeAlert = () => {
     isAlertVisible.value = false;
@@ -481,7 +552,13 @@ const submitFormDeleteSale = async () => {
     });
     if (confirmed) {
         try {
-            const response = await axios.delete(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`);
+            const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+            const response = await axios.delete(`http://localhost:3000/api/ventas/${selectedSale.value.ID_VENTA}`,config);
             if (response.status === 200) {
                 console.log('Producto eliminado con éxito');
                 alert("Venta eliminada con éxito");
@@ -490,13 +567,17 @@ const submitFormDeleteSale = async () => {
             }
         } catch (error) {
             console.error('Error al eliminar venta ', error);
-            if(error.response.status === 500){
+            if (error.response.status === 500) {
                 alert("No es posible eliminar ventas con registros activos");
             }
-            
+            if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
+
         }
     } else {
-        
+
     }
 };
 
@@ -507,7 +588,7 @@ const showSale = (s) => {
 }
 const hideSale = () => {
     isSaleVisible.value = false;
-    
+
 }
 const addClient = () => {
     isVisibleAddClient.value = true;
@@ -518,7 +599,13 @@ const addClientClose = () => {
 }
 const fetchCosechas = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/cosechas`);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await fetch(`http://localhost:3000/api/cosechas`,config);
         if (response.ok) {
             const data = await response.json();
             cosechas.value = data;
@@ -526,21 +613,35 @@ const fetchCosechas = async () => {
             console.error('Error al obtener el historial de cosechas.');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener el historial de cosechas:', error);
     }
 };
 const ventas = ref([])
 const fetchVentas = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/ventas`);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await fetch(`http://localhost:3000/api/ventas`,config);
         if (response.ok) {
             const data = await response.json();
             ventas.value = data;
-            console.log(ventas.value)
+            
         } else {
             console.error('Error al obtener ventas');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener ventas:', error);
     }
 };
@@ -550,14 +651,19 @@ const clientLastName = ref('');
 const clientPhone = ref();
 const crearCliente = async () => {
     try {
-
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
         const newData = {
             ID_PERSONA: clientCedule.value,
             NOMBRE_PERSONA: clientName.value,
             APELLIDO_PERSONA: clientLastName.value,
             TELEFONO_PERSONA: clientPhone.value.toString(),
         }
-        const response = await axios.post(`http://localhost:3000/api/person`, newData);
+        const response = await axios.post(`http://localhost:3000/api/person`, newData,config);
         if (response.status === 200) {
             console.log("Cliente agregado correctamente");
             alert("Cliente agregado correctamente");
@@ -569,6 +675,10 @@ const crearCliente = async () => {
             console.error('Error al actualizar');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al actualizar', error);
     }
 };
@@ -585,18 +695,29 @@ const crearVenta = async () => {
             ID_COSECHA: cosechaVenta.value,
             ESTADO_VENTA: estadoVenta.value,
             FECHA_VENTA: new Date(fechaVenta.value)
-        }
-        const response = await axios.post(`http://localhost:3000/api/ventas`, newData);
+        };
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await axios.post(`http://localhost:3000/api/ventas`, newData,config);
         if (response.status === 200) {
             console.log("Venta agregada correctamente");
             alert("Venta agregada correctamente");
             hidePopup2();
-            location.reload();
+            fetchVentas();
+            
 
         } else {
             console.error('Error al actualizar');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al actualizar', error);
     }
 };
@@ -640,6 +761,12 @@ const goCrops = () => {
 }
 const obtenerTrabajadores = async () => {
     try {
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
         const response = await fetch(`http://localhost:3000/api/person`);
         if (response.ok) {
             const data = await response.json();
@@ -649,21 +776,34 @@ const obtenerTrabajadores = async () => {
             console.error('Error al obtener trabajadores.');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener trabajadores', error);
     }
 };
 const productos = ref([])
 const fetchProductos = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/productos`);
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await fetch(`http://localhost:3000/api/productos`,config);
         if (response.ok) {
             const data = await response.json();
             productos.value = data;
-            console.log(facturas)
         } else {
             console.error('Error al obtener el historial de productos');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener el historial de productos', error);
     }
 };
@@ -676,6 +816,9 @@ onMounted(() => {
 </script>
     
 <style scoped>
+.bntFiltro{
+    cursor: pointer;
+}
 .myPopup {
     position: fixed;
     top: 0;
@@ -727,6 +870,7 @@ onMounted(() => {
     transform: scale(1, 1);
     background-color: #542200;
 }
+
 .popup2 {
     position: fixed;
     top: 0;
@@ -798,7 +942,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     margin: 2%;
-    
+
 
 
 }
@@ -851,8 +995,8 @@ onMounted(() => {
     width: 100%;
     height: 70%;
     display: flex;
-    
-    
+
+
 }
 
 
@@ -873,18 +1017,20 @@ onMounted(() => {
     margin-left: auto;
     margin-right: 2%;
 }
-.mainSaleDiv{
 
- display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  grid-gap: 20px; 
-  height: 60%;
+.mainSaleDiv {
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 20px;
+    height: 60%;
 }
+
 .select-wrapper2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
 }
 
 

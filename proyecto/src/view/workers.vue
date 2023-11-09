@@ -57,7 +57,7 @@
                     </div>
                     <div id="errorCorrection"></div>
                     <div class="formButtons">
-                      <button type="submit" class="submit-button" @click="asignarLote">Agregar</button>
+                      <button type="submit" class="submit-button" @click="asignarLote">Asignar</button>
                       <button @click="hidePopup2" class="submit-button">Cerrar</button>
                     </div>
                   </form>
@@ -88,7 +88,7 @@
 
               </div>
               <div class="botones">
-                  <button class="btnLotes" @click="addWorker">Agregar</button>
+                  <button class="btnLotes" @click="addWorker">Asignar</button>
               </div>
               <div v-if="isWorkerVisible" class="popupWorker">
                 <div class="popup-contentWorker">
@@ -138,6 +138,17 @@
                 </div>
               </div>
           </div>
+          <div v-if="isAlertVisible" class="myPopup">
+            <div class="myPopup-content">
+                <div class="alertMessage">
+                    <h3>{{ message }}</h3>
+                </div>
+                <div class="alertButtons">
+                    <button @click="confirm">Si</button>
+                    <button @click="closeAlert">No</button>
+                </div>
+            </div>
+          </div>
       </div>
 
 
@@ -159,6 +170,34 @@ const isWorkerVisible = ref(false);
 const selectedWorker = ref(null);
 const newStatusWorker = ref('');
 const newDate= ref(null);
+const message = ref('');
+const validate = ref(false);
+const isAlertVisible = ref(false);
+const messageDelete = ref("");
+const switchButton = ref(false);
+const token = localStorage.getItem('token');
+const config = {
+  headers: {
+    'Authorization': token,
+    'Content-Type': 'application/json'
+  }
+};
+const openAlert = (m) => {
+    isAlertVisible.value = true;
+    message.value = m;
+    
+}
+const closeAlert = () => {
+    isAlertVisible.value = false;
+    switchButton.value = true;
+
+}
+const confirm = () => {
+    validate.value = true;
+    switchButton.value = true;
+    closeAlert();
+
+}
 const goHome = () => {
   router.push('/main');
 }
@@ -173,7 +212,7 @@ const editStatus = async()=>{
       FECHA_ASIGNACION : fechaA,
       ESTADO_ASIGNACION : newStatusWorker.value,
     }
-    const response = await axios.patch(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,newData);
+    const response = await axios.patch(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,newData,config);
     if (response.status === 200) {
       console.log("Plaga borrada exitosamente");
       hideDataWorker();
@@ -182,6 +221,10 @@ const editStatus = async()=>{
       console.error('Error al actualizar');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al actualizar', error);
   }
 };
@@ -198,7 +241,7 @@ const editDate = async()=>{
       FECHA_ASIGNACION : fechaA,
       ESTADO_ASIGNACION : status,
     }
-    const response = await axios.put(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,newData);
+    const response = await axios.put(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,newData,config);
     if (response.status === 200) {
       alert("Fecha cambiada exitosamente");
       hideDataWorker();
@@ -207,15 +250,31 @@ const editDate = async()=>{
       console.error('Error al actualizar');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al actualizar', error);
   }
 };
 
 const removeWorker = async()=>{
+  messageDelete.value = "¿Seguro que deseas borrar el trabajador?"
+  openAlert(messageDelete);
+    const confirmed = await new Promise((resolve) => {
+        switchButton.value = false;
+        const checkInterval = setInterval(() => {
+            if (switchButton.value) {
+                clearInterval(checkInterval);
+                resolve(validate.value);
+            }
+        }, 500);
+    });
+    if (confirmed) {
   try {
     const id_persona = selectedWorker.value.ID_PERSONA;
     const id_lote = selectedWorker.value.ID_LOTE;
-    const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`);
+    const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,config);
     if (response.status === 200) {
       console.log("Plaga borrada exitosamente");
       alert("Trabajador eliminado exitosamente");
@@ -225,8 +284,13 @@ const removeWorker = async()=>{
       console.error('Error al eliminar plaga');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al eliminar plaga', error);
   }
+}
 };
 
 const showWorker=(trabajador)=>{
@@ -279,7 +343,7 @@ const asignarLote = async () => {
 
     };
     console.log(new Date())
-    const response = await axios.post('http://localhost:3000/api/userLotes', nuevaAsignacion);
+    const response = await axios.post('http://localhost:3000/api/userLotes', nuevaAsignacion,config);
 
     if (response.status === 200) {
       alert("Asignacion exitosa");
@@ -290,7 +354,10 @@ const asignarLote = async () => {
       location.reload();
     }
   } catch (error) {
-
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al agregar Sector:', error);
 
   }
@@ -298,7 +365,7 @@ const asignarLote = async () => {
 
 const obtenerLotes =async ()=>{
   try {
-    const response = await fetch(`http://localhost:3000/api/lotes`);
+    const response = await fetch(`http://localhost:3000/api/lotes`,config);
     if (response.ok) {
       const data = await response.json();
       lotes.value = data;
@@ -306,12 +373,16 @@ const obtenerLotes =async ()=>{
       console.error('Error al obtener lotes.');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al obtener lotes', error);
   }
 };
 const obtenerTrabajadores =async ()=>{
   try {
-    const response = await fetch(`http://localhost:3000/api/person`);
+    const response = await fetch(`http://localhost:3000/api/person`,config);
     if (response.ok) {
       const data = await response.json();
       trabajadores.value = data;
@@ -320,6 +391,10 @@ const obtenerTrabajadores =async ()=>{
       console.error('Error al obtener trabajadores.');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al obtener trabajadores', error);
   }
 };
@@ -327,7 +402,7 @@ const obtenerTrabajadores =async ()=>{
 const empleados = ref([]);
 const fetchEmpleados = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/userlotes`);
+    const response = await fetch(`http://localhost:3000/api/userlotes`,config);
     if (response.ok) {
       const data = await response.json();
       empleados.value = data;
@@ -336,6 +411,10 @@ const fetchEmpleados = async () => {
       console.error('Error al obtener trabajadores.');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } 
     console.error('Error al obtener trabajadores', error);
   }
 };
@@ -349,6 +428,57 @@ onMounted(() => {
 </script>
   
 <style scoped>
+.myPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+
+
+}
+
+.myPopup-content {
+  background-color: #fff;
+  width: 400px;
+  height: 200px;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+
+.alertMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.alertButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 5%;
+}
+
+.alertButtons button {
+  background-color: #792f00;
+  color: white;
+  height: 45px;
+  width: 90px;
+  border-radius: 15px;
+  margin-left: 5%;
+  margin-right: 5%;
+  cursor: pointer;
+}
+
+.alertButtons button:hover {
+  transform: scale(1, 1);
+  background-color: #542200;
+}
 .popupWorker {
   position: fixed;
   top: 0;

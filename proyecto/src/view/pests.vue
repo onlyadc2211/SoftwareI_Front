@@ -32,10 +32,13 @@
             <div id="contenido">
                 <div class="plagas">
                     <div class="pests">
-                        <div v-for="index in 20" :key="index" class="pests-item">
+                        <div v-for="plaga in plagas" :key="plagas.ID_PLAGA" class="pests-item">
                             <div class="pests-content">
-                                <h1>Nombre Plaga{{ index }}</h1>
-                                <p>Descripcion</p>
+                                <h1>{{ plaga.NOMBRE_PLAGA }}</h1>
+                                <div class="description">
+                                    <textarea cols="40" rows="10" readonly>Descripción: {{ plaga.DESCRIPCION_PLAGA }} </textarea>
+                                </div>
+                                
 
                             </div>
                         </div>
@@ -43,8 +46,6 @@
                 </div>
                 <div class="botones">
                     <button class="btnLotes" @click="addLot">Agregar plaga</button>
-                    <button class="btnLotes">Modificar plaga</button>
-                    <button class="btnLotes" @click="deletePopup">Eliminar plaga</button>
                 </div>
             </div>
         </div>
@@ -55,8 +56,24 @@
     
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
+
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+const plagas =ref([]);
+const fetchPlagas = async () => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/plagas`);
+        if (response.ok) {
+            const data = await response.json();
+            plagas.value = data;
+            console.log(plagas.value)
+        } else {
+            console.error('Error al obtener plagas');
+        }
+    } catch (error) {
+        console.error('Error al obtener plagas', error);
+    }
+};
 const router = useRouter();
 
 const goBack = () => {
@@ -75,7 +92,9 @@ const goCrops = () => {
 const goHome = () => {
   router.push('/main');
 }
-
+onMounted(() => {
+   fetchPlagas();
+});
 
 </script>
     
@@ -89,15 +108,16 @@ const goHome = () => {
 }
 
 .pests-item {
-
     margin: 1%;
-    padding: 9vw;
     background-color: #febd96;
     text-align: center;
     border-radius: 1vw;
-    height: 4vh;
+    height: 91%;
     font-size: 80%;
     cursor: pointer;
+    margin-right: 2%;
+   padding: 0.5%;
+   
 }
 
 .pests-item:hover {
@@ -110,13 +130,33 @@ const goHome = () => {
     justify-content: space-around;
     align-items: center;
     height: 100%;
+    width: 400px;
 }
+.description{
+
+   display: flex;
+   width: 400px;
+   height: 100px;
+   max-height: 500px;
+   justify-content: center;
+
+
+}
+.description textarea{
+    background-color: transparent;
+    border: none; 
+    resize: none;
+     -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 
 .plagas {
 
     width: 96%;
     height: 75%;
-
     margin: 2%;
     margin-bottom: 0%;
     display: flex;
@@ -270,6 +310,7 @@ const goHome = () => {
   color: white;
   cursor: pointer;
   border-radius: 12%;
+  margin-left: auto;
 
 }
 .btnLotes:hover {

@@ -15,7 +15,7 @@
         <img src="../images/cosecha.png" alt="">
       </button>
       <div id="notifications">
-        <button class="notification-button"  @click="goHome">
+        <button class="notification-button" @click="goHome">
           <img src="../images/home.png" alt="Icono 1">
         </button>
         <button class="notification-button">
@@ -31,14 +31,15 @@
       <div id="contenido">
         <div class="cosechas">
           <div class="pests">
-            <div v-for="cosecha in cosechasArray" :key="cosecha.ID_COSECHA" class="crops-item" @click="editCosVisible(cosecha)">
+            <div v-for="cosecha in cosechasArray" :key="cosecha.ID_COSECHA" class="crops-item"
+              @click="editCosVisible(cosecha)">
               <div class="crops-content">
                 <h1>Cosecha: {{ cosecha.ID_COSECHA }}</h1>
                 <p>Fecha: {{ formatearFecha(cosecha.FECHA_COSECHA) }}</p>
                 <div class="lotesAsignados">
                   <ul>
                     <li v-for="lote in cosecha.lotes" :key="lote.ID_LOTE">
-                      {{ lote.NOMBRE_LOTE }}  : {{ lote.CANTIDAD }} 
+                      {{ lote.NOMBRE_LOTE }} : {{ lote.CANTIDAD }}
                     </li>
                   </ul>
                 </div>
@@ -50,7 +51,7 @@
         <div class="botones">
           <button class="btnLotes" @click="deleteCos">Eliminar</button>
           <button class="btnLotes" @click="showAddCrop">Agregar</button>
-          
+
         </div>
       </div>
     </div>
@@ -65,7 +66,7 @@
             </div>
             <div id="errorCorrection2"></div>
             <div class="formButtons2">
-              <button type="submit2" @click="submitForm" class="submit-button2">Agregar</button>
+              <button type="submit22" @click="submitForm" class="submit-button2">Agregar</button>
               <button @click="hideAddCrop" class="submit-button2">Cerrar</button>
             </div>
           </form>
@@ -74,8 +75,8 @@
     </div>
     <div v-if="isVisibleEditcos" class="popup2">
       <div class="popup-content3">
-        <h2>Editar cosecha: {{selectedcos.ID_COSECHA}}</h2>
-        <h3>Fecha actual: {{formatearFecha(selectedcos.FECHA_COSECHA)}}</h3>
+        <h2>Editar cosecha: {{ selectedcos.ID_COSECHA }}</h2>
+        <h3>Fecha actual: {{ formatearFecha(selectedcos.FECHA_COSECHA) }}</h3>
         <div id="formulario2">
           <form @submit.prevent="submitFormEdit" class="form2">
             <div class="form-group2">
@@ -112,6 +113,17 @@
         </div>
       </div>
     </div>
+    <div v-if="isAlertVisible" class="myPopup">
+      <div class="myPopup-content">
+        <div class="alertMessage">
+          <h3>{{ message }}</h3>
+        </div>
+        <div class="alertButtons">
+          <button @click="confirm">Si</button>
+          <button @click="closeAlert">No</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
   
@@ -127,8 +139,36 @@ const fechaCosechaEdit = ref('');
 const cosechas = ref([]);
 const cargando = ref(true);
 const isVisibleCos = ref(false);
-const isVisibleEditcos= ref(false);
+const isVisibleEditcos = ref(false);
 const selectedcos = ref(null);
+const message = ref('');
+const validate = ref(false);
+const isAlertVisible = ref(false);
+const messageDelete = ref("");
+const switchButton = ref(false);
+const token = localStorage.getItem('token');
+const config = {
+  headers: {
+    'Authorization': token,
+    'Content-Type': 'application/json'
+  }
+};
+const openAlert = (m) => {
+  isAlertVisible.value = true;
+  message.value = m;
+
+}
+const closeAlert = () => {
+  isAlertVisible.value = false;
+  switchButton.value = true;
+
+}
+const confirm = () => {
+  validate.value = true;
+  switchButton.value = true;
+  closeAlert();
+
+}
 const goHome = () => {
   router.push('/main');
 }
@@ -141,18 +181,18 @@ const formatearFecha = (fechaISO) => {
 }
 const id_cos = ref();
 
-const editCosVisible = (cosecha)=>{
-isVisibleEditcos.value = true;
-selectedcos.value = cosecha;
+const editCosVisible = (cosecha) => {
+  isVisibleEditcos.value = true;
+  selectedcos.value = cosecha;
 }
-const editCosHide = ()=>{
-isVisibleEditcos.value = false;
+const editCosHide = () => {
+  isVisibleEditcos.value = false;
 }
-const deleteCos = ()=>{
-isVisibleCos.value = true;
+const deleteCos = () => {
+  isVisibleCos.value = true;
 }
-const hideDeleteCos = ()=>{
-isVisibleCos.value = false;
+const hideDeleteCos = () => {
+  isVisibleCos.value = false;
 }
 const showAddCrop = () => {
   isVisible.value = true;
@@ -161,21 +201,36 @@ const hideAddCrop = () => {
   isVisible.value = false;
 }
 const submitFormDelete = async () => {
-  try {
-    
-    const response = await axios.delete(`http://localhost:3000/api/cosechas/${id_cos.value}`);
-    if (response.status === 200) {
-      console.log("Cosecha borrada exitosamente");
-      alert("Cosecha eliminada exitosamente");
-      hideDeleteCos()
-      location.reload();
-    } else {
-      console.error('Error al eliminar cosecha');
-      alert("No es posible eliminar cosechas con registros");
+  messageDelete.value = "¿Seguro que deseas borrar la cosecha?"
+  openAlert(messageDelete);
+  const confirmed = await new Promise((resolve) => {
+    switchButton.value = false;
+    const checkInterval = setInterval(() => {
+      if (switchButton.value) {
+        clearInterval(checkInterval);
+        resolve(validate.value);
+      }
+    }, 500);
+  });
+  if (confirmed) {
+    try {
+      const response = await axios.delete(`http://localhost:3000/api/cosechas/${id_cos.value}`, config);
+      if (response.status === 200) {
+        console.log("Cosecha borrada exitosamente");
+        alert("Cosecha eliminada exitosamente");
+        hideDeleteCos()
+        location.reload();
+      } else {
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      } else {
+        alert("No es posible eliminar cosechas con registros activos");
+        console.error('Error al eliminar cosecha', error);
+      }
     }
-  } catch (error) {
-    alert("No es posible eliminar cosechas con registros");
-    console.error('Error al eliminar cosecha', error);
   }
 };
 const submitForm = async () => {
@@ -183,18 +238,21 @@ const submitForm = async () => {
     const nuevaCosecha = {
       FECHA_COSECHA: new Date(fechaCosecha.value),
     };
-
-    const response = await axios.post('http://localhost:3000/api/cosechas', nuevaCosecha);
+    const response = await axios.post('http://localhost:3000/api/cosechas', nuevaCosecha, config);
 
     if (response.status === 200) {
       console.log('cosecha agregada con éxito');
+      alert("cosecha agregada con éxito");
       id_cosecha.value = 0;
       fechaCosecha.value = '';
       isVisible.value = false;
     }
   } catch (error) {
-
     console.error('Error al agregar cosecha: ', error);
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
 
   }
 };
@@ -205,7 +263,7 @@ const submitFormEdit = async () => {
       FECHA_COSECHA: new Date(fechaCosechaEdit.value),
     };
 
-    const response = await axios.put(`http://localhost:3000/api/cosechas/${selectedcos.value.ID_COSECHA}`, nuevaCosecha);
+    const response = await axios.put(`http://localhost:3000/api/cosechas/${selectedcos.value.ID_COSECHA}`, nuevaCosecha, config);
 
     if (response.status === 200) {
       console.log('cosecha editada con éxito');
@@ -215,20 +273,23 @@ const submitFormEdit = async () => {
       editCosHide();
     }
   } catch (error) {
-
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al agregar cosecha: ', error);
-    
+
 
   }
 };
 let cosechasConLotes = ref({});
 let cosechasArray = ref([]);
 const getCrops = () => {
-  
+
 }
 const fetchCosechas = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/historial/cosechas`);
+    const response = await fetch(`http://localhost:3000/api/historial/cosechas`,config);
     if (response.ok) {
       const data = await response.json();
       cosechas.value = data;
@@ -258,22 +319,30 @@ const fetchCosechas = async () => {
       console.error('Error al obtener el historial de cosechas');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
     console.error('Error al obtener el historial de cosechas', error);
   }
 };
 const allCrops = ref([])
 const fetchAllCrops = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/cosechas`);
+    const response = await fetch(`http://localhost:3000/api/cosechas`,config);
     if (response.ok) {
       const data = await response.json();
       allCrops.value = data;
 
-      
+
     } else {
       console.error('Error al obtener cosechas');
     }
   } catch (error) {
+    if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
     console.error('Error al obtener cosechas', error);
   }
 };
@@ -301,10 +370,62 @@ onMounted(() => {
 </script>
   
 <style scoped>
+.myPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+
+
+}
+
+.myPopup-content {
+  background-color: #fff;
+  width: 400px;
+  height: 200px;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
+
+.alertMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.alertButtons {
+  display: flex;
+  justify-content: center;
+  margin-top: 10%;
+}
+
+.alertButtons button {
+  background-color: #792f00;
+  color: white;
+  height: 45px;
+  width: 90px;
+  border-radius: 15px;
+  margin-left: 5%;
+  margin-right: 5%;
+  cursor: pointer;
+}
+
+.alertButtons button:hover {
+  transform: scale(1, 1);
+  background-color: #542200;
+}
+
 .lotesAsignados {
   max-height: 40%;
   width: 400px;
-  
+
   margin-bottom: 1%;
   overflow-y: auto;
 }
@@ -326,7 +447,7 @@ onMounted(() => {
   font-size: 80%;
   cursor: pointer;
   margin-right: 2%;
- padding: 0.5%;
+  padding: 0.5%;
 }
 
 .crops-item:hover {
@@ -493,7 +614,7 @@ onMounted(() => {
 
 .btnLotes {
   margin: 3%;
-  
+
   height: 70%;
   width: 20%;
   background-color: #792f00;
@@ -528,6 +649,7 @@ onMounted(() => {
   border-radius: 15px;
   border: 3px solid #792f00;
 }
+
 .popup-content3 {
   background-color: #fff;
   width: 30%;
@@ -535,11 +657,13 @@ onMounted(() => {
   border-radius: 15px;
   border: 3px solid #792f00;
 }
+
 .popup-content3 h2 {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .popup-content3 h3 {
   margin-left: 2%;
   margin-bottom: 0%;
@@ -550,6 +674,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
 }
+
 .popup-content2 h3 {
   margin-left: 2%;
   margin-bottom: 0%;
@@ -570,8 +695,9 @@ onMounted(() => {
   flex-direction: column;
   width: 60%;
 }
-.form-group2 select{
- padding: 8px;
+
+.form-group2 select {
+  padding: 8px;
   font-size: 20px;
   border: 2px solid#792f00;
   border-radius: 20px;
@@ -613,9 +739,9 @@ onMounted(() => {
 
 
 .submit-button2:hover {
-  transform: scale(1,1);
+  transform: scale(1, 1);
   background-color: #542200;
-  
+
 }
 
 .submit-button2 {
@@ -640,6 +766,5 @@ onMounted(() => {
 
   height: 75%;
   width: 90%;
-}
-</style>
+}</style>
   

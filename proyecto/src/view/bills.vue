@@ -15,15 +15,15 @@
                 <img src="../images/cosecha.png" alt="">
             </button>
             <div id="notifications">
-                <button class="notification-button"  @click="goHome">
+                <button class="notification-button" @click="goHome">
                     <img src="../images/home.png" alt="Icono 1">
-                  </button>
-                  <button class="notification-button">
+                </button>
+                <button class="notification-button">
                     <img src="../images/noti.png" alt="Icono 2">
-                  </button>
-                  <button class="notification-button">
+                </button>
+                <button class="notification-button">
                     <img src="../images/user.png" alt="Icono 3">
-                  </button>
+                </button>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
                                     <div class="select-wrapper">
                                         <select id="venta_cliente" v-model="id_venta_factura" required class="input-field">
                                             <option v-for="venta in ventas" :value="venta.ID_VENTA">
-                                                {{formatearFecha(venta.FECHA_VENTA)}} ID: {{ venta.ID_VENTA}}
+                                                {{ formatearFecha(venta.FECHA_VENTA) }} ID: {{ venta.ID_VENTA }}
                                             </option>
                                         </select>
                                         <button class="btnAddClient" @click="addSale">+</button>
@@ -49,26 +49,29 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="lote_Trabajador">Producto</label>
-                                    <select id="venta_cliente" v-model="id_producto_factura" required class="input-field" @change="takeProduct(),changeSubValue()" >
+                                    <select id="venta_cliente" v-model="id_producto_factura" required class="input-field"
+                                        @change="takeProduct(), changeSubValue()">
                                         <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
-                                        {{ producto.NOMBRE_PRODUCTO}}
+                                            {{ producto.NOMBRE_PRODUCTO }}
                                         </option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="lote_Trabajador">Cantidad</label>
-                                    
-                                    <input type="number" v-model="cantidad_producto_factura" @change="changeSubValue" required class="input-field">
+
+                                    <input type="number" v-model="cantidad_producto_factura" @change="changeSubValue"
+                                        required class="input-field">
                                 </div>
                                 <div class="form-group">
-                                    <label for="lote_Trabajador" >Precio Unitario</label>
-                                    
-                                    <textarea cols="1" rows="1" class="input-field"  readonly >{{ precio_unitario_factura}}</textarea >
+                                    <label for="lote_Trabajador">Precio Unitario</label>
+
+                                    <textarea cols="1" rows="1" class="input-field"
+                                        readonly>{{ precio_unitario_factura }}</textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="lote_Trabajador" >Subtotal</label>
-                                    
-                                    <textarea cols="1" rows="1" class="input-field"  readonly >{{ subTotal}}</textarea >
+                                    <label for="lote_Trabajador">Subtotal</label>
+
+                                    <textarea cols="1" rows="1" class="input-field" readonly>{{ subTotal }}</textarea>
                                 </div>
 
                                 <div class="formButtons">
@@ -88,18 +91,19 @@
                                 <th class="tableTitle">Cantidad</th>
                                 <th class="tableTitle">Subtotal</th>
                                 <th class="tableTitle">Precio unitario</th>
-                                
+
                             </tr>
                         </thead>
                         <tbody>
 
                             <tr v-for="factura in facturas" :key="factura.ID_VENTA" @click="showSale(factura)">
-                                <td class="tdTableID"> {{formatearFecha(factura.ventas.FECHA_VENTA)}} ID:{{ factura.ventas.ID_VENTA }} </td>
+                                <td class="tdTableID"> {{ formatearFecha(factura.ventas.FECHA_VENTA) }} ID:{{
+                                    factura.ventas.ID_VENTA }} </td>
                                 <td class="tdTable">{{ factura.productos.NOMBRE_PRODUCTO }}</td>
                                 <td class="tdTable">{{ factura.CANTIDAD_PRODUCTO }}</td>
                                 <td class="tdTable">{{ factura.SUBTOTAL_VENTA_PRODUCTO }}</td>
-                                <td class="tdTable">{{ factura.PRECIO_VENTA_UNITARIO}}</td>
-                                
+                                <td class="tdTable">{{ factura.PRECIO_VENTA_UNITARIO }}</td>
+
                             </tr>
 
                         </tbody>
@@ -109,7 +113,7 @@
                 <div class="botones">
                     <button class="btnLotes" @click="addWorker">Crear factura</button>
                 </div>
-                
+
             </div>
         </div>
         <div v-if="isVisibleAddSale" class="popup">
@@ -135,7 +139,7 @@
                                 <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
                                     {{ cosecha.FECHA_COSECHA }} ID: {{ cosecha.ID_COSECHA }}
                                 </option>
-                                
+
                             </select>
                         </div>
                         <div class="form-group">
@@ -147,8 +151,7 @@
                         </div>
                         <div class="form-group">
                             <label for="fechaAfectacion">Fecha de venta</label>
-                            <input type="date" id="fechaAfectacion" v-model="fechaVenta" required
-                                class="input-fieldDate" />
+                            <input type="date" id="fechaAfectacion" v-model="fechaVenta" required class="input-fieldDate" />
                         </div>
 
                         <div class="formButtons">
@@ -166,26 +169,26 @@
                     <form @submit.prevent="submitFormClient" class="form">
                         <div class="form-group">
                             <label for="lote_Trabajador">Numero de documento</label>
-                            
+
                             <input type="text" v-model="clientCedule" required class="input-field">
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Nombre</label>
-                            
+
                             <input type="text" v-model="clientName" required class="input-field">
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Apellido</label>
-                            
+
                             <input type="text" v-model="clientLastName" required class="input-field">
                         </div>
                         <div class="form-group">
                             <label for="lote_Trabajador">Télefono</label>
-                            
+
                             <input type="number" v-model="clientPhone" required class="input-field">
                         </div>
-                      
-                       
+
+
                         <div class="formButtons">
                             <button type="submit" class="submit-button" @click="crearCliente">Agregar</button>
                             <button @click="addClientClose" class="submit-button">Cerrar</button>
@@ -200,11 +203,12 @@
                     <img src="../images/delete_btn.png" alt="Texto alternativo 1">
                 </button>
                 <h2>Editar factura</h2>
-                <h3 class="caract">Venta:  {{formatearFecha(selectedBill.ventas.FECHA_VENTA) }} ID: {{selectedBill.ID_VENTA}} </h3>
-                <h3 class="caract">Producto: {{ selectedBill.productos.NOMBRE_PRODUCTO}}</h3>
-                <h3 class="desc">Cantidad: {{ selectedBill.CANTIDAD_PRODUCTO}}</h3>
-                <h3 class="desc">Subtotal:{{ selectedBill.SUBTOTAL_VENTA_PRODUCTO}} </h3>
-                <h3 class="desc">Precio unitario{{ selectedBill.PRECIO_VENTA_UNITARIO}}</h3>
+                <h3 class="caract">Venta: {{ formatearFecha(selectedBill.ventas.FECHA_VENTA) }} ID: {{ selectedBill.ID_VENTA }}
+                </h3>
+                <h3 class="caract">Producto: {{ selectedBill.productos.NOMBRE_PRODUCTO }}</h3>
+                <h3 class="desc">Cantidad: {{ selectedBill.CANTIDAD_PRODUCTO }}</h3>
+                <h3 class="desc">Subtotal:{{ selectedBill.SUBTOTAL_VENTA_PRODUCTO }} </h3>
+                <h3 class="desc">Precio unitario{{ selectedBill.PRECIO_VENTA_UNITARIO }}</h3>
                 <div class="mainSaleDiv">
                     <div class="formulario2">
                         <form @submit.prevent="submitFormEditSale" class="form2">
@@ -213,10 +217,10 @@
                                 <div class="select-wrapper2">
                                     <select id="venta_cliente" v-model="ventaFacturaUpdate" required class="input-field">
                                         <option v-for="venta in ventas" :value="venta.ID_VENTA">
-                                            {{ formatearFecha(venta.FECHA_VENTA)}} ID: {{ venta.ID_VENTA}}
+                                            {{ formatearFecha(venta.FECHA_VENTA) }} ID: {{ venta.ID_VENTA }}
                                         </option>
                                     </select>
-                                    
+
                                 </div>
                             </div>
                             <div class="formButtons2">
@@ -229,9 +233,10 @@
                         <form @submit.prevent="submitFormEditStatus" class="form2">
                             <div class="form-group2">
                                 <label for="estadoProductoUpdate">Cambiar producto</label>
-                                <select id="tipoPlanta" v-model="productoFacturaUpdate" required class="input-field" @change="takeProduct(),changeSubValue()">
+                                <select id="tipoPlanta" v-model="productoFacturaUpdate" required class="input-field"
+                                    @change="takeProduct(), changeSubValue()">
                                     <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
-                                        {{producto.NOMBRE_PRODUCTO}}
+                                        {{ producto.NOMBRE_PRODUCTO }}
                                     </option>
                                 </select>
                             </div>
@@ -245,7 +250,8 @@
                         <form @submit.prevent="submitFormEdit" class="form2">
                             <div class="form-group2">
                                 <label for="precioProductoUpdate">Cambiar cantidad:</label>
-                                <input type="number" required class="input-field" @change="changeValue" v-model="cantidadFacturaUpdate">
+                                <input type="number" required class="input-field" @change="changeValue"
+                                    v-model="cantidadFacturaUpdate">
                             </div>
                             <div class="formButtons2">
                                 <button type="submitEditCrop" @click="submitFormEditBillValue"
@@ -257,18 +263,19 @@
                         <form @submit.prevent="submitFormEditSaleDate" class="form2">
                             <div class="form-group2T">
                                 <label for="precioProductoUpdate">Precio unitario</label>
-                                <textarea cols="1" rows="1" class="input-fieldT"  readonly >{{ precio_unitario_factura}}</textarea >
+                                <textarea cols="1" rows="1" class="input-fieldT"
+                                    readonly>{{ precio_unitario_factura }}</textarea>
                             </div>
                             <div class="form-group2T">
                                 <label for="precioProductoUpdate">Subtotal</label>
-                                <textarea cols="1" rows="1" class="input-fieldT"  readonly >{{ subTotal}}</textarea >
+                                <textarea cols="1" rows="1" class="input-fieldT" readonly>{{ subTotal }}</textarea>
                             </div>
-                           
+
                         </form>
                     </div>
                 </div>
                 <div class="formButtons2">
-                    
+
                     <button @click="hideBill" class="submit-button2">Cerrar</button>
                 </div>
             </div>
@@ -303,7 +310,7 @@ const id_venta_factura = ref();
 const precio_unitario_factura = ref();
 const id_producto_factura = ref();
 const cantidad_producto_factura = ref();
-const productos =ref([]);
+const productos = ref([]);
 const selectedProduct = ref(null);
 const subTotal = ref();
 const selectedBill = ref(null);
@@ -315,10 +322,17 @@ const switchButton = ref(false);
 const validate = ref(false);
 const isAlertVisible = ref(false);
 const messageDelete = ("¿Seguro que deseas eliminar la factura?");
+const token = localStorage.getItem('token');
+const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+};
 const openAlert = (m) => {
     isAlertVisible.value = true;
     message.value = m;
-    
+
 }
 const closeAlert = () => {
     isAlertVisible.value = false;
@@ -332,7 +346,7 @@ const confirm = () => {
 
 }
 const goHome = () => {
-  router.push('/main');
+    router.push('/main');
 }
 
 const submitFormDeleteBill = async () => {
@@ -348,7 +362,7 @@ const submitFormDeleteBill = async () => {
     });
     if (confirmed) {
         try {
-            const response = await axios.delete(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`);
+            const response = await axios.delete(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, config);
             if (response.status === 200) {
                 console.log('Factura eliminada con éxito');
                 alert("Factura eliminada con éxito");
@@ -356,26 +370,31 @@ const submitFormDeleteBill = async () => {
                 location.reload();
             }
         } catch (error) {
+            if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
             console.error('Error al eliminar venta ', error);
-            if(error.response.status === 500){
+
+            if (error.response.status === 500) {
                 alert("No es posible eliminar facturas con registros activos");
             }
-            
+
         }
     } else {
-        
+
     }
 };
 
 const ventaFacturaUpdate = ref();
 const submitFormEditSaleBill = async () => {
     try {
-        const newData= {
-           ID_VENTA : parseInt(ventaFacturaUpdate.value),
-           ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
-           CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
+        const newData = {
+            ID_VENTA: parseInt(ventaFacturaUpdate.value),
+            ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
+            CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
         };
-        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData);
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData,config);
         if (response.status === 200) {
             console.log('Factura editada con éxito');
             alert("Factura editada con éxito")
@@ -384,20 +403,23 @@ const submitFormEditSaleBill = async () => {
             location.reload();
         }
     } catch (error) {
-
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al editar factura ', error);
 
 
     }
 };
-const submitFormEditBillProduct= async () => {
+const submitFormEditBillProduct = async () => {
     try {
-        const newData= {
-           ID_VENTA : selectedBill.value.ID_VENTA,
-           ID_PRODUCTO: parseInt(productoFacturaUpdate.value),
-           CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
+        const newData = {
+            ID_VENTA: selectedBill.value.ID_VENTA,
+            ID_PRODUCTO: parseInt(productoFacturaUpdate.value),
+            CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
         };
-        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData);
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData,config);
         if (response.status === 200) {
             console.log('Factura editada con éxito');
             alert("Factura editada con éxito")
@@ -406,23 +428,27 @@ const submitFormEditBillProduct= async () => {
             location.reload();
         }
     } catch (error) {
-
-        console.error('Error al editar factura ', error);
-        if(error.response.status === 500){
-                alert("No es posile editar la factura, el producto ya se encuentra registrado");
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
             }
+        console.error('Error al editar factura ', error);
+        
+        if (error.response.status === 500) {
+            alert("No es posile editar la factura, el producto ya se encuentra registrado");
+        }
 
 
     }
 };
-const submitFormEditBillValue= async () => {
+const submitFormEditBillValue = async () => {
     try {
-        const newData= {
-           ID_VENTA : selectedBill.value.ID_VENTA,
-           ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
-           CANTIDAD_PRODUCTO: cantidadFacturaUpdate.value
+        const newData = {
+            ID_VENTA: selectedBill.value.ID_VENTA,
+            ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
+            CANTIDAD_PRODUCTO: cantidadFacturaUpdate.value
         }
-        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData);
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData,config);
         if (response.status === 200) {
             console.log('Factura editada con éxito');
             alert("Factura editada con éxito")
@@ -431,18 +457,21 @@ const submitFormEditBillValue= async () => {
             location.reload();
         }
     } catch (error) {
-
-        console.error('Error al editar factura ', error);
-        if(error.response.status === 500){
-                alert("No es posile editar la factura, el producto ya se encuentra registrado");
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
             }
+        console.error('Error al editar factura ', error);
+        if (error.response.status === 500) {
+            alert("No es posile editar la factura, el producto ya se encuentra registrado");
+        }
 
 
     }
 };
 const fetchProductos = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/productos`);
+        const response = await fetch(`http://localhost:3000/api/productos`,config);
         if (response.ok) {
             const data = await response.json();
             productos.value = data;
@@ -451,38 +480,42 @@ const fetchProductos = async () => {
             console.error('Error al obtener el historial de productos');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener el historial de productos', error);
     }
 };
 
-const takeProduct =()=>{
-    
+const takeProduct = () => {
+
     selectedProduct.value = productos.value.find(producto => producto.ID_PRODUCTO === productoFacturaUpdate.value);
     precio_unitario_factura.value = selectedProduct.value.PRECIO_ACTUAL_PRODUCTO;
     console.log(precio_unitario_factura.value)
 }
 
-const changeSubValue =()=>{
+const changeSubValue = () => {
     subTotal.value = selectedBill.value.CANTIDAD_PRODUCTO * precio_unitario_factura.value
 }
 
 
-const changeValue=()=>{
+const changeValue = () => {
     subTotal.value = cantidadFacturaUpdate.value * selectedBill.value.PRECIO_VENTA_UNITARIO;
-    precio_unitario_factura.value= selectedBill.value.PRECIO_VENTA_UNITARIO;
+    precio_unitario_factura.value = selectedBill.value.PRECIO_VENTA_UNITARIO;
 }
 
 const crearFactura = async () => {
     try {
 
         const newData = {
-            ID_VENTA : id_venta_factura.value,
-            ID_PRODUCTO : id_producto_factura.value,
-            CANTIDAD_PRODUCTO : cantidad_producto_factura.value
+            ID_VENTA: id_venta_factura.value,
+            ID_PRODUCTO: id_producto_factura.value,
+            CANTIDAD_PRODUCTO: cantidad_producto_factura.value
 
         }
         console.log(newData)
-        const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData);
+        const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData,config);
         if (response.status === 200) {
             console.log("Factura agregada correctamente");
             alert("Factura correctamente");
@@ -493,6 +526,10 @@ const crearFactura = async () => {
             console.error('Error al actualizar');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al actualizar', error);
     }
 };
@@ -502,25 +539,25 @@ const showSale = (b) => {
 }
 const hideBill = () => {
     isBillVisible.value = false;
-    
+
 }
 
-const addClient = ()=>{
+const addClient = () => {
     isVisibleAddClient.value = true;
 }
-const addSale = ()=>{
+const addSale = () => {
     isVisibleAddSale.value = true;
 }
 
-const hideAddSale = ()=>{
+const hideAddSale = () => {
     isVisibleAddSale.value = false;
 }
-const addClientClose = ()=>{
+const addClientClose = () => {
     isVisibleAddClient.value = false;
 }
 const fetchCosechas = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/cosechas`);
+        const response = await fetch(`http://localhost:3000/api/cosechas`,config);
         if (response.ok) {
             const data = await response.json();
             cosechas.value = data;
@@ -528,13 +565,17 @@ const fetchCosechas = async () => {
             console.error('Error al obtener el historial de cosechas');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener el historial de cosechas', error);
     }
 };
 const facturas = ref([])
 const fetchFacturas = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/detalle_facturas`);
+        const response = await fetch(`http://localhost:3000/api/detalle_facturas`,config);
         if (response.ok) {
             const data = await response.json();
             facturas.value = data;
@@ -543,6 +584,10 @@ const fetchFacturas = async () => {
             console.error('Error al obtener el historial de facturas.');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener el historial de facturas:', error);
     }
 };
@@ -550,15 +595,19 @@ const fetchFacturas = async () => {
 const ventas = ref([])
 const fetchVentas = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/ventas`);
+        const response = await fetch(`http://localhost:3000/api/ventas`,config);
         if (response.ok) {
             const data = await response.json();
             ventas.value = data;
-            
+
         } else {
             console.error('Error al obtener ventas');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener ventas:', error);
     }
 };
@@ -575,7 +624,7 @@ const crearCliente = async () => {
             APELLIDO_PERSONA: clientLastName.value,
             TELEFONO_PERSONA: clientPhone.value.toString(),
         }
-        const response = await axios.post(`http://localhost:3000/api/person`, newData);
+        const response = await axios.post(`http://localhost:3000/api/person`, newData,config);
         if (response.status === 200) {
             console.log("Cliente agregado correctamente");
             alert("Cliente agregado correctamente");
@@ -587,6 +636,10 @@ const crearCliente = async () => {
             console.error('Error al actualizar');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al actualizar', error);
     }
 };
@@ -598,14 +651,14 @@ const crearVenta = async () => {
     try {
 
         const newData = {
-            
+
             ID_PERSONA: clienteVenta.value,
             ID_COSECHA: cosechaVenta.value,
             ESTADO_VENTA: estadoVenta.value,
             FECHA_VENTA: new Date(fechaVenta.value)
         }
         console.log(newData)
-        const response = await axios.post(`http://localhost:3000/api/ventas`, newData);
+        const response = await axios.post(`http://localhost:3000/api/ventas`, newData,config);
         if (response.status === 200) {
             console.log("Venta agregada correctamente");
             alert("Venta agregada correctamente");
@@ -616,6 +669,10 @@ const crearVenta = async () => {
             console.error('Error al actualizar');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al actualizar', error);
     }
 };
@@ -648,7 +705,7 @@ const goCrops = () => {
 }
 const obtenerTrabajadores = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/person`);
+        const response = await fetch(`http://localhost:3000/api/person`,config);
         if (response.ok) {
             const data = await response.json();
             trabajadores.value = data;
@@ -657,6 +714,10 @@ const obtenerTrabajadores = async () => {
             console.error('Error al obtener trabajadores.');
         }
     } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
         console.error('Error al obtener trabajadores', error);
     }
 };
@@ -722,6 +783,7 @@ onMounted(() => {
     transform: scale(1, 1);
     background-color: #542200;
 }
+
 .popup2 {
     position: fixed;
     top: 0;
@@ -776,6 +838,7 @@ onMounted(() => {
     border: 3px solid #792f00;
     border-radius: 15px;
 }
+
 .formulario2T {
     width: 90%;
     margin: 2%;
@@ -801,7 +864,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     margin: 2%;
-    
+
 
 
 }
@@ -814,11 +877,13 @@ onMounted(() => {
 
 
 }
+
 .form-group2T {
     display: flex;
     flex-direction: column;
     width: 99%;
 }
+
 .form-group2T label {
     text-align: left;
     display: block;
@@ -866,8 +931,8 @@ onMounted(() => {
     width: 100%;
     height: 70%;
     display: flex;
-    
-    
+
+
 }
 
 
@@ -888,18 +953,20 @@ onMounted(() => {
     margin-left: auto;
     margin-right: 2%;
 }
-.mainSaleDiv{
 
- display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  grid-gap: 20px; 
-  height: 60%;
+.mainSaleDiv {
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 20px;
+    height: 60%;
 }
+
 .select-wrapper2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
 }
 
 
@@ -933,7 +1000,7 @@ onMounted(() => {
     border: 2px solid #792f00;
     border-radius: 20px;
     font-size: 20px;
-    
+
 }
 
 .select-wrapper .btnAddClient {
@@ -943,16 +1010,18 @@ onMounted(() => {
     border-radius: 20px;
     cursor: pointer;
     font-size: 20px;
-    margin-left: 5px; 
+    margin-left: 5px;
 }
 
 #cliente-group .btnAddClient {
     background-color: transparent;
     border: none;
-    color: #792f00; /* Color original del texto del botón */
+    color: #792f00;
+    /* Color original del texto del botón */
     cursor: pointer;
     font-size: 20px;
 }
+
 .popupWorker {
     position: fixed;
     top: 0;
@@ -1400,15 +1469,18 @@ form {
     font-size: 15px;
     font-weight: bold;
 }
-.form-group input{
+
+.form-group input {
     width: 85%;
 }
-.form-group textarea{
+
+.form-group textarea {
     width: 85%;
     resize: none;
 
     overflow-y: hidden;
 }
+
 .input-field {
     padding: 8px;
     font-size: 20px;
@@ -1418,6 +1490,7 @@ form {
     margin-bottom: 10%;
     width: 91%;
 }
+
 .input-fieldT {
     padding: 4px;
     font-size: 20px;

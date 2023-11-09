@@ -156,7 +156,7 @@ const submitForm = async () => {
       if (contrasena.value === confirmarContrasena.value) {
         const response = await axios.post('http://localhost:3000/api/connection', {
           ID_PERSONA: cedula.value,
-          ID_ROL: rol.value,
+          ID_ROL: parseInt(rol.value),
           NOMBRE_USUARIO: usuarioRegistro.value,
           CORREO_USUARIO: correo.value,
           PASSWORD_USUARIO: contrasena.value,
@@ -215,7 +215,14 @@ const submitForm = async () => {
       console.log('Respuesta del servidor (Login):', response.data);
 
       if (response.status === 200) {
-        router.push('/main');
+        const yourToken = response.data.token
+        localStorage.setItem('token', yourToken);
+        if (response.data.rol === "Administrador" ) {
+          router.push('/main');
+        }else if(response.data.rol === "Trabajador"){
+          router.push('/mainWorker');
+        }
+        
         console.log("Logueado correctamente");
       } 
     }
