@@ -797,7 +797,7 @@ const fetchProductos = async () => {
             const data = await response.json();
             productos.value = data;
         } else {
-            console.error('Error al obtener el historial de productos');
+            
         }
     } catch (error) {
         if (error.response.status === 401) {
