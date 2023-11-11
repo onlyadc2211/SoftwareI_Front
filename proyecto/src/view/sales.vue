@@ -160,7 +160,7 @@
                 <h3 class="caract">Comprador: {{ selectedSale.personas.NOMBRE_PERSONA }}
                     {{ selectedSale.personas.APELLIDO_PERSONA }}</h3>
                 <h3 class="caract">Cosecha: {{ formatearFecha(selectedSale.cosechas.FECHA_COSECHA) }}</h3>
-                <h3 class="desc">Estado:{{ selectedSale.ESTADO_VENTA }}</h3>
+                <h3 class="desc">Estado:{{ validateStatus(selectedSale.ESTADO_VENTA) }}</h3>
                 <h3 class="desc">Total:{{ selectedSale.VALOR_TOTAL_VENTA }} </h3>
                 <h3 class="desc">Fecha de venta: {{ formatearFecha(selectedSale.FECHA_VENTA) }}</h3>
                 <div class="mainSaleDiv">
@@ -226,9 +226,36 @@
                             </div>
                         </form>
                     </div>
+                    <div class="formulario2Prod">
+                        <table id="table">
+                            <thead>
+                                <tr>
+                                    <th class="tableTitle">Id producto</th>
+                                    <th class="tableTitle">Nombre producto</th>
+                                    <th class="tableTitle">Cantidad</th>
+                                    <th class="tableTitle">Precio unitario</th>
+                                    <th class="tableTitle">Subtotal</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+    
+                                <tr v-for="factura in ventasFactura" :key="factura.ID_PRODUCTO" @click="showBill(factura)">
+                                    <td class="tdTableID">{{ factura.ID_PRODUCTO }} </td>
+                                    <td class="tdTable">{{ factura.productos.NOMBRE_PRODUCTO }}</td>
+                                    <td class="tdTable">{{ factura.CANTIDAD_PRODUCTO}}</td>
+                                    <td class="tdTable">{{ factura.PRECIO_VENTA_UNITARIO}}</td>
+                                    <td class="tdTable">{{ factura.SUBTOTAL_VENTA_PRODUCTO}}</td>
+                                    
+                                </tr>
+    
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="formButtons2">
-                    <button @click="newBill" class="submit-button2">Generar factura</button>
+                    <button @click="newBill" class="submit-button2">Añadir producto</button>
+                    
                     <button @click="hideSale" class="submit-button2">Cerrar</button>
                 </div>
             </div>
@@ -246,7 +273,7 @@
         </div>
         <div v-if="isVisibleAddBill" class="popup">
             <div class="popup-content">
-                <h2>Crear factura</h2>
+                <h2>Añadir producto</h2>
                 <div id="formulario">
                     <form @submit.prevent="submitForm2" class="form">
 
@@ -291,6 +318,70 @@
                 </div>
             </div>
         </div>
+        <div v-if="isBillVisible" class="popupBill">
+            <div class="popup-content4">
+                <button class="deleteBtn" @click="submitFormDeleteBill">
+                    <img src="../images/delete_btn.png" alt="Texto alternativo 1">
+                </button>
+                <h2>Editar producto</h2>
+                <h3 class="caract">Venta: {{ formatearFecha(selectedBill.ventas.FECHA_VENTA) }} ID: {{ selectedBill.ID_VENTA }}
+                </h3>
+                <h3 class="caract">Producto: {{ selectedBill.productos.NOMBRE_PRODUCTO }}</h3>
+                <h3 class="desc">Cantidad: {{ selectedBill.CANTIDAD_PRODUCTO }}</h3>
+                <h3 class="desc">Subtotal:{{ selectedBill.SUBTOTAL_VENTA_PRODUCTO }} </h3>
+                <h3 class="desc">Precio unitario{{ selectedBill.PRECIO_VENTA_UNITARIO }}</h3>
+                <div class="mainSaleDiv2">
+                    <div class="formulario3">
+                        <form @submit.prevent="submitFormEditStatus" class="form2">
+                            <div class="form-group2">
+                                <label for="estadoProductoUpdate">Cambiar producto</label>
+                                <select id="tipoPlanta" v-model="productoFacturaUpdate" required class="input-field3"
+                                    @change="takeProduct2(), changeSubValue2()">
+                                    <option v-for="producto in productos" :value="producto.ID_PRODUCTO">
+                                        {{ producto.NOMBRE_PRODUCTO }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="formButtons2">
+                                <button type="submitEditStatus" @click="submitFormEditBillProduct"
+                                    class="submit-button2">Cambiar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="formulario3">
+                        <form @submit.prevent="submitFormEdit" class="form2">
+                            <div class="form-group2">
+                                <label for="precioProductoUpdate">Cambiar cantidad:</label>
+                                <input type="number" required class="input-field3" @change="changeValue"
+                                    v-model="cantidadFacturaUpdate">
+                            </div>
+                            <div class="formButtons3">
+                                <button type="submitEditCrop" @click="submitFormEditBillValue"
+                                    class="submit-button2">Cambiar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="formulario2T">
+                        <form @submit.prevent="submitFormEditSaleDate" class="form2">
+                            <div class="form-group2T">
+                                <label for="precioProductoUpdate">Precio unitario</label>
+                                <textarea cols="1" rows="1" class="input-fieldT"
+                                    readonly>{{ precio_unitario_factura }}</textarea>
+                            </div>
+                            <div class="form-group2T">
+                                <label for="precioProductoUpdate">Subtotal</label>
+                                <textarea cols="1" rows="1" class="input-fieldT" readonly>{{ subTotal }}</textarea>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+                <div class="formButtons3">
+
+                    <button @click="hideBillSale" class="submit-button2">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
     
@@ -319,6 +410,82 @@ const cantidad_producto_factura = ref();
 const precio_unitario_factura = ref();
 const estadoVentaUpdate = ref();
 const token = localStorage.getItem('token');
+const isBillVisible = ref(false);
+const selectedBill = ref(null);
+
+const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+};
+const showBill = (b) => {
+    isBillVisible.value = true;
+    selectedBill.value = b;
+}
+const hideBillSale = () => {
+    isBillVisible.value = false;
+
+}
+const cantidadFacturaUpdate = ref();
+const submitFormEditBillValue = async () => {
+    try {
+        const newData = {
+            ID_VENTA: selectedBill.value.ID_VENTA,
+            ID_PRODUCTO: selectedBill.value.ID_PRODUCTO,
+            CANTIDAD_PRODUCTO: cantidadFacturaUpdate.value
+        }
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData,config);
+        if (response.status === 200) {
+            console.log('Factura editada con éxito');
+            alert("Factura editada con éxito")
+            cantidadFacturaUpdate.value = null;
+            hideBillSale();
+            fetchVentasFactura();
+        }
+    } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
+        console.error('Error al editar factura ', error);
+        if (error.response.status === 500) {
+            alert("No es posile editar la factura, el producto ya se encuentra registrado");
+        }
+
+
+    }
+};
+const productoFacturaUpdate = ref();
+const submitFormEditBillProduct = async () => {
+    try {
+        const newData = {
+            ID_VENTA: selectedBill.value.ID_VENTA,
+            ID_PRODUCTO: parseInt(productoFacturaUpdate.value),
+            CANTIDAD_PRODUCTO: selectedBill.value.CANTIDAD_PRODUCTO
+        };
+        const response = await axios.put(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, newData,config);
+        if (response.status === 200) {
+            console.log('Factura editada con éxito');
+            alert("Factura editada con éxito")
+            productoFacturaUpdate.value = '';
+            hideBillSale();
+            fetchVentasFactura();
+        }
+    } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
+        console.error('Error al editar factura ', error);
+        
+        if (error.response.status === 500) {
+            alert("No es posile editar la factura, el producto ya se encuentra registrado");
+        }
+
+
+    }
+};
 const estadoFiltrado = ref(null);
 const toggleFiltro = () => {
   if (estadoFiltrado.value === 'C') {
@@ -343,8 +510,19 @@ const takeProduct = () => {
     precio_unitario_factura.value = selectedProduct.value.PRECIO_ACTUAL_PRODUCTO;
     console.log(precio_unitario_factura.value)
 }
+const selectedProductBill = ref(null)
+const takeProduct2 = () => {
+    selectedProductBill.value = productos.value.find(producto => producto.ID_PRODUCTO === productoFacturaUpdate.value);
+    precio_unitario_factura.value = selectedProductBill.value.PRECIO_ACTUAL_PRODUCTO;
+    
+}
 const changeSubValue = () => {
     subTotal.value = cantidad_producto_factura.value * precio_unitario_factura.value
+}
+const changeSubValue2 = () => {
+    subTotal.value = selectedProductBill.value.PRECIO_ACTUAL_PRODUCTO * parseInt(selectedBill.value.CANTIDAD_PRODUCTO)
+
+    
 }
 const newBill = () => {
     isVisibleAddBill.value = true;
@@ -585,6 +763,7 @@ const submitFormDeleteSale = async () => {
 const showSale = (s) => {
     isSaleVisible.value = true;
     selectedSale.value = s;
+    fetchVentasFactura();
 }
 const hideSale = () => {
     isSaleVisible.value = false;
@@ -633,6 +812,32 @@ const fetchVentas = async () => {
         if (response.ok) {
             const data = await response.json();
             ventas.value = data;
+            
+        } else {
+            console.error('Error al obtener ventas');
+        }
+    } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
+        console.error('Error al obtener ventas:', error);
+    }
+};
+const ventasFactura = ref([])
+const fetchVentasFactura = async () => {
+    try {
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await fetch(`http://localhost:3000/api/detalle_facturas/ventas/${selectedSale.value.ID_VENTA}`,config);
+        if (response.ok) {
+            const data = await response.json();
+            ventasFactura.value = data;
+            console.log(ventasFactura.value)
             
         } else {
             console.error('Error al obtener ventas');
@@ -807,6 +1012,7 @@ const fetchProductos = async () => {
         console.error('Error al obtener el historial de productos', error);
     }
 };
+
 onMounted(() => {
     obtenerTrabajadores();
     fetchCosechas();
@@ -816,6 +1022,37 @@ onMounted(() => {
 </script>
     
 <style scoped>
+.formulario2T {
+    width: 195%;
+    margin: 2%;
+    display: flex;
+    height: 80%;
+    border: 3px solid #792f00;
+    border-radius: 15px;
+    margin-bottom: 0%;
+}
+.form-group2T {
+    display: flex;
+    flex-direction: column;
+    width: 99%;
+}
+
+.form-group2T label {
+    text-align: left;
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 0%;
+}
+.input-fieldT {
+    padding: 4px;
+    font-size: 20px;
+    border: 2px solid#792f00;
+    border-radius: 20px;
+    display: block;
+    margin-bottom: 5%;
+    width: 91%;
+}
 .bntFiltro{
     cursor: pointer;
 }
@@ -883,16 +1120,46 @@ onMounted(() => {
     z-index: 1;
 
 }
+.popupBill {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(128, 128, 128, 0.5); 
+    z-index: 1;
+
+}
 
 .popup-content3 {
     background-color: #fff;
-    width: 60%;
+    width: 80%;
     height: 95%;
     border-radius: 15px;
     border: 3px solid #792f00;
     display: flex;
     flex-direction: column;
     max-height: 800px;
+}
+.popup-content4 {
+    background-color: #fff;
+    width: 40%;
+    height: 82%;
+    border-radius: 15px;
+    border: 3px solid #792f00;
+    display: flex;
+    flex-direction: column;
+    max-height: 800px;
+}
+.popup-content4 h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0%;
+    margin-bottom: 0;
 }
 
 .popup-content3 h2 {
@@ -925,6 +1192,26 @@ onMounted(() => {
     border: 3px solid #792f00;
     border-radius: 15px;
 }
+.formulario3 {
+    width: 90%;
+    margin: 2%;
+    display: flex;
+    height: 90%;
+    border: 3px solid #792f00;
+    border-radius: 15px;
+}
+.formulario2Prod {
+    width: 190%;
+    margin: 2%;
+    display: flex;
+    height: 85%;
+    border: 3px solid #792f00;
+    border-radius: 15px;
+    overflow-y: scroll;
+}
+.formulario2Prod table{
+    border-radius: 15px;
+}
 
 .formulario2Desc {
     width: 95%;
@@ -952,7 +1239,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     width: 99%;
-
+    
 
 }
 
@@ -998,6 +1285,13 @@ onMounted(() => {
 
 
 }
+.formButtons3 {
+    margin-top: 0%;
+    width: 100%;
+    height: 70%;
+    display: flex;
+    
+}
 
 
 .submit-button2:hover {
@@ -1019,11 +1313,17 @@ onMounted(() => {
 }
 
 .mainSaleDiv {
-
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    grid-gap: 20px;
+    grid-gap: 10px;
     height: 60%;
+}
+.mainSaleDiv2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 10px;
+    height: 90%;
+    
 }
 
 .select-wrapper2 {
@@ -1143,7 +1443,19 @@ onMounted(() => {
     margin: 2%;
     margin-bottom: 0%;
     height: 40px;
-    width: 7%;
+    width: 5%;
+}
+.deleteBtn2 {
+    align-self: flex-end;
+    background-color: transparent;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 2%;
+    margin-bottom: 0%;
+    height: 40px;
+    width: 5%;
 }
 
 .exitButton {
@@ -1486,7 +1798,8 @@ tr:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2;
+    background-color: rgba(128, 128, 128, 0.5); 
+    z-index: 4;
 
 }
 
@@ -1540,6 +1853,15 @@ form {
     border-radius: 20px;
     display: block;
     margin-bottom: 10%;
+    width: 91%;
+}
+.input-field3{
+    padding: 3px;
+    font-size: 20px;
+    border: 2px solid#792f00;
+    border-radius: 20px;
+    display: block;
+    margin-bottom: 2%;
     width: 91%;
 }
 

@@ -103,7 +103,7 @@
                   <label for="idCosecha">Fecha cosecha</label>
                   <select id="idCosecha" v-model="id_cos" required class="input-field3">
                     <option v-for="cosecha in cosechas" :value="cosecha.ID_COSECHA">
-                      {{ formatearFecha(cosecha.FECHA_COSECHA) }} </option>
+                      {{ formatearFecha(cosecha.FECHA_COSECHA) }} ID: {{ cosecha.ID_COSECHA }} </option>
                   </select>
                 </div>
                 <div class="form-group3">
@@ -239,9 +239,9 @@
                         <div class="editFormGroup">
                           <label for="sec">Tipo planta</label>
                           <select id="tipoPlanta" v-model="tPlantasUpdate" required class="">
-                            <option value="1">cafe 1</option>
-                            <option value="2">cafe 2</option>
-                            <option value="3">cafe 3</option>
+                            <option v-for="planta in plants" :value="planta.ID_TIPO_PLANTA">{{ planta.NOMBRE_PLANTA }}
+                            </option>
+
 
                           </select>
                         </div>
@@ -336,7 +336,7 @@
               <button class="deleteBtn" @click="removeCrop">
                 <img src="../images/delete_btn.png" alt="Texto alternativo 1">
               </button>
-              <h2>Cosecha: {{ formatearFecha(selectedCrop.cosechas.FECHA_COSECHA) }}</h2>
+              <h2>Cosecha: {{ formatearFecha(selectedCrop.cosechas.FECHA_COSECHA) }} </h2>
               <div class="sector">
                 <div class="info">
                   <h4>Cantidad recolectado: {{ selectedCrop.CANTIDAD }}</h4>
@@ -468,7 +468,7 @@ const submitFormEditLot = async () => {
     };
     const response = await axios.patch(`http://localhost:3000/api/lotes/${lotId}`, {
       NOMBRE_LOTE: newNameLot.value.toLocaleUpperCase()
-    },config);
+    }, config);
 
     if (response.status === 200) {
       console.log('Lote editado con éxito');
@@ -564,7 +564,7 @@ const editCrop = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate,config);
+    const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate, config);
 
     if (response.status === 200) {
       console.log('Cosecha: actualizada con éxito' + lotId + selectedCrop.value.ID_COSECHA);
@@ -601,12 +601,12 @@ const removeCrop = async () => {
       const id_crop = selectedCrop.value.ID_COSECHA;
       const id_lote = lotId
       const config = {
-      headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      }
-    };
-      const response = await axios.delete(`http://localhost:3000/api/historial/cosechas/${id_lote}/${id_crop}`,config);
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      };
+      const response = await axios.delete(`http://localhost:3000/api/historial/cosechas/${id_lote}/${id_crop}`, config);
       if (response.status === 200) {
         alert("Cosecha eliminada exitosamente");
         dataCrophide();
@@ -616,9 +616,9 @@ const removeCrop = async () => {
       }
     } catch (error) {
       if (error.response.status === 401) {
-      alert("No está autorizado. Por favor, inicie sesión.");
-      router.push('/');
-    }
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
       console.error('Error al eliminar cosecha', error);
     }
   }
@@ -640,12 +640,12 @@ const removeWorker = async () => {
       const id_persona = selectedWorker.value.ID_PERSONA;
       const id_lote = selectedWorker.value.ID_LOTE;
       const config = {
-      headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      }
-    };
-      const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`,config);
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      };
+      const response = await axios.delete(`http://localhost:3000/api/userlotes/${id_lote}/${id_persona}`, config);
       if (response.status === 200) {
         console.log("Plaga borrada exitosamente");
         alert("Trabajador eliminado exitosamente");
@@ -656,9 +656,9 @@ const removeWorker = async () => {
       }
     } catch (error) {
       if (error.response.status === 401) {
-      alert("No está autorizado. Por favor, inicie sesión.");
-      router.push('/');
-    }
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
       console.error('Error al eliminar plaga', error);
     }
   }
@@ -677,7 +677,7 @@ const editWorker = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await axios.put(`http://localhost:3000/api/userlotes/${lotId}/${selectedWorker.value.ID_PERSONA}`, workerUpdate,config);
+    const response = await axios.put(`http://localhost:3000/api/userlotes/${lotId}/${selectedWorker.value.ID_PERSONA}`, workerUpdate, config);
 
     if (response.status === 200) {
       console.log('Trabajador actualizado con éxito');
@@ -711,7 +711,7 @@ const editPests = async () => {
     };
     const response = await axios.patch(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`, {
       FECHA_AFECTACION: fechaAfectacion, ESTADO_PLAGA: newStatus
-    },config);
+    }, config);
 
     if (response.status === 200) {
       console.log('Plaga actualizado con éxito');
@@ -744,14 +744,14 @@ const deleteSector = async () => {
   if (confirmed) {
     try {
       const config = {
-      headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      }
-    };
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      };
       const response = await fetch(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, {
         method: 'DELETE',
-      },config);
+      }, config);
       if (response.ok) {
         console.log("Sector borrado exitosamente")
         alert("Sector borrado exitosamente")
@@ -762,9 +762,9 @@ const deleteSector = async () => {
       }
     } catch (error) {
       if (error.response.status === 401) {
-      alert("No está autorizado. Por favor, inicie sesión.");
-      router.push('/');
-    }
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
       console.error('Error al eliminar sector', error);
     }
   }
@@ -787,14 +787,14 @@ const deletePests = async () => {
       const lot = lotId;
       const fechaAfectacion = new Date(selectedPest.value.FECHA_AFECTACION);
       const config = {
-      headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      }
-    };
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      };
       const response = await axios.delete(`http://localhost:3000/api/historial/plagas/${lot}/${pestId}`, {
         data: { FECHA_AFECTACION: fechaAfectacion }
-      },config);
+      }, config);
 
       if (response.status === 200) {
         console.log("Plaga borrada exitosamente");
@@ -806,9 +806,9 @@ const deletePests = async () => {
       }
     } catch (error) {
       if (error.response.status === 401) {
-      alert("No está autorizado. Por favor, inicie sesión.");
-      router.push('/');
-    }
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
       console.error('Error al eliminar plaga', error);
     }
   }
@@ -881,7 +881,7 @@ const fetchHistorialTrabajadores = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch(`http://localhost:3000/api/lotes/Spers/${lotId}`,config);
+    const response = await fetch(`http://localhost:3000/api/lotes/Spers/${lotId}`, config);
     if (response.ok) {
       const data = await response.json();
       historialTrabajadores.value = data.lotes_personas;
@@ -906,7 +906,7 @@ const fetchHistorialCosechas = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch(`http://localhost:3000/api/lotes/Scos/${lotId}`,config);
+    const response = await fetch(`http://localhost:3000/api/lotes/Scos/${lotId}`, config);
     if (response.ok) {
       const data = await response.json();
       historialCosechas.value = data.historial_cosechas;
@@ -930,7 +930,7 @@ const fetchCosechas = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch(`http://localhost:3000/api/cosechas`,config);
+    const response = await fetch(`http://localhost:3000/api/cosechas`, config);
     if (response.ok) {
       const data = await response.json();
       cosechas.value = data;
@@ -953,7 +953,7 @@ const fetchHistorialPlagas = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`,config);
+    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`, config);
     if (response.ok) {
       const data = await response.json();
       historialPlagas.value = data.historial_plagas;
@@ -976,7 +976,7 @@ const getLotInfo = async () => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`,config);
+    const response = await fetch(`http://localhost:3000/api/lotes/Splag/${lotId}`, config);
     if (response.ok) {
       const data = await response.json();
       nameLot.value = data.NOMBRE_LOTE;
@@ -985,9 +985,9 @@ const getLotInfo = async () => {
       console.log(data)
     } else {
       if (error.response.status === 401) {
-      alert("No está autorizado. Por favor, inicie sesión.");
-      router.push('/');
-    }
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
       console.error('Error al obtener información del lote con ID:', lotId);
     }
 
@@ -1071,7 +1071,7 @@ const submitForm2 = async () => {
       }
     };
 
-    const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga,config);
+    const response = await axios.post('http://localhost:3000/api/historial/plagas', nuevaPlaga, config);
 
     if (response.status === 200) {
       alert("Plaga agregada con éxito");
@@ -1103,7 +1103,7 @@ const submitForm3 = async () => {
       }
     };
 
-    const response = await axios.post('http://localhost:3000/api/historial/cosechas', nuevaPlaga,config);
+    const response = await axios.post('http://localhost:3000/api/historial/cosechas', nuevaPlaga, config);
 
     if (response.status === 200) {
       alert("Cosecha agregada con éxito");
@@ -1118,12 +1118,37 @@ const submitForm3 = async () => {
   }
 };
 
+const plants = ref([])
+const fetchPlants = async () => {
+  const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+  try {
+    const response = await fetch(`http://localhost:3000/api/tipo_plantas`, config);
+    if (response.ok) {
+      const data = await response.json();
+      plants.value = data;
+
+    } else {
+      console.error('Error al obtener plantas');
+    }
+  } catch (error) {
+    
+    console.error('Error al obtener PLANTAS', error);
+  }
+};
+
+
 onMounted(() => {
   getLotInfo();
   fetchHistorialPlagas();
   fetchHistorialTrabajadores();
   fetchHistorialCosechas();
   fetchCosechas();
+  fetchPlants();
 });
 </script>
 
@@ -2139,5 +2164,6 @@ tr:hover {
 
   height: 75%;
   width: 90%;
-}</style>
+}
+</style>
   

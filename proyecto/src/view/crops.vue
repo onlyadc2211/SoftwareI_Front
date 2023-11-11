@@ -26,6 +26,7 @@
         </button>
       </div>
     </div>
+    <div class="cont">
     <div id="title" v-if="!cargando">
       <h1 id="t">Cosechas</h1>
       <div id="contenido">
@@ -43,17 +44,16 @@
                     </li>
                   </ul>
                 </div>
-
               </div>
             </div>
           </div>
         </div>
-        <div class="botones">
-          <button class="btnLotes" @click="deleteCos">Eliminar</button>
-          <button class="btnLotes" @click="showAddCrop">Agregar</button>
-
-        </div>
       </div>
+    </div>
+  </div>
+    <div class="botones">
+      <button class="btnLotes" @click="deleteCos">Eliminar</button>
+      <button class="btnLotes" @click="showAddCrop">Agregar</button>
     </div>
     <div v-if="isVisible" class="popup2">
       <div class="popup-content2">
@@ -83,13 +83,33 @@
               <label for="nombreLote">Nueva fecha:</label>
               <input type="date" id="fechaAfectacion" v-model="fechaCosechaEdit" required class="input-field2" />
             </div>
-            <div id="errorCorrection2"></div>
+            
             <div class="formButtons2">
-              <button type="submit2" @click="submitFormEdit" class="submit-button2">Agregar</button>
-              <button @click="editCosHide" class="submit-button2">Cerrar</button>
+              <button type="submit2" @click="submitFormEdit" class="submit-button2">Editar</button>
+              
             </div>
           </form>
         </div>
+        <div id="formulario2L">
+          <form @submit.prevent="submitFormEditAsig" class="form2">
+            <div class="form-group2">
+              <label for="nombreLote">Asignar Lote:</label>
+              <select id="tipoPlanta" v-model="addLot" required class="input-field2">
+                <option v-for="lote in lots" :value=" lote.ID_LOTE">{{ lote.NOMBRE_LOTE }}
+                </option>
+              </select>
+              <label for="nombreLote">Cantidad cosechado:</label>
+              <input type="number" required class="input-field2"  v-model="cantAdd">
+            </div>
+            <div id="errorCorrection2"></div>
+            <div class="formButtons2">
+              <button type="submit2" @click="submitFormEditAsig" class="submit-button2">Asignar</button>
+            </div>
+          </form>
+        </div>
+        <div class="formButtons2">
+        <button @click="editCosHide" class="submit-button2">Cerrar</button>
+      </div>
       </div>
     </div>
     <div v-if="isVisibleCos" class="popup2">
@@ -130,7 +150,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import axios, { all } from 'axios';
 const router = useRouter();
 const isVisible = ref(false);
 const id_cosecha = ref();
@@ -153,6 +173,25 @@ const config = {
     'Content-Type': 'application/json'
   }
 };
+const lots = ref([]);
+const fetchLots = async () => {
+  try {
+   
+    const response = await fetch('http://localhost:3000/api/lotes',config);
+    if (response.ok) {
+      const data = await response.json();
+      lots.value = data;
+
+    }
+  } catch (error) {
+    console.error('Error al obtener lotes:', error);
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
+
+  }
+}
 const openAlert = (m) => {
   isAlertVisible.value = true;
   message.value = m;
@@ -277,6 +316,37 @@ const submitFormEdit = async () => {
       alert("No está autorizado. Por favor, inicie sesión.");
       router.push('/');
     }
+    console.error('Error al editar cosecha: ', error);
+
+
+  }
+};
+const addLot = ref();
+const cantAdd = ref();
+const submitFormEditAsig = async () => {
+  try {
+    const nuevaCosecha = {
+      
+      ID_LOTE: addLot.value,
+      ID_COSECHA: selectedcos.value.ID_COSECHA,
+      CANTIDAD: cantAdd.value
+    };
+    console.log(nuevaCosecha)
+    const response = await axios.post(`http://localhost:3000/api/historial/cosechas`, nuevaCosecha, config);
+
+    if (response.status === 200) {
+      console.log('cosecha editada con éxito');
+      alert("cosecha asignada con exito")
+      addLot.value = null;
+      cantAdd.value = null;
+      location.reload();
+      editCosHide();
+    }
+  } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
     console.error('Error al agregar cosecha: ', error);
 
 
@@ -292,7 +362,9 @@ const fetchCosechas = async () => {
     const response = await fetch(`http://localhost:3000/api/historial/cosechas`,config);
     if (response.ok) {
       const data = await response.json();
+      
       cosechas.value = data;
+      
       cosechasConLotes = {};
       for (const item of data) {
         const cosechaID = item.ID_COSECHA;
@@ -313,8 +385,14 @@ const fetchCosechas = async () => {
       }
 
       cosechasArray = Object.values(cosechasConLotes);
+      const cosechasArrayIDs = cosechasArray.map(cosecha => cosecha.ID_COSECHA);
+      const nuevasCosechas = allCrops.value.filter(cosecha => !cosechasArrayIDs.includes(cosecha.ID_COSECHA));
+      cosechasArray = cosechasArray.concat(nuevasCosechas);
+      
+      
+      
       cargando.value = false;
-      console.log(cosechasArray)
+      
     } else {
       console.error('Error al obtener el historial de cosechas');
     }
@@ -323,6 +401,7 @@ const fetchCosechas = async () => {
                 alert("No está autorizado. Por favor, inicie sesión.");
                 router.push('/');
             }
+    
     console.error('Error al obtener el historial de cosechas', error);
   }
 };
@@ -333,6 +412,7 @@ const fetchAllCrops = async () => {
     if (response.ok) {
       const data = await response.json();
       allCrops.value = data;
+    
 
 
     } else {
@@ -361,8 +441,10 @@ const goCrops = () => {
   router.push('/main/cropManagement/crops');
 }
 onMounted(() => {
-  fetchCosechas();
   fetchAllCrops();
+  fetchCosechas();
+  fetchLots();
+  
 });
 
 
@@ -370,6 +452,11 @@ onMounted(() => {
 </script>
   
 <style scoped>
+.cont{
+  
+  width: 100%;
+  height: 100%;
+}
 .myPopup {
   position: fixed;
   top: 0;
@@ -653,7 +740,7 @@ onMounted(() => {
 .popup-content3 {
   background-color: #fff;
   width: 30%;
-  height: 40%;
+  height: 75%;
   border-radius: 15px;
   border: 3px solid #792f00;
 }
@@ -687,6 +774,7 @@ onMounted(() => {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  
 
 }
 
@@ -703,8 +791,8 @@ onMounted(() => {
   border-radius: 20px;
   display: block;
   margin-top: 0%;
-  margin-bottom: 10%;
-  width: 160%;
+  margin-bottom: 2%;
+  width: 153%;
 }
 
 .form-group2 label {
@@ -721,9 +809,11 @@ onMounted(() => {
   border: 2px solid#792f00;
   border-radius: 20px;
   display: block;
-  margin-bottom: 10%;
-  width: 140%;
+  margin-bottom: 1%;
+  margin-top: 2%;
+  width: 145%;
 }
+
 
 .input-field2:focus {
   border: 2px solid #792f00;
@@ -731,11 +821,13 @@ onMounted(() => {
 }
 
 .formButtons2 {
-  margin-top: 5%;
+  margin-top: 2%;
   width: 100%;
-  height: 70%;
-
+  height: 40%;
+  display: flex;
+  
 }
+
 
 
 .submit-button2:hover {
@@ -751,20 +843,35 @@ onMounted(() => {
   border-radius: 5px;
   cursor: pointer;
   width: 30%;
-  margin-left: 10%;
-  margin-right: 10%;
+  margin-left: auto;
   height: 30px;
-
+  margin-right: 2%;
 }
 
 #formulario2 {
-  margin: 6%;
+  margin: 4%;
+  margin-bottom: 1%;
+  margin-top: 2%;
   display: flex;
   justify-content: center;
   align-items: center;
   align-self: center;
-
-  height: 75%;
+  border: 3px solid#792f00;
+  height: 25%;
   width: 90%;
+  border-radius: 20px;
+}
+  #formulario2L {
+    margin: 4%;
+    margin-bottom: 1%;
+    margin-top: 2%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    border: 3px solid#792f00;
+    height: 38%;
+    width: 90%;
+    border-radius: 20px;
 }</style>
   

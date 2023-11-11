@@ -265,7 +265,13 @@ const submitForm = async () => {
 
 const fetchLots = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/lotes');
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch('http://localhost:3000/api/lotes',config);
     if (response.ok) {
       const data = await response.json();
       lots.value = data;
@@ -273,6 +279,11 @@ const fetchLots = async () => {
     }
   } catch (error) {
     console.error('Error al obtener lotes:', error);
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
+
   }
 }
 

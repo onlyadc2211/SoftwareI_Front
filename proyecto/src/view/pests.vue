@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div class="botones">
-                    <button class="btnLotes" @click="addLot">Agregar plaga</button>
+                    
                 </div>
             </div>
         </div>
