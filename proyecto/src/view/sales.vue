@@ -482,7 +482,7 @@ function filtrarVentasPorFecha(ventasConDetalles, fechaInicio, fechaFin) {
 
   const ventasFiltradas = ventasConDetalles.filter(venta => {
     const fechaVenta = new Date(venta.venta.FECHA_VENTA);
-    fechaVenta.setHours(0, 0, 0, 0); // Ignorar la hora
+    fechaVenta.setHours(0, 0, 0, 0); 
 
     return fechaVenta >= fechaInicioObj && fechaVenta <= fechaFinObj;
   });
@@ -524,8 +524,9 @@ function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
   ventasEnRango.forEach((venta, index) => {
 
     const ventaData = [
-      ['ID Venta', 'Fecha Venta','Estado Venta', 'Total Venta'],
-      [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA), venta.venta.VALOR_TOTAL_VENTA],
+      ['ID Venta', 'Fecha Venta','Estado Venta','Cliente', 'Total'],
+      [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
+      venta.venta.personas.APELLIDO_PERSONA, venta.venta.VALOR_TOTAL_VENTA],
     ];
 
     pdf.setFillColor(200, 220, 255);
@@ -569,8 +570,13 @@ const date1Print = ref();
 const date2Print = ref();
 const printInform = ()=>{
     const ventasFiltradas = filtrarVentasPorFecha(completeSales.value,date1Print.value,date2Print.value);
-    console.log(ventasFiltradas);
-    generarInformePDF(ventasFiltradas);
+    
+    if( ventasFiltradas.length != 0){
+        generarInformePDF(ventasFiltradas);
+    }else{
+        alert("No se han encontrado ventas en ese rango de fechas")
+    }
+    
 }
 const completeSales = ref([])
 const print = ()=>{
