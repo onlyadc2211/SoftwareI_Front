@@ -83,7 +83,7 @@
       </div>
       <div class="buttons">
         <button class="btnLotes" @click="addLot">Agregar lote</button>
-        <button class="btnLotes">Agregar planta</button>
+        <button class="btnLotes" @click="showAddPlant">Agregar planta</button>
         <button class="btnLotes" @click="deletePopup">Eliminar</button>
       </div>
     </div>
@@ -95,6 +95,27 @@
         <div class="alertButtons">
           <button @click="confirm">Si</button>
           <button @click="closeAlert">No</button>
+        </div>
+      </div>
+    </div>
+    <div v-if="isPlantVisible" class="myPopup">
+      <div class="myPopup-contentPlants">
+        <div id="formulario2">
+          <form @submit.prevent="submitFormAddP" class="form2">
+            <div class="form-group2">
+              <label for="idLote">Id planta</label>
+              <input type="number" id="totalPlantas" v-model="id_plant" required class="input-field2" />
+            </div>
+            <div class="form-group2">
+              <label for="nombreLote">Nombre de la planta:</label>
+              <input type="text" id="nombreLote" v-model="nombrePlanta" required class="input-field2" />
+            </div>
+            <div class="formButtons2">
+              <button type="submit2" @click="submitFormAddPlant" class="submit-button2">Agregar</button>
+              <button @click="hideAddPlant" class="submit-button2">Cerrar</button>
+            </div>
+          </form>
+
         </div>
       </div>
     </div>
@@ -120,6 +141,15 @@ const isAlertVisible = ref(false);
 const messageDelete = ref("");
 const switchButton = ref(false);
 const token = localStorage.getItem('token');
+const isPlantVisible = ref(false);
+const showAddPlant = () => {
+  isPlantVisible.value = true;
+
+}
+const hideAddPlant = () => {
+  isPlantVisible.value = false;
+
+}
 const openAlert = (m) => {
   isAlertVisible.value = true;
   message.value = m;
@@ -224,6 +254,42 @@ const addLot = () => {
 const goToLotInfo = (lotId) => {
   router.push(`/main/cropManagement/lots/lotInfo/${lotId}`);
 }
+const id_plant = ref();
+const nombrePlanta = ref();
+const submitFormAddPlant = async () => {
+  try {
+    const config = {
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    const nuevaPlanta = {
+      ID_TIPO_PLANTA: id_plant.value,
+      NOMBRE_PLANTA: nombrePlanta.value
+    };
+
+    const response = await axios.post('http://localhost:3000/api/tipo_plantas', nuevaPlanta, config);
+
+    if (response.status === 200) {
+
+      console.log('Planta agregada con éxito');
+      id_plant.value = null;
+      nombrePlanta.value = null;
+      alert("Planta agregada con éxito")
+      location.reload();
+    }
+
+  } catch (error) {
+    if (error.response.status === 401) {
+      alert("No está autorizado. Por favor, inicie sesión.");
+      router.push('/');
+    }
+
+    alert("No es posible agregar lote porque este ya existe")
+
+  }
+}
 const submitForm = async () => {
   try {
     const config = {
@@ -316,6 +382,13 @@ onMounted(() => {
   border-radius: 15px;
   border: 3px solid #792f00;
 }
+.myPopup-contentPlants {
+  background-color: #fff;
+  width: 400px;
+  height: 250px;
+  border-radius: 15px;
+  border: 3px solid #792f00;
+}
 
 .alertMessage {
   display: flex;
@@ -401,7 +474,7 @@ onMounted(() => {
   font-size: 200%;
   color: white;
   cursor: pointer;
-  border-radius: 12%;
+  border-radius: 20PX;
 
 }
 

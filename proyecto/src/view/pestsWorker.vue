@@ -44,7 +44,7 @@
                         </div>
                     </div>
                 </div>
-                
+               
             </div>
         </div>
 
@@ -75,20 +75,20 @@ const fetchPlagas = async () => {
 const router = useRouter();
 
 const goBack = () => {
-  router.push("/main/cropManagement");
+  router.push("/main/cropManagementWorker");
 }
 const goWorkers = () => {
-    router.push('/main/cropManagement/workers')
+    router.push('/main/cropManagementWorker/workersWorker')
 }
 const goLots = () => {
-    router.push('/main/cropManagement/lots')
+    router.push('/main/cropManagementWorker/lotsWorker')
 }
 
 const goCrops = () => {
-    router.push('/main/cropManagement/crops');
+    router.push('/main/cropManagementWorker/cropsWorker');
 }
 const goHome = () => {
-  router.push('/main');
+  router.push('/mainWorker');
 }
 onMounted(() => {
    fetchPlagas();

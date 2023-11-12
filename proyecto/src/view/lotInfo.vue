@@ -46,10 +46,7 @@
                 <div class="form-group">
                   <label for="tipoPlanta">Tipo planta</label>
                   <select id="tipoPlanta" v-model="id_plant" required class="input-field">
-                    <option value="1">cafe 1</option>
-                    <option value="2">cafe 2</option>
-                    <option value="3">cafe 3</option>
-
+                    <option v-for="planta in plants" :value="planta.ID_TIPO_PLANTA">{{planta.NOMBRE_PLANTA}}</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -74,10 +71,8 @@
                 <div class="form-group">
                   <label for="tipoPlaga">Tipo plaga</label>
                   <select id="tipoPlaga" v-model="id_plaga" required class="input-field">
-                    <option value="1">Broca de cafe</option>
-                    <option value="2">Roya de cafeto</option>
-                    <option value="3">Cortadores</option>
-                    <option value="4">Palomillas</option>
+                    <option v-for="plaga in plagas" :value="plaga.ID_PLAGA">{{plaga.NOMBRE_PLAGA}}</option>
+                    
 
                   </select>
                 </div>
@@ -1140,7 +1135,30 @@ const fetchPlants = async () => {
     console.error('Error al obtener PLANTAS', error);
   }
 };
-
+const plagas = ref([])
+  const fetchPlagas = async () => {
+    try {
+      const config = {
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      };
+      const response = await fetch(`http://localhost:3000/api/plagas`, config);
+      if (response.ok) {
+        const data = await response.json();
+        plagas.value = data;
+      } else {
+        console.error('Error al obtener plagas.');
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        alert("No está autorizado. Por favor, inicie sesión.");
+        router.push('/');
+      }
+      console.error('Error al obtener plagas:', error);
+    }
+  };
 
 onMounted(() => {
   getLotInfo();
@@ -1149,6 +1167,7 @@ onMounted(() => {
   fetchHistorialCosechas();
   fetchCosechas();
   fetchPlants();
+  fetchPlagas();
 });
 </script>
 

@@ -77,7 +77,7 @@
       <div class="popup-content3">
         <h2>Editar cosecha: {{ selectedcos.ID_COSECHA }}</h2>
         <h3>Fecha actual: {{ formatearFecha(selectedcos.FECHA_COSECHA) }}</h3>
-        <div id="formulario2">
+        <div id="formulario3">
           <form @submit.prevent="submitFormEdit" class="form2">
             <div class="form-group2">
               <label for="nombreLote">Nueva fecha:</label>
@@ -552,7 +552,7 @@ onMounted(() => {
 .cosechas {
 
   width: 96%;
-  height: 75%;
+  height: 90%;
 
   margin: 2%;
   margin-bottom: 0%;
@@ -849,6 +849,19 @@ onMounted(() => {
 }
 
 #formulario2 {
+  margin: 4%;
+  margin-bottom: 1%;
+  margin-top: 2%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  border: 3px solid#792f00;
+  height: 60%;
+  width: 90%;
+  border-radius: 20px;
+}
+#formulario3 {
   margin: 4%;
   margin-bottom: 1%;
   margin-top: 2%;

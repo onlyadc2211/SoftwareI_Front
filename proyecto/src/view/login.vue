@@ -36,10 +36,10 @@
 
           <label for="rol">Rol:</label>
           <select v-model="rol" id="rol" required>
-            <option value="1">Administrador</option>
-
-            <option value="3">Usuario</option>
-            <option value="4">Trabajador</option>
+            <option value="1">Usuario</option>
+            <option value="2">Trabajador</option>
+            <option value="3">Administrador</option>
+            
           </select>
 
           <label for="usuarioRegistro">Usuario:</label>
@@ -364,7 +364,7 @@ select {
   box-sizing: border-box;
   font-size: 20px;
   border: none;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #000000;
   background-color: transparent;
   margin: 0;
 }

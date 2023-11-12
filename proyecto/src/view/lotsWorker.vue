@@ -81,10 +81,7 @@
             </div>
         </div>
         </div>
-        <div class="buttons">
-          <button class="btnLotes" @click="addLot">Agregar lote</button>
-    
-        </div>
+        
       </div>
       <div v-if="isAlertVisible" class="myPopup">
         <div class="myPopup-content">
@@ -135,7 +132,7 @@
   
   }
   const goHome = () => {
-    router.push('/main');
+    router.push('/mainWorker');
   }
   const hidePopup2 = () => {
       isVisible.value = false;
@@ -198,20 +195,20 @@
     router.push('/main/cropManagementWorker');
   }
   const goWorkers = () => {
-    router.push('/main/cropManagement/workers');
+    router.push('/main/cropManagementWorker/workersWorker');
   }
   const goCrops = () => {
-    router.push('/main/cropManagement/crops');
+    router.push('/main/cropManagementWorker/cropsWorker');
   }
   const goLots = () => {
-    router.push('/main/cropManagement/lots');
+    router.push('/main/cropManagementWorker/lotsWorker');
   }
   const addLot = () => {
     isVisible.value = true;
     
   }
   const goToLotInfo = (lotId) => {
-    router.push(`/main/cropManagement/lots/lotInfo/${lotId}`);
+    router.push(`/main/cropManagementWorker/lotsWorker/lotInfoWorker/${lotId}`);
   }
   const submitForm = async () => {
       try {
@@ -360,13 +357,14 @@
   
   .btnLotes {
     margin: 3%;
+    margin-left: auto;
     height: 60%;
     width: 20%;
     background-color: #792f00;
     font-size: 200%;
     color: white;
     cursor: pointer;
-    border-radius: 12%;
+    border-radius: 20px;
   
   }
   .btnLotes:hover {
@@ -429,7 +427,7 @@
     margin: 1%;
     margin-bottom: 0;
     background-color: #fee1cc;
-    height: 45vh;
+    height: 64vh;
     width: 98%;
     border-radius: 3%;
     border-bottom: 0%;

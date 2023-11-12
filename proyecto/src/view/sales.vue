@@ -395,6 +395,7 @@
                 <div class="printDates">
                     <div class="formularioPrint">
                         <form @submit.prevent="formPrint" class="form2">
+                            <h3>Generar en un rango de fechas</h3>
                             <div class="form-group2">
                                 <label for="precioProductoUpdate">Fecha inicio</label>
                                 <input type="date" required class="input-field3" 
@@ -403,11 +404,15 @@
                                 <input type="date" required class="input-field3" 
                                     v-model="date2Print">
                             </div>
+                            <div class="printButtons">
+                                <button @click="printInform">Descargar</button>
+                            </div>
                         </form>
                     </div>
+                    
                 </div>
                 <div class="printButtons">
-                    <button @click="printInform">Descargar</button>
+                    <button @click="printInform2">Descargar todo</button>
                     <button @click="closePrint">Salir</button>
                 </div>
             </div>
@@ -499,10 +504,10 @@ function filtrarVentasPorFecha(ventasConDetalles, fechaInicio, fechaFin) {
 function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
   const pdf = new jsPDF();
   let yPosition = 10;
-
+  let totalVentas = 0;
   const img = new Image();
   img.src = '../images/logo.jpeg';
-
+  
   img.onload = function() {
     pdf.addImage(img, 'JPEG', 15, yPosition, 30, 30); 
   }
@@ -522,7 +527,7 @@ function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
   yPosition += 10;
 
   ventasEnRango.forEach((venta, index) => {
-
+    totalVentas += parseFloat(venta.venta.VALOR_TOTAL_VENTA);
     const ventaData = [
       ['ID Venta', 'Fecha Venta','Estado Venta','Cliente', 'Total'],
       [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
@@ -562,10 +567,86 @@ function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
       yPosition += 10;
     }
   });
-
+  const totalFormatted = totalVentas.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const totalText = `Total de ventas seleccionadas: ${totalFormatted}$`;
+  yPosition = pdf.autoTableEndPosY() + 10; 
+  pdf.text(totalText, 20, yPosition);
   const fileName = `InformeVentasCafeManess_${date1Print.value}_${date2Print.value}.pdf`;
   pdf.save(fileName);
 }
+function generarInformePDF2(ventasEnRango, fechaInicio, fechaFin) {
+  const pdf = new jsPDF();
+  let yPosition = 10;
+  let totalVentas = 0;
+  const img = new Image();
+  img.src = '../images/logo.jpeg';
+  
+  img.onload = function() {
+    pdf.addImage(img, 'JPEG', 15, yPosition, 30, 30); 
+  }
+
+  pdf.setFontSize(18);
+  const title = 'Informe de ventas Café Maness';
+  const titleWidth = pdf.getStringUnitWidth(title) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+  const xPosition = (pdf.internal.pageSize.width - titleWidth) / 2 + 40;
+  pdf.text(title, xPosition, yPosition + 20);
+  yPosition += 50; 
+
+  ventasEnRango.forEach((venta, index) => {
+    totalVentas += parseFloat(venta.venta.VALOR_TOTAL_VENTA);
+    const ventaData = [
+      ['ID Venta', 'Fecha Venta','Estado Venta','Cliente', 'Total'],
+      [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
+      venta.venta.personas.APELLIDO_PERSONA, venta.venta.VALOR_TOTAL_VENTA],
+    ];
+
+    pdf.setFillColor(200, 220, 255);
+    pdf.autoTable({
+      startY: yPosition,
+      head: ventaData.slice(0, 1),
+      body: ventaData.slice(1),
+      theme: 'grid',
+    });
+
+    yPosition = pdf.autoTableEndPosY() + 10;
+
+    const productosData = venta.detalleFactura.map(producto => [
+      producto.ID_PRODUCTO,
+      producto.productos.NOMBRE_PRODUCTO,
+      producto.CANTIDAD_PRODUCTO,
+      producto.PRECIO_VENTA_UNITARIO,
+      producto.SUBTOTAL_VENTA_PRODUCTO,
+    ]);
+
+    pdf.setFillColor(240, 240, 240);
+    pdf.autoTable({
+      startY: yPosition,
+      head: [['ID Producto', 'Nombre Producto', 'Cantidad', 'Precio Unitario', 'Subtotal']],
+      body: productosData,
+      theme: 'grid',
+    });
+
+    yPosition = pdf.autoTableEndPosY() + 10;
+
+    if (index < ventasEnRango.length - 1) {
+      pdf.line(20, yPosition, 190, yPosition);
+      yPosition += 10;
+    }
+  });
+  const totalFormatted = totalVentas.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const totalText = `Total de ventas seleccionadas: ${totalFormatted}$`;
+  yPosition = pdf.autoTableEndPosY() + 10; 
+  pdf.text(totalText, 20, yPosition);
+  const fileName = `InformeVentasCafeManess_${date1Print.value}_${date2Print.value}.pdf`;
+  pdf.save(fileName);
+}
+
 const date1Print = ref();
 const date2Print = ref();
 const printInform = ()=>{
@@ -578,6 +659,17 @@ const printInform = ()=>{
     }
     
 }
+const printInform2 = ()=>{
+    
+    
+    if( completeSales.value.length != 0){
+        generarInformePDF2(completeSales.value);
+    }else{
+        alert("No se han encontrado ventas en ese rango de fechas")
+    }
+    
+}
+
 const completeSales = ref([])
 const print = ()=>{
     isPrintVisible.value = true;
@@ -1366,7 +1458,8 @@ onMounted(() => {
 .printButtons{
     display: flex;
     justify-content: center;
-    margin-top: 3%;
+    margin-top: 0%;
+    width: 95%;
 }
 .printButtons button {
     background-color: #792f00;
@@ -1374,8 +1467,7 @@ onMounted(() => {
     height: 45px;
     width: 100px;
     border-radius: 15px;
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: auto;
     cursor: pointer;
 }
 .myPopup2 {
@@ -1396,7 +1488,7 @@ onMounted(() => {
 .myPopup-content2 {
     background-color: #fff;
     width: 400px;
-    height: 400px;
+    height: 450px;
     border-radius: 15px;
     border: 3px solid #792f00;
 }
@@ -1409,14 +1501,14 @@ onMounted(() => {
     display: block;
     justify-content: center;
     align-items: center;
-    height: 60%;
+    height: 70%;
     margin-bottom: 0%;
 }
 .formularioPrint {
     width: 95%;
     margin: 2%;
     display: flex;
-    height: 90%;
+    height: 82%;
     border: 3px solid #792f00;
     border-radius: 20px;
 }
@@ -1545,6 +1637,10 @@ onMounted(() => {
 
 
 
+}
+.form2 h3{
+    margin-top: 10%;
+    margin-bottom: 1%;
 }
 
 

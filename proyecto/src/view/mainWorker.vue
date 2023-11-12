@@ -16,6 +16,9 @@
           </div>
         <div id="buttons">
             <button class="main-button" @click="goCropManagement">Cultivos</button>
+            <button class="main-button" >
+              <a href="https://docs.google.com/presentation/d/1PySS8GFeM4YobAhrFDt6Vtj042WFKyLh7-3soWytwcM/edit?usp=sharing" target="_blank" class="main-button">Ayuda</a>
+            </button>
             <button class="main-button" @click="goBack">Salir</button>
         </div>
         
@@ -36,6 +39,7 @@ const goCropManagement = () => {
 
 
 const goBack = () => {
+  localStorage.removeItem('token');
     router.push("/");
 }
 </script>
@@ -82,7 +86,7 @@ const goBack = () => {
     color: white;
     height: 70px;
     width: 70%;
-    border-radius: 5%;
+    border-radius: 20px;
 }
 
 .main-button:hover {

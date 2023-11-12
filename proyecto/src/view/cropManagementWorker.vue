@@ -56,17 +56,17 @@ const goBack = () => {
   router.push('/mainWorker');
 }
 const goWorkers = () => {
-  router.push('/main/cropManagement/workers')
+  router.push('/main/cropManagementWorker/workersWorker')
 }
 const goLots = () => {
-  router.push('/main/cropManagement/lots')
+  router.push('/main/cropManagementWorker/lotsWorker')
 }
 
 const goCrops = () => {
-  router.push('/main/cropManagement/crops');
+  router.push('/main/cropManagementWorker/cropsWorker');
 }
 const goPests = () => {
-  router.push('/main/cropManagement/pests');
+  router.push('/main/cropManagementWorker/pestsWorker');
 }
 
 </script>
