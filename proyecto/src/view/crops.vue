@@ -59,7 +59,7 @@
       <div class="popup-content2">
         <h2>Añadir cosecha</h2>
         <div id="formulario2">
-          <form @submit.prevent="submitForm" class="form2">
+          <form @submit.prevent="submitFormC" class="form2">
             <div class="form-group2">
               <label for="nombreLote">Fecha:</label>
               <input type="date" id="fechaAfectacion" v-model="fechaCosecha" required class="input-field2" />
@@ -282,7 +282,7 @@ const submitForm = async () => {
     if (response.status === 200) {
       console.log('cosecha agregada con éxito');
       alert("cosecha agregada con éxito");
-      id_cosecha.value = 0;
+      location.reload;
       fechaCosecha.value = '';
       isVisible.value = false;
     }
@@ -291,6 +291,8 @@ const submitForm = async () => {
     if (error.response.status === 401) {
       alert("No está autorizado. Por favor, inicie sesión.");
       router.push('/');
+    }else{
+      alert("Ya hay una cosecha asignada en ese dia");
     }
 
   }
