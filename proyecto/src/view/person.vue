@@ -657,7 +657,7 @@ const hidePopup2 = () => {
     isVisibleAddBill.value = false;
 };
 const goBack = () => {
-    router.push("/main/salesManagement");
+    router.push("/main");
 }
 const goWorkers = () => {
     router.push('/main/cropManagement/workers')
