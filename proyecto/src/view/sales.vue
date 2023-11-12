@@ -28,7 +28,12 @@
         </div>
 
         <div id="title">
-            <h1 id="t">Ventas</h1>
+            <h1 id="t">Ventas
+                <button class="editButton" @click="print">
+                    <img src="../images/imprimir.png" alt="">
+                  </button>
+            </h1>
+            
             <div id="contenido">
                 <div v-if="isVisible" class="popup">
                     <div class="popup-content">
@@ -382,14 +387,41 @@
                 </div>
             </div>
         </div>
+        <div v-if="isPrintVisible" class="myPopup2">
+            <div class="myPopup-content2">
+                <div class="printTitle">
+                    <h2> Generar informe</h2>
+                </div>
+                <div class="printDates">
+                    <div class="formularioPrint">
+                        <form @submit.prevent="formPrint" class="form2">
+                            <div class="form-group2">
+                                <label for="precioProductoUpdate">Fecha inicio</label>
+                                <input type="date" required class="input-field3" 
+                                    v-model="date1Print">
+                                    <label for="precioProductoUpdate">Fecha fin</label>
+                                <input type="date" required class="input-field3" 
+                                    v-model="date2Print">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="printButtons">
+                    <button @click="printInform">Descargar</button>
+                    <button @click="closePrint">Salir</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
     
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, onMounted,computed } from 'vue';
-import axios from 'axios';
+import jsPDF from 'jspdf';
 
+import 'jspdf-autotable';
+import axios from 'axios';
 const router = useRouter();
 const isVisible = ref('');
 const trabajadores = ref([]);
@@ -412,6 +444,144 @@ const estadoVentaUpdate = ref();
 const token = localStorage.getItem('token');
 const isBillVisible = ref(false);
 const selectedBill = ref(null);
+const isPrintVisible = ref(false)
+
+function combinarDetallesYVentas(detallesFactura, ventas) {
+  const ventasConDetalles = {};
+
+  detallesFactura.forEach(detalle => {
+    const idVenta = detalle.ID_VENTA;
+    if (!ventasConDetalles[idVenta]) {
+      ventasConDetalles[idVenta] = {
+        detalleFactura: [detalle],
+        venta: null,
+      };
+    } else {
+      ventasConDetalles[idVenta].detalleFactura.push(detalle);
+    }
+  });
+  ventas.forEach(venta => {
+    const idVenta = venta.ID_VENTA;
+    if (ventasConDetalles[idVenta]) {
+      ventasConDetalles[idVenta].venta = venta;
+    } else {
+      ventasConDetalles[idVenta] = {
+        detalleFactura: [],
+        venta: venta,
+      };
+    }
+  });
+  const resultadoFinal = Object.values(ventasConDetalles);
+  return resultadoFinal;
+}
+function filtrarVentasPorFecha(ventasConDetalles, fechaInicio, fechaFin) {
+  const fechaInicioObj = new Date(fechaInicio);
+  const fechaFinObj = new Date(fechaFin);
+
+  fechaFinObj.setHours(23, 59, 59, 999);
+
+  const ventasFiltradas = ventasConDetalles.filter(venta => {
+    const fechaVenta = new Date(venta.venta.FECHA_VENTA);
+    fechaVenta.setHours(0, 0, 0, 0); // Ignorar la hora
+
+    return fechaVenta >= fechaInicioObj && fechaVenta <= fechaFinObj;
+  });
+
+  const ventasEnRangoJSON = ventasFiltradas.map(venta => {
+    return {
+      venta: JSON.parse(JSON.stringify(venta.venta)),
+      detalleFactura: venta.detalleFactura.map(detalle => JSON.parse(JSON.stringify(detalle))),
+    };
+  });
+
+  return ventasEnRangoJSON;
+}
+function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
+  const pdf = new jsPDF();
+  let yPosition = 10;
+
+  const img = new Image();
+  img.src = '../images/logo.jpeg';
+
+  img.onload = function() {
+    pdf.addImage(img, 'JPEG', 15, yPosition, 30, 30); 
+  }
+
+  pdf.setFontSize(18);
+  const title = 'Informe de ventas Café Maness';
+  const titleWidth = pdf.getStringUnitWidth(title) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+  const xPosition = (pdf.internal.pageSize.width - titleWidth) / 2 + 40;
+  pdf.text(title, xPosition, yPosition + 20);
+  yPosition += 50; 
+
+  pdf.setFontSize(14);
+  const dateRange = `Desde ${date1Print.value} hasta ${date2Print.value}`;
+  const dateRangeWidth = pdf.getStringUnitWidth(dateRange) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+  const xDateRange = (pdf.internal.pageSize.width - dateRangeWidth) / 2;
+  pdf.text(dateRange, xDateRange, yPosition);
+  yPosition += 10;
+
+  ventasEnRango.forEach((venta, index) => {
+
+    const ventaData = [
+      ['ID Venta', 'Fecha Venta','Estado Venta', 'Total Venta'],
+      [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA), venta.venta.VALOR_TOTAL_VENTA],
+    ];
+
+    pdf.setFillColor(200, 220, 255);
+    pdf.autoTable({
+      startY: yPosition,
+      head: ventaData.slice(0, 1),
+      body: ventaData.slice(1),
+      theme: 'grid',
+    });
+
+    yPosition = pdf.autoTableEndPosY() + 10;
+
+    const productosData = venta.detalleFactura.map(producto => [
+      producto.ID_PRODUCTO,
+      producto.productos.NOMBRE_PRODUCTO,
+      producto.CANTIDAD_PRODUCTO,
+      producto.PRECIO_VENTA_UNITARIO,
+      producto.SUBTOTAL_VENTA_PRODUCTO,
+    ]);
+
+    pdf.setFillColor(240, 240, 240);
+    pdf.autoTable({
+      startY: yPosition,
+      head: [['ID Producto', 'Nombre Producto', 'Cantidad', 'Precio Unitario', 'Subtotal']],
+      body: productosData,
+      theme: 'grid',
+    });
+
+    yPosition = pdf.autoTableEndPosY() + 10;
+
+    if (index < ventasEnRango.length - 1) {
+      pdf.line(20, yPosition, 190, yPosition);
+      yPosition += 10;
+    }
+  });
+
+  const fileName = `InformeVentasCafeManess_${date1Print.value}_${date2Print.value}.pdf`;
+  pdf.save(fileName);
+}
+const date1Print = ref();
+const date2Print = ref();
+const printInform = ()=>{
+    const ventasFiltradas = filtrarVentasPorFecha(completeSales.value,date1Print.value,date2Print.value);
+    console.log(ventasFiltradas);
+    generarInformePDF(ventasFiltradas);
+}
+const completeSales = ref([])
+const print = ()=>{
+    isPrintVisible.value = true;
+    completeSales.value = combinarDetallesYVentas(facturas.value,ventas.value);
+    console.log(completeSales.value)
+}
+const closePrint = ()=>{
+    isPrintVisible.value = false;
+}
+
 
 const config = {
     headers: {
@@ -427,6 +597,42 @@ const hideBillSale = () => {
     isBillVisible.value = false;
 
 }
+const submitFormDeleteBill = async () => {
+    openAlert("¿Seguro deseas eliminar el producto de la factura?");
+    const confirmed = await new Promise((resolve) => {
+        switchButton.value = false;
+        const checkInterval = setInterval(() => {
+            if (switchButton.value) {
+                clearInterval(checkInterval);
+                resolve(validate.value);
+            }
+        }, 500);
+    });
+    if (confirmed) {
+        try {
+            const response = await axios.delete(`http://localhost:3000/api/detalle_facturas/${selectedBill.value.ID_VENTA}/${selectedBill.value.ID_PRODUCTO}`, config);
+            if (response.status === 200) {
+                console.log('Factura eliminada con éxito');
+                alert("Producto eliminado con éxito");
+                hideBill()
+                location.reload();
+            }
+        } catch (error) {
+            if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
+            console.error('Error al eliminar venta ', error);
+
+            if (error.response.status === 500) {
+                alert("No es posible eliminar facturas con registros activos");
+            }
+
+        }
+    } else {
+
+    }
+};
 const cantidadFacturaUpdate = ref();
 const submitFormEditBillValue = async () => {
     try {
@@ -871,6 +1077,10 @@ const crearCliente = async () => {
         const response = await axios.post(`http://localhost:3000/api/person`, newData,config);
         if (response.status === 200) {
             console.log("Cliente agregado correctamente");
+            clientCedule.value = null;
+            clientName.value = null;
+            clientLastName.value =null;
+            clientPhone.value = null;
             alert("Cliente agregado correctamente");
             addClientClose();
             location.reload();
@@ -911,6 +1121,10 @@ const crearVenta = async () => {
         if (response.status === 200) {
             console.log("Venta agregada correctamente");
             alert("Venta agregada correctamente");
+            clienteVenta.value =null;
+            cosechaVenta.value = null;
+            estadoVenta.value = null;
+            fechaVenta.value = null;
             hidePopup2();
             fetchVentas();
             
@@ -1012,16 +1226,52 @@ const fetchProductos = async () => {
         console.error('Error al obtener el historial de productos', error);
     }
 };
+const facturas = ref([])
+const fetchFacturas = async () => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/detalle_facturas`,config);
+        if (response.ok) {
+            const data = await response.json();
+            facturas.value = data;
+            console.log(facturas.value)
+        } else {
+            console.error('Error al obtener el historial de facturas.');
+        }
+    } catch (error) {
+        if (error.response.status === 401) {
+                alert("No está autorizado. Por favor, inicie sesión.");
+                router.push('/');
+            }
+        console.error('Error al obtener el historial de facturas:', error);
+    }
+};
 
 onMounted(() => {
     obtenerTrabajadores();
     fetchCosechas();
     fetchVentas();
     fetchProductos();
+    fetchFacturas();
 });
 </script>
     
 <style scoped>
+
+.editButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .editButton img {
+    width: 150%;
+    height: 35px;
+  }
+  
+  .editButton :hover {
+    transform: scale(1.1);
+  }
+  
 .formulario2T {
     width: 195%;
     margin: 2%;
@@ -1065,7 +1315,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1;
+    z-index: 5;
     background-color: rgba(255, 255, 255, 0.7);
 
 
@@ -1106,6 +1356,63 @@ onMounted(() => {
 .alertButtons button:hover {
     transform: scale(1, 1);
     background-color: #542200;
+}
+.printButtons{
+    display: flex;
+    justify-content: center;
+    margin-top: 3%;
+}
+.printButtons button {
+    background-color: #792f00;
+    color: white;
+    height: 45px;
+    width: 100px;
+    border-radius: 15px;
+    margin-left: 10%;
+    margin-right: 10%;
+    cursor: pointer;
+}
+.myPopup2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    background-color: rgba(255, 255, 255, 0.7);
+
+
+}
+
+.myPopup-content2 {
+    background-color: #fff;
+    width: 400px;
+    height: 400px;
+    border-radius: 15px;
+    border: 3px solid #792f00;
+}
+.printTitle{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+.printDates{
+    display: block;
+    justify-content: center;
+    align-items: center;
+    height: 60%;
+    margin-bottom: 0%;
+}
+.formularioPrint {
+    width: 95%;
+    margin: 2%;
+    display: flex;
+    height: 90%;
+    border: 3px solid #792f00;
+    border-radius: 20px;
 }
 
 .popup2 {
