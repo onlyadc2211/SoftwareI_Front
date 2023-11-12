@@ -232,10 +232,12 @@ const submitForm = async () => {
     if (error.response && error.response.status === 404) {
       console.log("Usuario no encontrado");
       loginError.value = 'Usuario no encontrado';
+      alert("Usuario o contraseña incorrectos")
     }
     if (error.response && error.response.status === 401) {
       console.log("Contraseña incorrecta");
       loginError.value = 'Contraseña incorrecta';
+      alert("Usuario o contraseña incorrectos")
     }
     
     if (error.response && error.response.status === 400) {
