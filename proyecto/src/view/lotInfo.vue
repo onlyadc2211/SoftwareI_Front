@@ -263,7 +263,7 @@
               Cosecha
             </button>
             <button class="btnInfo" @click="addSection">
-              Añadir seccion
+              Añadir sector
             </button>
           </div>
           <div v-if="isWorkerVisible" class="popupWorker">

@@ -450,7 +450,7 @@
         }
       };
   
-      const response = await axios.put(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, sectorUpdate);
+      const response = await axios.put(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, sectorUpdate,config);
   
       if (response.status === 200) {
         console.log('Sector actualizado con éxito');
