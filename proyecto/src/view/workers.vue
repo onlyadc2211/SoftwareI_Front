@@ -296,7 +296,7 @@ const removeWorker = async()=>{
 const showWorker=(trabajador)=>{
   isWorkerVisible.value = true;
   selectedWorker.value = trabajador;
-  console.log(selectedWorker.value)
+  
 }
 const hideDataWorker=()=>{
   isWorkerVisible.value = false;
@@ -342,7 +342,7 @@ const asignarLote = async () => {
       ESTADO_ASIGNACION: "A",
 
     };
-    console.log(new Date())
+    
     const response = await axios.post('http://localhost:3000/api/userLotes', nuevaAsignacion,config);
 
     if (response.status === 200) {
@@ -406,7 +406,7 @@ const fetchEmpleados = async () => {
     if (response.ok) {
       const data = await response.json();
       empleados.value = data;
-      console.error(empleados.value);
+      
     } else {
       console.error('Error al obtener trabajadores.');
     }

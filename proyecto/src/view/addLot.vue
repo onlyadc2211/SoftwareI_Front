@@ -60,6 +60,12 @@ const router = useRouter();
 const nombreLote = ref('');
 const id_lote = ref('');
 const totalPlantas = ref(0);
+const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+};
 const goBack = () => {
     router.go(-1);
 }
@@ -81,7 +87,7 @@ const submitForm = async () => {
             NOMBRE_LOTE: nombreLote.value
         };
 
-        const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote);
+        const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote,config);
 
         if (response.status === 200) {
 

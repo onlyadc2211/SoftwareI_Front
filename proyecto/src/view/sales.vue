@@ -1141,7 +1141,7 @@ const fetchVentasFactura = async () => {
         if (response.ok) {
             const data = await response.json();
             ventasFactura.value = data;
-            console.log(ventasFactura.value)
+            
             
         } else {
             console.error('Error al obtener ventas');
@@ -1284,7 +1284,7 @@ const obtenerTrabajadores = async () => {
                 'Content-Type': 'application/json'
             }
         };
-        const response = await fetch(`http://localhost:3000/api/person`);
+        const response = await fetch(`http://localhost:3000/api/person`,config);
         if (response.ok) {
             const data = await response.json();
             trabajadores.value = data;
@@ -1331,7 +1331,7 @@ const fetchFacturas = async () => {
         if (response.ok) {
             const data = await response.json();
             facturas.value = data;
-            console.log(facturas.value)
+            
         } else {
             console.error('Error al obtener el historial de facturas.');
         }

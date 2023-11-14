@@ -801,7 +801,7 @@ const plagas = ref([])
         nameLot.value = data.NOMBRE_LOTE;
         plantsNumber.value = data.TOTAL_PLANTAS;
         sectors.value = data.sectores
-        console.log(data)
+        
       } else {
         if (error.response.status === 401) {
           alert("No está autorizado. Por favor, inicie sesión.");

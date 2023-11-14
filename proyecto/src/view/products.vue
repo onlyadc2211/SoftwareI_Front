@@ -224,6 +224,12 @@ const nombreProducto = ref('');
 const precioProducto = ref('');
 const estadoProducto = ref('');
 const descripcionProducto = ref('');
+const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+};
 const submitFormAddProduct = async () => {
     try {
         const nuevoProducto = {
@@ -233,7 +239,7 @@ const submitFormAddProduct = async () => {
             DESCRIPCION_PRODUCTO: descripcionProducto.value
         };
 
-        const response = await axios.post('http://localhost:3000/api/productos', nuevoProducto);
+        const response = await axios.post('http://localhost:3000/api/productos', nuevoProducto,config);
 
         if (response.status === 200) {
             console.log('producto agregado con éxito');
@@ -261,7 +267,7 @@ const submitFormEditName = async () => {
             ESTADO_PRODUCTO: selectedProduct.value.ESTADO_PRODUCTO,
             DESCRIPCION_PRODUCTO: selectedProduct.value.DESCRIPCION_PRODUCTO
         };
-        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate);
+        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate,config);
         if (response.status === 200) {
             console.log('Producto editado con éxito');
             alert("Producto editado con éxito")
@@ -285,7 +291,7 @@ const submitFormEditStatus = async () => {
             ESTADO_PRODUCTO: estadoProductoUpdate.value,
             DESCRIPCION_PRODUCTO: selectedProduct.value.DESCRIPCION_PRODUCTO
         };
-        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate);
+        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate,config);
         if (response.status === 200) {
             console.log('Producto editado con éxito');
             alert("Producto editado con éxito")
@@ -309,7 +315,7 @@ const submitFormEditValue = async () => {
             ESTADO_PRODUCTO: selectedProduct.value.ESTADO_PRODUCTO,
             DESCRIPCION_PRODUCTO: selectedProduct.value.DESCRIPCION_PRODUCTO
         };
-        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate);
+        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate,config);
         if (response.status === 200) {
             console.log('Producto editado con éxito');
             alert("Producto editado con éxito")
@@ -333,7 +339,7 @@ const submitFormEditDescription = async () => {
             ESTADO_PRODUCTO: selectedProduct.value.ESTADO_PRODUCTO,
             DESCRIPCION_PRODUCTO: descripcionProductoUpdate.value
         };
-        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate);
+        const response = await axios.put(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`, nameUpdate,config);
         if (response.status === 200) {
             console.log('Producto editado con éxito');
             alert("Producto editado con éxito")
@@ -363,7 +369,7 @@ const submitFormDeleteProduct = async () => {
     });
     if (confirmed) {
         try {
-            const response = await axios.delete(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`);
+            const response = await axios.delete(`http://localhost:3000/api/productos/${selectedProduct.value.ID_PRODUCTO}`,config);
             if (response.status === 200) {
                 console.log('Producto eliminado con éxito');
                 alert("Producto eliminado con éxito");
@@ -383,7 +389,7 @@ const submitFormDeleteProduct = async () => {
 const productos = ref([])
 const fetchProductos = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/productos`);
+        const response = await fetch(`http://localhost:3000/api/productos`,config);
         if (response.ok) {
             const data = await response.json();
             productos.value = data;
@@ -397,7 +403,7 @@ const fetchProductos = async () => {
 const allCrops = ref([])
 const fetchAllCrops = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/cosechas`);
+        const response = await fetch(`http://localhost:3000/api/cosechas`,config);
         if (response.ok) {
             const data = await response.json();
             allCrops.value = data;

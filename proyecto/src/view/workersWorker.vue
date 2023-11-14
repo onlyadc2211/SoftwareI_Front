@@ -232,7 +232,7 @@
       const id_lote = selectedWorker.value.ID_LOTE;
       const fechaA = new Date(newDate.value);
       const status = selectedWorker.value.ESTADO_ASIGNACION;
-      console.log(fechaA)
+      
       const newData = {
         ID_LOTE : id_lote,
         ID_PERSONA : id_persona,
@@ -404,7 +404,7 @@
       if (response.ok) {
         const data = await response.json();
         empleados.value = data;
-        console.error(empleados.value);
+        
       } else {
         console.error('Error al obtener trabajadores.');
       }

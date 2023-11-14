@@ -441,7 +441,7 @@ const fetchProductos = async () => {
         if (response.ok) {
             const data = await response.json();
             productos.value = data;
-            console.log(facturas)
+            
         } else {
             console.error('Error al obtener el historial de productos');
         }
@@ -480,7 +480,7 @@ const crearFactura = async () => {
             CANTIDAD_PRODUCTO: cantidad_producto_factura.value
 
         }
-        console.log(newData)
+        
         const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData,config);
         if (response.status === 200) {
             console.log("Factura agregada correctamente");

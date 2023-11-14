@@ -58,9 +58,15 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 const plagas =ref([]);
+const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+};
 const fetchPlagas = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/plagas`);
+        const response = await fetch(`http://localhost:3000/api/plagas`,config);
         if (response.ok) {
             const data = await response.json();
             plagas.value = data;

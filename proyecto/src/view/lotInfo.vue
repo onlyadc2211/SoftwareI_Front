@@ -528,7 +528,7 @@ const editSect = async () => {
       }
     };
 
-    const response = await axios.put(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, sectorUpdate);
+    const response = await axios.put(`http://localhost:3000/api/sectores/${selectedSector.value.ID_SECTOR}`, sectorUpdate,config);
 
     if (response.status === 200) {
       console.log('Sector actualizado con éxito');
@@ -562,7 +562,7 @@ const editCrop = async () => {
     const response = await axios.put(`http://localhost:3000/api/historial/cosechas/${lotId}/${selectedCrop.value.ID_COSECHA}`, sectorUpdate, config);
 
     if (response.status === 200) {
-      console.log('Cosecha: actualizada con éxito' + lotId + selectedCrop.value.ID_COSECHA);
+      
       alert("Cosecha actualizada con éxito");
       dataPestsHide();
       location.reload();
@@ -977,7 +977,7 @@ const getLotInfo = async () => {
       nameLot.value = data.NOMBRE_LOTE;
       plantsNumber.value = data.TOTAL_PLANTAS;
       sectors.value = data.sectores
-      console.log(data)
+      
     } else {
       if (error.response.status === 401) {
         alert("No está autorizado. Por favor, inicie sesión.");

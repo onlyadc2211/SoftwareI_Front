@@ -115,6 +115,12 @@
   const isAlertVisible = ref(false);
   const messageDelete = ref("");
   const switchButton = ref(false);
+  const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+};
   const openAlert = (m) => {
       isAlertVisible.value = true;
       message.value = m;
@@ -161,7 +167,7 @@
       for (const lotId of selectedLotsArray) {
         const response = await fetch(`http://localhost:3000/api/lotes/${lotId}`, {
           method: 'DELETE',
-        });
+        },config);
   
         if (response.ok) {
           alert("Lote eliminado exitosamente")
@@ -218,7 +224,7 @@
               NOMBRE_LOTE: nombreLote.value.toLocaleUpperCase()
           };
   
-          const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote);
+          const response = await axios.post('http://localhost:3000/api/lotes', nuevoLote,config);
   
           if (response.status === 200) {
   
@@ -241,7 +247,7 @@
   
   const fetchLots = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/lotes'); 
+      const response = await fetch('http://localhost:3000/api/lotes',config); 
       if (response.ok) {
         const data = await response.json();
         lots.value = data;

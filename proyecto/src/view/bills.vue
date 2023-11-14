@@ -475,7 +475,7 @@ const fetchProductos = async () => {
         if (response.ok) {
             const data = await response.json();
             productos.value = data;
-            console.log(facturas)
+            
         } else {
             console.error('Error al obtener el historial de productos');
         }
@@ -492,7 +492,7 @@ const takeProduct = () => {
 
     selectedProduct.value = productos.value.find(producto => producto.ID_PRODUCTO === productoFacturaUpdate.value);
     precio_unitario_factura.value = selectedProduct.value.PRECIO_ACTUAL_PRODUCTO;
-    console.log(precio_unitario_factura.value)
+    
 }
 
 const changeSubValue = () => {
@@ -514,7 +514,7 @@ const crearFactura = async () => {
             CANTIDAD_PRODUCTO: cantidad_producto_factura.value
 
         }
-        console.log(newData)
+        
         const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData,config);
         if (response.status === 200) {
             console.log("Factura agregada correctamente");
@@ -579,7 +579,7 @@ const fetchFacturas = async () => {
         if (response.ok) {
             const data = await response.json();
             facturas.value = data;
-            console.log(facturas.value)
+            
         } else {
             console.error('Error al obtener el historial de facturas.');
         }
@@ -657,7 +657,7 @@ const crearVenta = async () => {
             ESTADO_VENTA: estadoVenta.value,
             FECHA_VENTA: new Date(fechaVenta.value)
         }
-        console.log(newData)
+        
         const response = await axios.post(`http://localhost:3000/api/ventas`, newData,config);
         if (response.status === 200) {
             console.log("Venta agregada correctamente");
