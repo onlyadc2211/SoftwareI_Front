@@ -115,6 +115,7 @@
   const isAlertVisible = ref(false);
   const messageDelete = ref("");
   const switchButton = ref(false);
+  const token = localStorage.getItem('token');
   const config = {
     headers: {
         'Authorization': token,

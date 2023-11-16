@@ -60,6 +60,7 @@ const router = useRouter();
 const nombreLote = ref('');
 const id_lote = ref('');
 const totalPlantas = ref(0);
+const token = localStorage.getItem('token');
 const config = {
     headers: {
         'Authorization': token,

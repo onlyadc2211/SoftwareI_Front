@@ -282,8 +282,8 @@ const submitForm = async () => {
     if (response.status === 200) {
       console.log('cosecha agregada con éxito');
       alert("cosecha agregada con éxito");
-      location.reload;
       fechaCosecha.value = '';
+      location.reload;
       isVisible.value = false;
     }
   } catch (error) {

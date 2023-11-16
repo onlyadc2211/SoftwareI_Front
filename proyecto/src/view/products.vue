@@ -224,6 +224,7 @@ const nombreProducto = ref('');
 const precioProducto = ref('');
 const estadoProducto = ref('');
 const descripcionProducto = ref('');
+const token = localStorage.getItem('token');
 const config = {
     headers: {
         'Authorization': token,

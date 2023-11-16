@@ -59,7 +59,7 @@
         <div class="popup-content2">
           <h2>Añadir cosecha</h2>
           <div id="formulario2">
-            <form @submit.prevent="submitForm" class="form2">
+            <form @submit.prevent="submitFormA" class="form2">
               <div class="form-group2">
                 <label for="nombreLote">Fecha:</label>
                 <input type="date" id="fechaAfectacion" v-model="fechaCosecha" required class="input-field2" />
@@ -281,9 +281,10 @@
   
       if (response.status === 200) {
         console.log('cosecha agregada con éxito');
-        alert("cosecha agregada con éxito");
         id_cosecha.value = 0;
         fechaCosecha.value = '';
+        alert("cosecha agregada con éxito");
+        location.reload;
         isVisible.value = false;
       }
     } catch (error) {

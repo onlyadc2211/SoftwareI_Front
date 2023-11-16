@@ -58,6 +58,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 const plagas =ref([]);
+const token = localStorage.getItem('token');
 const config = {
     headers: {
         'Authorization': token,

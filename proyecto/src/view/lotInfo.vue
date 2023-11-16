@@ -1079,6 +1079,7 @@ const submitForm2 = async () => {
       alert("No está autorizado. Por favor, inicie sesión.");
       router.push('/');
     }
+    alert("Ya existe una plaga asignada para esa fecha")
     console.error('Error al agregar plaga:', error);
 
   }
