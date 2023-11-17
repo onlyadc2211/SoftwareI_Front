@@ -501,6 +501,7 @@ function filtrarVentasPorFecha(ventasConDetalles, fechaInicio, fechaFin) {
 
   return ventasEnRangoJSON;
 }
+
 function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
   const pdf = new jsPDF();
   let yPosition = 10;
@@ -530,7 +531,7 @@ function generarInformePDF(ventasEnRango, fechaInicio, fechaFin) {
     totalVentas += parseFloat(venta.venta.VALOR_TOTAL_VENTA);
     const ventaData = [
       ['ID Venta', 'Fecha Venta','Estado Venta','Cliente', 'Total'],
-      [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
+      [venta.venta.ID_VENTA, formatearFecha(venta.venta.FECHA_VENTA), validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
       venta.venta.personas.APELLIDO_PERSONA, venta.venta.VALOR_TOTAL_VENTA],
     ];
 
@@ -599,7 +600,7 @@ function generarInformePDF2(ventasEnRango, fechaInicio, fechaFin) {
     totalVentas += parseFloat(venta.venta.VALOR_TOTAL_VENTA);
     const ventaData = [
       ['ID Venta', 'Fecha Venta','Estado Venta','Cliente', 'Total'],
-      [venta.venta.ID_VENTA, venta.venta.FECHA_VENTA, validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
+      [venta.venta.ID_VENTA, formatearFecha(venta.venta.FECHA_VENTA), validateStatus(venta.venta.ESTADO_VENTA),venta.venta.personas.NOMBRE_PERSONA +" " +
       venta.venta.personas.APELLIDO_PERSONA, venta.venta.VALOR_TOTAL_VENTA],
     ];
 
@@ -674,7 +675,7 @@ const completeSales = ref([])
 const print = ()=>{
     isPrintVisible.value = true;
     completeSales.value = combinarDetallesYVentas(facturas.value,ventas.value);
-    console.log(completeSales.value)
+    
 }
 const closePrint = ()=>{
     isPrintVisible.value = false;
@@ -989,8 +990,8 @@ const crearFactura = async () => {
         console.log(config)
         const response = await axios.post(`http://localhost:3000/api/detalle_facturas`, newData,config);
         if (response.status === 200) {
-            console.log("Factura agregada correctamente");
-            alert("Factura generada correctamente");
+            console.log("Producto agregado correctamente");
+            alert("Producto generado correctamente");
             hideBill();
             location.reload();
 
@@ -998,10 +999,12 @@ const crearFactura = async () => {
             console.error('Error al actualizar');
         }
     } catch (error) {
-        console.error('Error al actualizar', error);
+
         if (error.response.status === 401) {
                 alert("No está autorizado. Por favor, inicie sesión.");
                 router.push('/');
+            }else if(error.response.status === 400){
+                alert("No es posible agregar el producto porque ya se encuentra en la factura")
             }
     }
 };
@@ -1249,11 +1252,13 @@ const validateStatus = (status) => {
         return "Pendiente"
     }
 }
-const formatearFecha = ref((fechaISO) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    const fechaFormateada = new Date(fechaISO).toLocaleDateString(undefined, options);
-    return fechaFormateada;
-});
+const formatearFecha = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+    const year = fecha.getUTCFullYear();
+    const month = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 const addWorker = () => {
     isVisible.value = true;
 };

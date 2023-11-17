@@ -286,7 +286,7 @@ const submitFormAddPlant = async () => {
       router.push('/');
     }
 
-    alert("No es posible agregar lote porque este ya existe")
+    alert("No es posible agregar planta porque esta ya existe")
 
   }
 }

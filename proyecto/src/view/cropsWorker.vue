@@ -58,7 +58,7 @@
       <div v-if="isVisible" class="popup2">
         <div class="popup-content2">
           <h2>Añadir cosecha</h2>
-          <div id="formulario2">
+          <div id="formulario2C">
             <form @submit.prevent="submitFormA" class="form2">
               <div class="form-group2">
                 <label for="nombreLote">Fecha:</label>
@@ -115,7 +115,7 @@
       <div v-if="isVisibleCos" class="popup2">
         <div class="popup-content2">
           <h2>Eliminar cosechas</h2>
-          <div id="formulario2">
+          <div id="formulario2C">
             <form @submit.prevent="submitFormDelete" class="form2">
               <div class="form-group2">
                 <label for="nombreLote">Fecha:</label>
@@ -284,14 +284,16 @@
         id_cosecha.value = 0;
         fechaCosecha.value = '';
         alert("cosecha agregada con éxito");
-        location.reload;
+        location.reload();
         isVisible.value = false;
       }
     } catch (error) {
-      console.error('Error al agregar cosecha: ', error);
+      
       if (error.response.status === 401) {
         alert("No está autorizado. Por favor, inicie sesión.");
         router.push('/');
+      }else if( error.response.status === 400){
+        alert("Ya existe una cosecha en esa fecha")
       }
   
     }
@@ -310,6 +312,7 @@
         alert("cosecha editada con exito")
         id_cosecha.value = 0;
         fechaCosechaEdit.value = '';
+        location.reload();
         editCosHide();
       }
     } catch (error) {
@@ -859,6 +862,19 @@
     align-self: center;
     border: 3px solid#792f00;
     height: 25%;
+    width: 90%;
+    border-radius: 20px;
+  }
+  #formulario2C {
+    margin: 4%;
+    margin-bottom: 1%;
+    margin-top: 2%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    border: 3px solid#792f00;
+    height: 50%;
     width: 90%;
     border-radius: 20px;
   }

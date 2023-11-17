@@ -124,7 +124,11 @@ const toggleForm = () => {
   registroExitoso.value = false;
   registroError.value = false;
   diferentPassword.value = false;
-  showLoginForm.value = false;
+  showLoginForm.value = '';
+  cedulaPersona.value = '';
+  nombre.value = '';
+  apellido.value = '';
+  telefono.value = '';
 };
 
 const togglePersonRegistration = () => {
