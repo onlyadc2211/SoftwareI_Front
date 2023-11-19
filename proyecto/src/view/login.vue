@@ -81,7 +81,6 @@
           <button v-if="!registrationFormVisible && !personRegistrationVisible" @click="togglePersonRegistration" id="personRegistrationBtn">Registrar Persona</button>
           <button @click="toggleForm"  id="toggleFormBtn">{{ registrationFormVisible ? 'Cancelar' : (personRegistrationVisible ? 'Registrar Usuario' : 'Registrar Usuario') }}</button>
           <button v-if="personRegistrationVisible" @click="goToLogin" id="goToLoginBtn">Ir al Inicio de Sesión</button>
-          
         </div>
       </form>
     </div>
@@ -242,6 +241,10 @@ const submitForm = async () => {
       console.log("Contraseña incorrecta");
       loginError.value = 'Contraseña incorrecta';
       alert("Usuario o contraseña incorrectos")
+    }
+    if (error.response && error.response.status === 500) {
+      
+      alert("Error interno del servidor")
     }
     
     if (error.response && error.response.status === 400) {

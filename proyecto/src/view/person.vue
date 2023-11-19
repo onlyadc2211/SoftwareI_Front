@@ -86,7 +86,7 @@
                     <table id="table">
                         <thead>
                             <tr>
-                                <th class="tableTitle">Cédula</th>
+                                <th class="tableTitle">N° de identificación</th>
                                 <th class="tableTitle">Nombre</th>
                                 <th class="tableTitle">Apellido</th>
                                 <th class="tableTitle">Teléfono</th>
