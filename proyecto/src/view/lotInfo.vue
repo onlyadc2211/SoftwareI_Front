@@ -275,7 +275,7 @@
               <div class="sector">
                 <div class="info">
                   <h4>Fecha asignación: {{ formatearFecha(selectedWorker.FECHA_ASIGNACION) }}</h4>
-                  <h4>Estado: {{ selectedWorker.ESTADO_ASIGNACION }}</h4>
+                  <h4>Estado: {{ validateStatus(selectedWorker.ESTADO_ASIGNACION) }}</h4>
                 </div>
                 <div class="editarWorker">
                   <h4>Cambiar estado</h4>
@@ -305,7 +305,7 @@
               <div class="sector">
                 <div class="info">
                   <h4>Fecha afectación: {{ formatearFecha(selectedPest.FECHA_AFECTACION) }}</h4>
-                  <h4>Estado: {{ selectedPest.ESTADO_PLAGA }}</h4>
+                  <h4>Estado: {{validateStatus(selectedPest.ESTADO_PLAGA )}}</h4>
                 </div>
                 <div class="editarPests">
                   <h4>Cambiar estado</h4>
@@ -866,6 +866,7 @@ const hidePopup = () => {
 const hidePopup2 = () => {
   isVisible.value = false;
 };
+
 const historialPlagas = ref([]);
 const historialTrabajadores = ref([]);
 const fetchHistorialTrabajadores = async () => {
