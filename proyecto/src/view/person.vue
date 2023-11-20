@@ -605,6 +605,9 @@ const crearCliente = async () => {
         if (error.response.status === 401) {
                 alert("No está autorizado. Por favor, inicie sesión.");
                 router.push('/');
+            }else if(error.response.status === 400){
+                alert("No es posble agregar persona, ya existe una persona con el id proporcionado");
+
             }
         console.error('Error al actualizar', error);
     }
